@@ -48,6 +48,13 @@ CLASS zcl_adu_check_transport_reader DEFINITION
       IMPORTING
         header_log TYPE zadu_chktr_head.
 
+    METHODS handle_header_link_click
+        FOR EVENT if_salv_events_actions_table~link_click OF cl_salv_events_table
+      IMPORTING
+        row
+        column
+        sender.
+
     METHODS fill_header
       IMPORTING
         data            TYPE zadu_chktr_head
@@ -180,14 +187,31 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
     salv_columns->set_optimize( ).
 
-    DATA(salv_column) = CAST cl_salv_column_table( salv_columns->get_column( 'GIT_URL' ) ).
+    DATA(salv_column) = CAST cl_salv_column_table( salv_columns->get_column( 'CROSS_REFERENCE_MESSAGES' ) ).
+    salv_column->set_cell_type( if_salv_c_cell_type=>hotspot ).
+
+    salv_column = CAST cl_salv_column_table( salv_columns->get_column( 'SEQUENCE_MESSAGES' ) ).
+    salv_column->set_cell_type( if_salv_c_cell_type=>hotspot ).
+
+    salv_column = CAST cl_salv_column_table( salv_columns->get_column( 'CROSS_RELEASE_MESSAGES' ) ).
+    salv_column->set_cell_type( if_salv_c_cell_type=>hotspot ).
+
+    salv_column = CAST cl_salv_column_table( salv_columns->get_column( 'IMPORT_TIME_MESSAGES' ) ).
+    salv_column->set_cell_type( if_salv_c_cell_type=>hotspot ).
+
+    salv_column = CAST cl_salv_column_table( salv_columns->get_column( 'ONLINE_IMPORT_MESSAGES' ) ).
     salv_column->set_cell_type( if_salv_c_cell_type=>hotspot ).
 
     DATA(salv_events) = salv_table->get_event( ).
+    SET HANDLER handle_header_link_click FOR salv_events.
 
     salv_table->get_display_settings( )->set_list_header( 'Transport Check Logs'(001) ).
     salv_table->display( ).
 
+  ENDMETHOD.
+
+
+  METHOD handle_header_link_click.
   ENDMETHOD.
 
 
