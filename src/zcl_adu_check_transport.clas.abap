@@ -6,21 +6,34 @@ CLASS zcl_adu_check_transport DEFINITION
   PUBLIC SECTION.
     INTERFACES zif_adu_check_transport.
 
+    "! <p class="shorttext synchronized" lang="en">Generate instantiation</p>
+    "!
+    "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport request</p>
+    "! @parameter rfc_source | <p class="shorttext synchronized" lang="en">Source RFC</p>
+    "! @parameter rfc_target | <p class="shorttext synchronized" lang="en">Target RFC</p>
+    "! @parameter checker | <p class="shorttext synchronized" lang="en">Checker</p>
+    "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check exception</p>
     CLASS-METHODS create
       IMPORTING
         transport_request TYPE trkorr
         rfc_source        TYPE rfcdest DEFAULT 'NONE'
-        rfc_destination   TYPE rfcdest
+        rfc_target        TYPE rfcdest
       RETURNING
         VALUE(checker)    TYPE REF TO zif_adu_check_transport
       RAISING
         zcx_adu_check_transport.
 
+    "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
+    "!
+    "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport request</p>
+    "! @parameter rfc_source | <p class="shorttext synchronized" lang="en">Source RFC</p>
+    "! @parameter rfc_target | <p class="shorttext synchronized" lang="en">Target RFC</p>
+    "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check exception</p>
     METHODS constructor
       IMPORTING
         transport_request TYPE trkorr
         rfc_source        TYPE rfcdest DEFAULT 'NONE'
-        rfc_destination   TYPE rfcdest
+        rfc_target        TYPE rfcdest
       RAISING
         zcx_adu_check_transport.
 
@@ -32,7 +45,7 @@ CLASS zcl_adu_check_transport DEFINITION
         run_code                TYPE zadu_run_code,
         transport_request       TYPE trkorr,
         rfc_source              TYPE rfcdest,
-        rfc_destination         TYPE rfcdest,
+        rfc_target              TYPE rfcdest,
         source_system_name      TYPE sysname,
         destination_system_name TYPE sysname,
         checked_cross_reference TYPE abap_bool,
@@ -85,7 +98,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
 
     checker = NEW zcl_adu_check_transport( transport_request = transport_request
                                            rfc_source        = rfc_source
-                                           rfc_destination   = rfc_destination ).
+                                           rfc_target   = rfc_target ).
 
   ENDMETHOD.
 
@@ -94,10 +107,10 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
 
     run_data-transport_request = transport_request.
     run_data-rfc_source        = rfc_source.
-    run_data-rfc_destination   = rfc_destination.
+    run_data-rfc_target   = rfc_target.
 
     run_data-source_system_name      = get_system_info( rfc_source ).
-    run_data-destination_system_name = get_system_info( rfc_destination ).
+    run_data-destination_system_name = get_system_info( rfc_target ).
 
   ENDMETHOD.
 
@@ -133,14 +146,14 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     run_data-checked_cross_reference = abap_true.
 
     check_authorization( rfcdest = run_data-rfc_source      authority_object = lc_authorization-source ).
-    check_authorization( rfcdest = run_data-rfc_destination authority_object = lc_authorization-destionation ).
+    check_authorization( rfcdest = run_data-rfc_target authority_object = lc_authorization-destionation ).
 
     requests = VALUE #( ( trkorr = run_data-transport_request ) ).
 
     CALL FUNCTION '/SDF/TEAP_ENVI_ANA'
       EXPORTING
         iv_ana_rfc                 = run_data-rfc_source
-        iv_tar_rfc                 = run_data-rfc_destination
+        iv_tar_rfc                 = run_data-rfc_target
       TABLES
         it_reqs                    = requests
         et_envanal_res_err         = results_cross_reference
@@ -150,7 +163,10 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
         get_checked_obj_failed     = 3
         no_objs_specified_for_anal = 4
         no_referred_objects_found  = 5
-        OTHERS                     = 6.
+        system_failure             = 6
+        communication_failure      = 7
+        resource_failure           = 8
+        OTHERS                     = 9.
     IF sy-subrc <> 0.
       RAISE EXCEPTION TYPE zcx_adu_check_transport
         EXPORTING
@@ -180,7 +196,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     run_data-checked_sequence = abap_true.
 
     check_authorization( rfcdest = run_data-rfc_source      authority_object = lc_authorization-source ).
-    check_authorization( rfcdest = run_data-rfc_destination authority_object = lc_authorization-destionation ).
+    check_authorization( rfcdest = run_data-rfc_target authority_object = lc_authorization-destionation ).
 
     DATA(alog) = VALUE tmstpalogs( ( listname = '/SDF/CMO_TR_CHECK'
                                      trkorr   = run_data-transport_request
@@ -201,7 +217,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
         iv_dev_sid                 = run_data-source_system_name
         iv_tar_sid                 = run_data-destination_system_name
         iv_dev_rfc                 = run_data-rfc_source
-        iv_tar_rfc                 = run_data-rfc_destination
+        iv_tar_rfc                 = run_data-rfc_target
         iv_start_date              = start_date
         iv_end_date                = sy-datum
       TABLES
@@ -213,7 +229,10 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
         no_exp_hist_for_checked_tr = 3
         empty_checked_tr_list      = 4
         get_csol_error             = 5
-        OTHERS                     = 6.
+        system_failure             = 6
+        communication_failure      = 7
+        resource_failure           = 8
+        OTHERS                     = 9.
     IF sy-subrc <> 0.
       RAISE EXCEPTION TYPE zcx_adu_check_transport
         EXPORTING
@@ -243,7 +262,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     run_data-checked_cross_release = abap_true.
 
     check_authorization( rfcdest = run_data-rfc_source      authority_object = lc_authorization-source ).
-    check_authorization( rfcdest = run_data-rfc_destination authority_object = lc_authorization-destionation ).
+    check_authorization( rfcdest = run_data-rfc_target authority_object = lc_authorization-destionation ).
 
     DATA(alog) = VALUE tmstpalogs( ( listname = '/SDF/CMO_TR_CHECK'
                                      trkorr   = run_data-transport_request
@@ -254,7 +273,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
         iv_dev_sid            = run_data-source_system_name
         iv_tar_sid            = run_data-destination_system_name
         iv_dev_rfc            = run_data-rfc_source
-        iv_tar_rfc            = run_data-rfc_destination
+        iv_tar_rfc            = run_data-rfc_target
         iv_start_date         = sy-datum
         iv_end_date           = sy-datum
       TABLES
@@ -264,7 +283,10 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
         empty_checked_tr_list = 1
         get_dev_scv_error     = 2
         get_tar_scv_error     = 3
-        OTHERS                = 4.
+        system_failure        = 4
+        communication_failure = 5
+        resource_failure      = 6
+        OTHERS                = 7.
     IF sy-subrc <> 0.
       RAISE EXCEPTION TYPE zcx_adu_check_transport
         EXPORTING
@@ -306,7 +328,10 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
       EXCEPTIONS
         empty_checked_tr_list    = 1
         no_tpalog_for_checked_tr = 2
-        OTHERS                   = 3.
+        system_failure           = 3
+        communication_failure    = 4
+        resource_failure         = 5
+        OTHERS                   = 6.
     IF sy-subrc <> 0.
       RAISE EXCEPTION TYPE zcx_adu_check_transport
         EXPORTING
@@ -337,14 +362,14 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     run_data-checked_online_import = abap_true.
 
     check_authorization( rfcdest = run_data-rfc_source      authority_object = lc_authorization-source ).
-    check_authorization( rfcdest = run_data-rfc_destination authority_object = lc_authorization-destionation ).
+    check_authorization( rfcdest = run_data-rfc_target authority_object = lc_authorization-destionation ).
 
     requests = VALUE #( ( trkorr = run_data-transport_request ) ).
 
     CALL FUNCTION '/SDF/OI_CHECK'
       EXPORTING
         iv_ana_rfc                  = run_data-rfc_source
-        iv_tar_rfc                  = run_data-rfc_destination
+        iv_tar_rfc                  = run_data-rfc_target
       TABLES
         it_reqs                     = requests
         et_result                   = online_import
@@ -353,7 +378,10 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
         no_objs_specified_for_anal  = 2
         prerequisites_not_fulfilled = 3
         other                       = 4
-        OTHERS                      = 5.
+        system_failure              = 5
+        communication_failure       = 6
+        resource_failure            = 7
+        OTHERS                      = 8.
     IF sy-subrc <> 0.
       RAISE EXCEPTION TYPE zcx_adu_check_transport
         EXPORTING
@@ -386,7 +414,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
                                timestamp         = current_timestamp
                                username          = sy-uname
                                source            = run_data-rfc_source
-                               target            = run_data-rfc_destination
+                               target            = run_data-rfc_target
                                cross_reference   = run_data-checked_cross_reference
                                sequence          = run_data-checked_sequence
                                cross_release     = run_data-checked_cross_release

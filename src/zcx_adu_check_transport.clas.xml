@@ -19,6 +19,12 @@
      <LANGU>E</LANGU>
      <DESCRIPT>CONSTRUCTOR</DESCRIPT>
     </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CLSNAME>ZCX_ADU_CHECK_TRANSPORT</CLSNAME>
+     <CMPNAME>RAISE_SYSTEM</CMPNAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Raise exception with system attribute message</DESCRIPT>
+    </SEOCOMPOTX>
    </DESCRIPTIONS>
   </asx:values>
  </asx:abap>

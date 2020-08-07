@@ -7,6 +7,10 @@ CLASS zcl_adu_run_atc DEFINITION
   PUBLIC SECTION.
     INTERFACES zif_adu_run_atc.
 
+    "! <p class="shorttext synchronized" lang="en">Generate instantiation</p>
+    "!
+    "! @parameter profile_name | <p class="shorttext synchronized" lang="en">SCI Profile Name</p>
+    "! @parameter atc | <p class="shorttext synchronized" lang="en">ABAP Test Cockpit Utility</p>
     CLASS-METHODS create
       IMPORTING
         profile_name TYPE csequence
@@ -114,19 +118,12 @@ CLASS zcl_adu_run_atc IMPLEMENTATION.
 
   METHOD build_project.
 
-    DATA:
-      msg_text           TYPE string,
-      title              TYPE satc_d_description,
-      is_rslt_transient  TYPE abap_bool,
-      project_parameters TYPE REF TO cl_satc_ac_project_parameters,
-      key_iterator       TYPE REF TO cl_satc_ac_iterate_fixed_keys.
-
-    CREATE OBJECT key_iterator.
+    DATA(key_iterator) = NEW cl_satc_ac_iterate_fixed_keys( ).
     key_iterator->set_object_keys( object_keys ).
 
-    title = generate_project_title( object_keys ).
+    DATA(title) = generate_project_title( object_keys ).
 
-    CREATE OBJECT project_parameters.
+    DATA(project_parameters) = NEW cl_satc_ac_project_parameters( ).
 
     project_parameters->set_project_title( title ).
     project_parameters->set_is_transient( abap_false ).
@@ -180,31 +177,23 @@ CLASS zcl_adu_run_atc IMPLEMENTATION.
 
   METHOD get_standard_check_ids.
 
-    DATA:
-      atc_config    TYPE REF TO if_satc_ac_config_cm,
-      cm_profile    TYPE crmprfid,
-      check         TYPE cl_satc_checkman_queries=>ty_s_check,
-      checks        TYPE cl_satc_checkman_queries=>ty_t_checks,
-      check_queries TYPE REF TO cl_satc_checkman_queries.
-
     CLEAR: check_ids, check_profile.
 
     TRY.
-        atc_config = cl_satc_ac_config_cm_factory=>get_access_to_atc_config( ).
-        atc_config->get_standard_profile( IMPORTING  e_name = cm_profile ).
+        DATA(atc_config) = cl_satc_ac_config_cm_factory=>get_access_to_atc_config( ).
+        atc_config->get_standard_profile( IMPORTING e_name = DATA(cm_profile) ).
       CATCH cx_satc_root.
         cm_profile = 'STANDARD'.
     ENDTRY.
     check_profile = cm_profile.
 
-    CREATE OBJECT check_queries.
-    checks = check_queries->get_checks_of_profile( cm_profile ).
+    DATA(check_queries) = NEW cl_satc_checkman_queries( ).
+    DATA(checks) = check_queries->get_checks_of_profile( cm_profile ).
 
-    DELETE checks WHERE
-      dvlpr_scope = if_satc_ac_check_attributes=>scope-never. "#EC CI_SORTSEQ
+    DELETE checks WHERE dvlpr_scope = if_satc_ac_check_attributes=>scope-never. "#EC CI_SORTSEQ
 
-    LOOP AT checks INTO check.
-      INSERT check-atc_id INTO TABLE check_ids.
+    LOOP AT checks REFERENCE INTO DATA(check).
+      INSERT check->atc_id INTO TABLE check_ids.
     ENDLOOP.
 
   ENDMETHOD.

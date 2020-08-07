@@ -9,7 +9,7 @@ CLASS zcx_adu_check_transport DEFINITION
     INTERFACES if_t100_message.
 
     CONSTANTS:
-      " RFC Error &1
+      "! RFC Error &1
       BEGIN OF rfc_error,
         msgid TYPE symsgid VALUE 'ZADU_CHECK_TRANSPORT' ##NO_TEXT,
         msgno TYPE symsgno VALUE '001' ##NO_TEXT,
@@ -20,7 +20,7 @@ CLASS zcx_adu_check_transport DEFINITION
       END OF rfc_error.
 
     CONSTANTS:
-      " Error in &1
+      "! Error in &1
       BEGIN OF error_in,
         msgid TYPE symsgid VALUE 'ZADU_CHECK_TRANSPORT' ##NO_TEXT,
         msgno TYPE symsgno VALUE '002' ##NO_TEXT,
@@ -31,7 +31,7 @@ CLASS zcx_adu_check_transport DEFINITION
       END OF error_in.
 
     CONSTANTS:
-      " No checks executed
+      "! No checks executed
       BEGIN OF no_checks_executed,
         msgid TYPE symsgid VALUE 'ZADU_CHECK_TRANSPORT' ##NO_TEXT,
         msgno TYPE symsgno VALUE '003' ##NO_TEXT,
@@ -42,7 +42,7 @@ CLASS zcx_adu_check_transport DEFINITION
       END OF no_checks_executed.
 
     CONSTANTS:
-      " Error insert &1 in table &2
+      "! Error insert &1 in table &2
       BEGIN OF error_insert_table,
         msgid TYPE symsgid VALUE 'ZADU_CHECK_TRANSPORT' ##NO_TEXT,
         msgno TYPE symsgno VALUE '004' ##NO_TEXT,
@@ -53,7 +53,7 @@ CLASS zcx_adu_check_transport DEFINITION
       END OF error_insert_table.
 
     CONSTANTS:
-      " Error updating &1 in table &2
+      "! Error updating &1 in table &2
       BEGIN OF error_update_table,
         msgid TYPE symsgid VALUE 'ZADU_CHECK_TRANSPORT' ##NO_TEXT,
         msgno TYPE symsgno VALUE '005' ##NO_TEXT,
@@ -64,7 +64,7 @@ CLASS zcx_adu_check_transport DEFINITION
       END OF error_update_table.
 
     CONSTANTS:
-      " Error deleting &1 in table &2
+      "! Error deleting &1 in table &2
       BEGIN OF error_delete_table,
         msgid TYPE symsgid VALUE 'ZADU_CHECK_TRANSPORT' ##NO_TEXT,
         msgno TYPE symsgno VALUE '006' ##NO_TEXT,
@@ -75,7 +75,7 @@ CLASS zcx_adu_check_transport DEFINITION
       END OF error_delete_table.
 
     CONSTANTS:
-      " Authority check &1 failed for &2
+      "! Authority check &1 failed for &2
       BEGIN OF authority_check_failed,
         msgid TYPE symsgid VALUE 'ZADU_CHECK_TRANSPORT' ##NO_TEXT,
         msgno TYPE symsgno VALUE '007' ##NO_TEXT,
@@ -86,11 +86,14 @@ CLASS zcx_adu_check_transport DEFINITION
       END OF authority_check_failed.
 
     DATA:
-      text1 TYPE string,
-      text2 TYPE string,
-      text3 TYPE string,
-      text4 TYPE string.
+      text1 TYPE string READ-ONLY,
+      text2 TYPE string READ-ONLY,
+      text3 TYPE string READ-ONLY,
+      text4 TYPE string READ-ONLY.
 
+    "! <p class="shorttext synchronized" lang="en">Raise exception with system attribute message</p>
+    "!
+    "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check exception</p>
     CLASS-METHODS raise_system
       RAISING
         zcx_adu_check_transport.
