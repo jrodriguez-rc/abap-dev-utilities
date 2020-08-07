@@ -3,7 +3,6 @@ INTERFACE zif_adu_check_transport
   PUBLIC.
 
   TYPES:
-    ty_run_code               TYPE c LENGTH 32,
     tt_result_cross_reference TYPE STANDARD TABLE OF /sdf/teap_envi_ana_result WITH EMPTY KEY,
     tt_result_sequence        TYPE STANDARD TABLE OF /sdf/teap_dgp_conflict WITH EMPTY KEY,
     tt_result_cross_release   TYPE STANDARD TABLE OF /sdf/teap_scv_crit_obj WITH EMPTY KEY,
@@ -12,7 +11,7 @@ INTERFACE zif_adu_check_transport
 
   TYPES:
     BEGIN OF ts_result_all,
-      run_code                TYPE zif_adu_check_transport=>ty_run_code,
+      run_code                TYPE zadu_run_code,
       results_cross_reference TYPE zif_adu_check_transport=>tt_result_cross_reference,
       results_sequence        TYPE zif_adu_check_transport=>tt_result_sequence,
       results_cross_release   TYPE zif_adu_check_transport=>tt_result_cross_release,

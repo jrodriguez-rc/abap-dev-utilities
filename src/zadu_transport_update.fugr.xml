@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_FUGR" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <AREAT>Transports DB Updates</AREAT>
+   <INCLUDES>
+    <SOBJ_NAME>LZADU_TRANSPORT_UPDATETOP</SOBJ_NAME>
+    <SOBJ_NAME>SAPLZADU_TRANSPORT_UPDATE</SOBJ_NAME>
+   </INCLUDES>
+   <FUNCTIONS>
+    <item>
+     <FUNCNAME>ZADU_TRANSPORT_UPDATE_HEADER</FUNCNAME>
+     <UPDATE_TASK>1</UPDATE_TASK>
+     <SHORT_TEXT>Check Transport Header DB update</SHORT_TEXT>
+     <IMPORT>
+      <RSIMP>
+       <PARAMETER>HEADER</PARAMETER>
+       <TYP>ZADU_S_CHKTR_HEAD_UPDATE</TYP>
+      </RSIMP>
+     </IMPORT>
+     <DOCUMENTATION>
+      <RSFDO>
+       <PARAMETER>HEADER</PARAMETER>
+       <KIND>P</KIND>
+      </RSFDO>
+     </DOCUMENTATION>
+    </item>
+   </FUNCTIONS>
+  </asx:values>
+ </asx:abap>
+</abapGit>

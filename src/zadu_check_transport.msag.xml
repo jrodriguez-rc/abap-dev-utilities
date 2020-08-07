@@ -26,6 +26,24 @@
      <MSGNR>003</MSGNR>
      <TEXT>No checks executed</TEXT>
     </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZADU_CHECK_TRANSPORT</ARBGB>
+     <MSGNR>004</MSGNR>
+     <TEXT>Error insert &amp;1 in table &amp;2</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZADU_CHECK_TRANSPORT</ARBGB>
+     <MSGNR>005</MSGNR>
+     <TEXT>Error updating &amp;1 in table &amp;2</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZADU_CHECK_TRANSPORT</ARBGB>
+     <MSGNR>006</MSGNR>
+     <TEXT>Error deleting &amp;1 in table &amp;2</TEXT>
+    </T100>
    </T100>
   </asx:values>
  </asx:abap>

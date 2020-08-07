@@ -41,6 +41,39 @@ CLASS zcx_adu_check_transport DEFINITION
         attr4 TYPE scx_attrname VALUE 'TEXT4' ##NO_TEXT,
       END OF no_checks_executed.
 
+    CONSTANTS:
+      " Error insert &1 in table &2
+      BEGIN OF error_insert_table,
+        msgid TYPE symsgid VALUE 'ZADU_CHECK_TRANSPORT' ##NO_TEXT,
+        msgno TYPE symsgno VALUE '004' ##NO_TEXT,
+        attr1 TYPE scx_attrname VALUE 'TEXT1' ##NO_TEXT,
+        attr2 TYPE scx_attrname VALUE 'TEXT2' ##NO_TEXT,
+        attr3 TYPE scx_attrname VALUE 'TEXT3' ##NO_TEXT,
+        attr4 TYPE scx_attrname VALUE 'TEXT4' ##NO_TEXT,
+      END OF error_insert_table.
+
+    CONSTANTS:
+      " Error updating &1 in table &2
+      BEGIN OF error_update_table,
+        msgid TYPE symsgid VALUE 'ZADU_CHECK_TRANSPORT' ##NO_TEXT,
+        msgno TYPE symsgno VALUE '005' ##NO_TEXT,
+        attr1 TYPE scx_attrname VALUE 'TEXT1' ##NO_TEXT,
+        attr2 TYPE scx_attrname VALUE 'TEXT2' ##NO_TEXT,
+        attr3 TYPE scx_attrname VALUE 'TEXT3' ##NO_TEXT,
+        attr4 TYPE scx_attrname VALUE 'TEXT4' ##NO_TEXT,
+      END OF error_update_table.
+
+    CONSTANTS:
+      " Error deleting &1 in table &2
+      BEGIN OF error_delete_table,
+        msgid TYPE symsgid VALUE 'ZADU_CHECK_TRANSPORT' ##NO_TEXT,
+        msgno TYPE symsgno VALUE '006' ##NO_TEXT,
+        attr1 TYPE scx_attrname VALUE 'TEXT1' ##NO_TEXT,
+        attr2 TYPE scx_attrname VALUE 'TEXT2' ##NO_TEXT,
+        attr3 TYPE scx_attrname VALUE 'TEXT3' ##NO_TEXT,
+        attr4 TYPE scx_attrname VALUE 'TEXT4' ##NO_TEXT,
+      END OF error_delete_table.
+
     DATA:
       text1 TYPE string,
       text2 TYPE string,
