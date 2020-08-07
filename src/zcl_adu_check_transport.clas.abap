@@ -612,7 +612,10 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
       CALL FUNCTION '/SDF/OCS_GET_INFO'
         DESTINATION rfcdest
         EXCEPTIONS
-          OTHERS = 1.
+          system_failure        = 1
+          communication_failure = 2
+          resource_failure      = 3
+          OTHERS                = 4.
       IF sy-subrc <> 0.
         RAISE EXCEPTION TYPE zcx_adu_check_transport
           EXPORTING
