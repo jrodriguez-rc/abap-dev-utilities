@@ -1,0 +1,208 @@
+{
+    "global": {
+        "files": "/src/**/*.*",
+        "skipGeneratedGatewayClasses": true,
+        "skipGeneratedPersistentClasses": true,
+        "skipGeneratedFunctionGroups": true,
+        "applyUnspecifiedRules": false
+    },
+    "syntax": {
+        "version": "v740sp8",
+        "errorNamespace": "^Z",
+        "globalConstants": [],
+        "globalMacros": []
+    },
+    "dependencies": [
+        {
+            "url": "https://github.com/abaplint/deps",
+            "folder": "/deps",
+            "files": "/src/**/*.*"
+        }
+    ],
+    "rules": {
+        "avoid_use": {
+            "define": true,
+            "endselect": true,
+            "execSQL": true,
+            "kernelCall": true,
+            "communication": true,
+            "statics": true
+        },
+        "breakpoint": true,
+        "constructor_visibility_public": {
+            "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#if-your-global-class-is-create-private-leave-the-constructor-public"
+        },
+        "description_empty": false,
+        "empty_statement": true,
+        "empty_structure": {
+            "loop": true,
+            "if": true,
+            "while": true,
+            "case": true,
+            "select": true,
+            "do": true,
+            "at": true
+        },
+        "exporting": {
+            "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#omit-the-optional-keyword-exporting"
+        },
+        "functional_writing": {
+            "ignoreExceptions": true
+        },
+        "global_class": true,
+        "identical_form_names": true,
+        "inline_data_old_versions": true,
+        "line_length": {
+            "length": 120,
+            "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#stick-to-a-reasonable-line-length"
+        },
+        "message_exists": true,
+        "method_length": {
+            "statements": 100,
+            "ignoreTestClasses": false,
+            "errorWhenEmpty": true,
+            "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#keep-methods-small",
+            "exclude":[
+                ".*WRITE*.DOC*"
+            ]
+        },
+        "mix_returning": {
+            "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#use-either-returning-or-exporting-or-changing-but-not-a-combination"
+        },
+        "msag_consistency": true,
+        "nesting": {
+            "depth": 5,
+            "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#keep-the-nesting-depth-low"
+        },
+        "obsolete_statement": {
+            "refresh": true,
+            "compute": true,
+            "add": true,
+            "subtract": true,
+            "multiply": true,
+            "move": true,
+            "divide": true,
+            "requested": true,
+            "occurs": true
+        },
+        "parser_error": true,
+        "short_case": {
+            "length": 1,
+            "allow": []
+        },
+        "superclass_final": false,
+        "unreachable_code": true,
+        "use_new": true,
+        "when_others_last": true,
+        "ambiguous_statement": true,
+        "begin_end_names": true,
+        "check_transformation_exists": true,
+        "check_syntax": false,
+        "form_tables_obsolete": true,
+        "tabl_enhancement_category": true,
+        "implement_methods": false,
+        "local_testclass_location": true,
+        "main_file_contents": true,
+        "rfc_error_handling": true,
+        "sequential_blank": {
+            "lines": 4
+        },
+        "empty_line_in_statement": {
+            "allowChained": true
+        },
+        "form_no_dash": true,
+        "check_abstract": true,
+        "no_public_attributes": {
+            "allowReadOnly": true
+        },
+        "abapdoc": true,
+        "local_class_naming": {
+            "exception": "^LCL_.*$",
+            "local": "^LCL_.*$",
+            "test": "^LTCL_.*$"
+        },
+        "object_naming": {
+            "clas": "^ZC(L|X)(|\\_IM|\\_DEF|\\_FB)\\_TT\\_",
+            "intf": "^ZIF\\_TT\\_",
+            "prog": "^Z(|F)TT",
+            "fugr": "^ZTT",
+            "tabl": "^Z(|S|SK|SV)(|\\_)TT",
+            "ttyp": "^Z(|T|TK|TV)(|\\_)TT",
+            "dtel": "^ZTT",
+            "doma": "^ZTT",
+            "msag": "^ZTT",
+            "tran": "^Z(TT|22)",
+            "enqu": "^ZETT",
+            "auth": "^Z",
+            "pinf": "^ZTT",
+            "idoc": "^ZTT",
+            "xslt": "^ZTT"
+        },
+        "space_before_colon": {
+            "exclude":[
+                ".*WRITE*.DOC*"
+            ]
+        },
+        "start_at_tab": {},
+        "prefix_is_current_class": true,
+        "keyword_case": {
+           "style": "upper",
+            "ignoreExceptions": true,
+            "ignoreLowerClassImplmentationStatement": true,
+            "ignoreGlobalClassDefinition": false,
+            "ignoreGlobalInterface": false,
+            "ignoreFunctionModuleName": false,
+            "exclude":[
+                ".*WRITE*.DOC*",
+                "^ZF.*CD.*$"
+            ]
+        },
+        "if_in_if": {
+            "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#keep-the-nesting-depth-low",
+            "exclude":[
+                ".*WRITE*.DOC*"
+            ]
+        },
+        "max_one_statement": {
+            "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#no-more-than-one-statement-per-line",
+            "exclude":[
+                ".*WRITE*.DOC*"
+            ]
+        },
+        "preferred_compare_operator": {
+            "badOperators": [
+                "><",
+                "EQ",
+                "NE",
+                "GE",
+                "GT",
+                "LT",
+                "LE"
+            ],
+            "exclude":[
+                ".*WRITE*.DOC*",
+                "^ZF.*CD.*$"
+            ]
+        },
+        "space_before_dot": {
+            "ignoreGlobalDefinition": true,
+            "ignoreExceptions": true,
+            "exclude":[
+                ".*WRITE*.DOC*"
+            ]
+        },
+        "indentation": {
+            "alignTryCatch": false,
+            "ignoreExceptions": false,
+            "globalClassSkipFirst": false,
+            "ignoreGlobalClassDefinition": false,
+            "ignoreGlobalInterface": false,
+            "exclude":[
+                ".*WRITE*.DOC*"
+            ]
+        },
+        "commented_code": true
+    },
+    "rules_disabled": {
+    }
+}
