@@ -122,21 +122,21 @@
             "test": "^LTCL_.*$"
         },
         "object_naming": {
-            "clas": "^ZC(L|X)(|\\_IM|\\_DEF|\\_FB)\\_TT\\_",
-            "intf": "^ZIF\\_TT\\_",
-            "prog": "^Z(|F)TT",
-            "fugr": "^ZTT",
-            "tabl": "^Z(|S|SK|SV)(|\\_)TT",
-            "ttyp": "^Z(|T|TK|TV)(|\\_)TT",
-            "dtel": "^ZTT",
-            "doma": "^ZTT",
-            "msag": "^ZTT",
-            "tran": "^Z(TT|22)",
-            "enqu": "^ZETT",
+            "clas": "^ZC(L|X)(|\\_IM|\\_DEF|\\_FB)\\_ADU\\_",
+            "intf": "^ZIF\\_ADU\\_",
+            "prog": "^Z(|F)ADU",
+            "fugr": "^ZADU",
+            "tabl": "^Z(|S|SK|SV)(|\\_)ADU",
+            "ttyp": "^Z(|T|TK|TV)(|\\_)ADU",
+            "dtel": "^ZADU",
+            "doma": "^ZADU",
+            "msag": "^ZADU",
+            "tran": "^Z(ADU|22)",
+            "enqu": "^ZEADU",
             "auth": "^Z",
-            "pinf": "^ZTT",
-            "idoc": "^ZTT",
-            "xslt": "^ZTT"
+            "pinf": "^ZADU",
+            "idoc": "^ZADU",
+            "xslt": "^ZADU"
         },
         "space_before_colon": {
             "exclude":[
