@@ -524,17 +524,20 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     CALL FUNCTION 'AUTHORITY_CHECK'
       DESTINATION rfcdest
       EXPORTING
-        object              = 'S_RFC'
-        field1              = 'ACTVT'
-        value1              = '16'
-        field2              = 'RFC_NAME'
-        value2              = authority_object
+        object                = 'S_RFC'
+        field1                = 'ACTVT'
+        value1                = '16'
+        field2                = 'RFC_NAME'
+        value2                = authority_object
       EXCEPTIONS
-        user_dont_exist     = 1
-        user_is_authorized  = 2
-        user_not_authorized = 3
-        user_is_locked      = 4
-        OTHERS              = 5.
+        user_dont_exist       = 1
+        user_is_authorized    = 2
+        user_not_authorized   = 3
+        user_is_locked        = 4
+        system_failure        = 5
+        communication_failure = 6
+        resource_failure      = 7
+        OTHERS                = 8.
     IF sy-subrc <> 2.
       RAISE EXCEPTION TYPE zcx_adu_check_transport
         EXPORTING
@@ -594,6 +597,9 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
         destination_not_exist   = 2
         information_failure     = 3
         internal_failure        = 4
+        system_failure          = 5
+        communication_failure   = 6
+        resource_failure        = 7
         OTHERS                  = 5.
     IF sy-subrc <> 0. "RFC does not exist
       RAISE EXCEPTION TYPE zcx_adu_check_transport
@@ -618,7 +624,18 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     CALL FUNCTION 'RFC_SYSTEM_INFO'
       DESTINATION rfcdest
       IMPORTING
-        rfcsi_export = rfcsi_export.
+        rfcsi_export          = rfcsi_export
+      EXCEPTIONS
+        system_failure        = 1
+        communication_failure = 2
+        resource_failure      = 3
+        OTHERS                = 4.
+    IF sy-subrc <> 0.
+      RAISE EXCEPTION TYPE zcx_adu_check_transport
+        EXPORTING
+          textid = zcx_adu_check_transport=>rfc_error
+          text1  = CONV #( rfcdest ).
+    ENDIF.
 
     system_name = rfcsi_export-rfcsysid.
 

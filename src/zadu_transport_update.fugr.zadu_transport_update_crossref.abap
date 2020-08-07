@@ -15,7 +15,7 @@ FUNCTION zadu_transport_update_crossref.
 
     CASE cross_reference_update->crud_ind.
       WHEN zif_adu_constants=>crud-create.
-        INSERT zadu_chktr_crref FROM database_data.
+        INSERT zadu_chktr_crref FROM @database_data.
         IF sy-subrc <> 0.
           MESSAGE ID zcx_adu_check_transport=>error_insert_table-msgid
                   TYPE 'X'
@@ -24,7 +24,7 @@ FUNCTION zadu_transport_update_crossref.
         ENDIF.
 
       WHEN zif_adu_constants=>crud-update.
-        UPDATE zadu_chktr_crref FROM database_data.
+        UPDATE zadu_chktr_crref FROM @database_data.
         IF sy-subrc <> 0.
           MESSAGE ID zcx_adu_check_transport=>error_update_table-msgid
                   TYPE 'X'
@@ -33,7 +33,7 @@ FUNCTION zadu_transport_update_crossref.
         ENDIF.
 
       WHEN zif_adu_constants=>crud-delete.
-        DELETE zadu_chktr_crref FROM database_data.
+        DELETE zadu_chktr_crref FROM @database_data.
         IF sy-subrc <> 0.
           MESSAGE ID zcx_adu_check_transport=>error_delete_table-msgid
                   TYPE 'X'
