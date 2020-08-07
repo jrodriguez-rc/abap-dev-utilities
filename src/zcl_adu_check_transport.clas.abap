@@ -1,7 +1,6 @@
 "! <p class="shorttext synchronized" lang="en">Check transport</p>
 CLASS zcl_adu_check_transport DEFINITION
   PUBLIC
-  FINAL
   CREATE PUBLIC .
 
   PUBLIC SECTION.
@@ -29,16 +28,32 @@ CLASS zcl_adu_check_transport DEFINITION
 
   PRIVATE SECTION.
     DATA:
+      run_code                TYPE zif_adu_check_transport~ty_run_code,
       transport_request       TYPE trkorr,
       rfc_source              TYPE rfcdest,
       rfc_destination         TYPE rfcdest,
       source_system_name      TYPE sysname,
-      destination_system_name TYPE sysname.
+      destination_system_name TYPE sysname,
+      results_cross_reference TYPE zif_adu_check_transport~tt_result_cross_reference,
+      results_sequence        TYPE zif_adu_check_transport~tt_result_sequence,
+      results_cross_release   TYPE zif_adu_check_transport~tt_result_cross_release,
+      results_import_time     TYPE zif_adu_check_transport~tt_result_import_time,
+      results_online_import   TYPE zif_adu_check_transport~tt_result_online_import.
+
+    METHODS after_save.
 
     METHODS check_authorization
       IMPORTING
         rfcdest          TYPE rfcdest
         authority_object TYPE xuval
+      RAISING
+        zcx_adu_check_transport.
+
+    METHODS fill_run_code
+      RAISING
+        zcx_adu_check_transport.
+
+    METHODS fill_empty_run_code
       RAISING
         zcx_adu_check_transport.
 
@@ -78,6 +93,21 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD zif_adu_check_transport~check_all.
+
+    fill_empty_run_code( ).
+
+    results-run_code = run_code.
+
+    results-results_cross_reference = zif_adu_check_transport~check_cross_reference( ).
+    results-results_sequence        = zif_adu_check_transport~check_sequence( ).
+    results-results_cross_release   = zif_adu_check_transport~check_cross_release( ).
+    results-results_import_time     = zif_adu_check_transport~check_import_time( ).
+    results-results_online_import   = zif_adu_check_transport~check_online_import( ).
+
+  ENDMETHOD.
+
+
   METHOD zif_adu_check_transport~check_cross_reference.
 
     CONSTANTS:
@@ -87,8 +117,9 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
       END OF lc_authorization.
 
     DATA:
-      requests         TYPE STANDARD TABLE OF e070 WITH DEFAULT KEY,
-      analysis_results LIKE results.
+      requests TYPE STANDARD TABLE OF e070 WITH DEFAULT KEY.
+
+    fill_empty_run_code( ).
 
     check_authorization( rfcdest = rfc_source      authority_object = lc_authorization-source ).
     check_authorization( rfcdest = rfc_destination authority_object = lc_authorization-destionation ).
@@ -101,7 +132,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
         iv_tar_rfc                 = rfc_destination
       TABLES
         it_reqs                    = requests
-        et_envanal_res_err         = analysis_results
+        et_envanal_res_err         = results_cross_reference
       EXCEPTIONS
         empty_checked_tr_list      = 1
         destination_not_reached    = 2
@@ -116,7 +147,8 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
           text1  = '/SDF/TEAP_ENVI_ANA'.
     ENDIF.
 
-    results = analysis_results.
+    results_cross_reference = results_cross_reference.
+    results = results_cross_reference.
 
   ENDMETHOD.
 
@@ -131,6 +163,8 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
 
     DATA:
       conflicts LIKE results.
+
+    fill_empty_run_code( ).
 
     check_authorization( rfcdest = rfc_source      authority_object = lc_authorization-source ).
     check_authorization( rfcdest = rfc_destination authority_object = lc_authorization-destionation ).
@@ -174,6 +208,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
           text1  = '/SDF/TEAP_DOWNGRADE_PROTECT'.
     ENDIF.
 
+    results_sequence = conflicts.
     results = conflicts.
 
   ENDMETHOD.
@@ -189,6 +224,8 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
 
     DATA:
       cross_release LIKE results.
+
+    fill_empty_run_code( ).
 
     check_authorization( rfcdest = rfc_source      authority_object = lc_authorization-source ).
     check_authorization( rfcdest = rfc_destination authority_object = lc_authorization-destionation ).
@@ -220,7 +257,114 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
           text1  = '/SDF/TEAP_SCV_CHECK'.
     ENDIF.
 
+    results_cross_release = cross_release.
     results = cross_release.
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_check_transport~check_import_time.
+
+    CONSTANTS:
+      BEGIN OF lc_authorization,
+        source TYPE xuval VALUE '/SDF/TEAP_IMPORT_TIME' ##NO_TEXT,
+      END OF lc_authorization.
+
+    DATA:
+      import_time LIKE results.
+
+    fill_empty_run_code( ).
+
+    check_authorization( rfcdest = rfc_source authority_object = lc_authorization-source ).
+
+    DATA(alog) = VALUE tmstpalogs( ( listname = '/SDF/CMO_TR_CHECK'
+                                     trkorr   = transport_request
+                                     trtime   = CONV #( |{ sy-datum }{ sy-uzeit }| ) ) ).
+
+    CALL FUNCTION '/SDF/TEAP_IMPORT_TIME'
+      DESTINATION source_system_name
+      TABLES
+        it_checked_tr            = alog
+        et_tr_imp_time           = import_time
+      EXCEPTIONS
+        empty_checked_tr_list    = 1
+        no_tpalog_for_checked_tr = 2
+        OTHERS                   = 3.
+    IF sy-subrc <> 0.
+      RAISE EXCEPTION TYPE zcx_adu_check_transport
+        EXPORTING
+          textid = zcx_adu_check_transport=>error_in
+          text1  = '/SDF/TEAP_IMPORT_TIME'.
+    ENDIF.
+
+    results_import_time = import_time.
+    results = import_time.
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_check_transport~check_online_import.
+
+    CONSTANTS:
+      BEGIN OF lc_authorization,
+        source       TYPE xuval VALUE '/SDF/DD_DDIC_DEP_GET' ##NO_TEXT,
+        destionation TYPE xuval VALUE '/SDF/READ_D010TAB' ##NO_TEXT,
+      END OF lc_authorization.
+
+    DATA:
+      requests      TYPE STANDARD TABLE OF e070 WITH DEFAULT KEY,
+      online_import LIKE results.
+
+    fill_empty_run_code( ).
+
+    check_authorization( rfcdest = rfc_source      authority_object = lc_authorization-source ).
+    check_authorization( rfcdest = rfc_destination authority_object = lc_authorization-destionation ).
+
+    requests = VALUE #( ( trkorr = transport_request ) ).
+
+    CALL FUNCTION '/SDF/OI_CHECK'
+      EXPORTING
+        iv_ana_rfc                  = rfc_source
+        iv_tar_rfc                  = rfc_destination
+      TABLES
+        it_reqs                     = requests
+        et_result                   = online_import
+      EXCEPTIONS
+        destination_not_reached     = 1
+        no_objs_specified_for_anal  = 2
+        prerequisites_not_fulfilled = 3
+        other                       = 4
+        OTHERS                      = 5.
+    IF sy-subrc <> 0.
+      RAISE EXCEPTION TYPE zcx_adu_check_transport
+        EXPORTING
+          textid = zcx_adu_check_transport=>error_in
+          text1  = '/SDF/OI_CHECK'.
+    ENDIF.
+
+    results_online_import = online_import.
+    results = online_import.
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_check_transport~save_results.
+
+    IF run_code IS INITIAL.
+      RAISE EXCEPTION TYPE zcx_adu_check_transport
+        EXPORTING
+          textid = zcx_adu_check_transport=>no_checks_executed.
+    ENDIF.
+
+    after_save( ).
+
+  ENDMETHOD.
+
+
+  METHOD after_save.
+
+    CLEAR: run_code, results_cross_reference, results_sequence, results_cross_release,
+           results_import_time, results_online_import.
 
   ENDMETHOD.
 
@@ -244,6 +388,31 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     IF sy-subrc <> 0.
       zcx_adu_check_transport=>raise_system( ).
     ENDIF.
+
+  ENDMETHOD.
+
+
+  METHOD fill_run_code.
+
+    CLEAR: run_code.
+    fill_empty_run_code( ).
+
+  ENDMETHOD.
+
+
+  METHOD fill_empty_run_code.
+
+    IF run_code IS NOT INITIAL.
+      RETURN.
+    ENDIF.
+
+    TRY.
+        run_code = cl_system_uuid=>create_uuid_c32_static( ).
+      CATCH cx_uuid_error INTO DATA(uuid_exception).
+        RAISE EXCEPTION TYPE zcx_adu_check_transport
+          EXPORTING
+            previous = uuid_exception.
+    ENDTRY.
 
   ENDMETHOD.
 

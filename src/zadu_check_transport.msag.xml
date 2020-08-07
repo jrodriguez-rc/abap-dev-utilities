@@ -20,6 +20,12 @@
      <MSGNR>002</MSGNR>
      <TEXT>Error in &amp;1</TEXT>
     </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZADU_CHECK_TRANSPORT</ARBGB>
+     <MSGNR>003</MSGNR>
+     <TEXT>No checks executed</TEXT>
+    </T100>
    </T100>
   </asx:values>
  </asx:abap>

@@ -30,6 +30,17 @@ CLASS zcx_adu_check_transport DEFINITION
         attr4 TYPE scx_attrname VALUE 'TEXT4' ##NO_TEXT,
       END OF error_in.
 
+    CONSTANTS:
+      " No checks executed
+      BEGIN OF no_checks_executed,
+        msgid TYPE symsgid VALUE 'ZADU_CHECK_TRANSPORT' ##NO_TEXT,
+        msgno TYPE symsgno VALUE '003' ##NO_TEXT,
+        attr1 TYPE scx_attrname VALUE 'TEXT1' ##NO_TEXT,
+        attr2 TYPE scx_attrname VALUE 'TEXT2' ##NO_TEXT,
+        attr3 TYPE scx_attrname VALUE 'TEXT3' ##NO_TEXT,
+        attr4 TYPE scx_attrname VALUE 'TEXT4' ##NO_TEXT,
+      END OF no_checks_executed.
+
     DATA:
       text1 TYPE string,
       text2 TYPE string,
