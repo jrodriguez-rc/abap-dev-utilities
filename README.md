@@ -1,3 +1,5 @@
+[![abaplint Status](https://github.com/jrodriguez-rc/abap-dev-utilities/workflows/abaplint/badge.svg)](https://github.com/jrodriguez-rc/abap-dev-utilities/actions)
+[![abap package version](https://img.shields.io/endpoint?url=https://shield.abap.space/version-shield-json/github/jrodriguez-rc/abap-dev-utilities/src/zcl_adu_apack.clas.abap/gc_version&label=version)](.apack-manifest.xml)
 # ABAP Development Utilities
 This repository has a group of utilities that you can use in your development
 
