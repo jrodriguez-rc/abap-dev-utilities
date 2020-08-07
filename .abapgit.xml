@@ -16,6 +16,16 @@
     <item>/azure-pipelines.yml</item>
     <item>/.devcontainer.json</item>
    </IGNORE>
+   <REQUIREMENTS>
+    <item>
+     <COMPONENT>SAP_BASIS</COMPONENT>
+     <MIN_RELEASE>740</MIN_RELEASE>
+     <MIN_PATCH>08</MIN_PATCH>
+    </item>
+    <item>
+     <COMPONENT>ST-PI</COMPONENT>
+    </item>
+   </REQUIREMENTS>
   </DATA>
  </asx:values>
 </asx:abap>
