@@ -74,6 +74,17 @@ CLASS zcx_adu_check_transport DEFINITION
         attr4 TYPE scx_attrname VALUE 'TEXT4' ##NO_TEXT,
       END OF error_delete_table.
 
+    CONSTANTS:
+      " Authority check &1 failed for &2
+      BEGIN OF authority_check_failed,
+        msgid TYPE symsgid VALUE 'ZADU_CHECK_TRANSPORT' ##NO_TEXT,
+        msgno TYPE symsgno VALUE '007' ##NO_TEXT,
+        attr1 TYPE scx_attrname VALUE 'TEXT1' ##NO_TEXT,
+        attr2 TYPE scx_attrname VALUE 'TEXT2' ##NO_TEXT,
+        attr3 TYPE scx_attrname VALUE 'TEXT3' ##NO_TEXT,
+        attr4 TYPE scx_attrname VALUE 'TEXT4' ##NO_TEXT,
+      END OF authority_check_failed.
+
     DATA:
       text1 TYPE string,
       text2 TYPE string,

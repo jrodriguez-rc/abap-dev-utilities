@@ -3,11 +3,11 @@ INTERFACE zif_adu_check_transport
   PUBLIC.
 
   TYPES:
-    tt_result_cross_reference TYPE STANDARD TABLE OF /sdf/teap_envi_ana_result WITH EMPTY KEY,
-    tt_result_sequence        TYPE STANDARD TABLE OF /sdf/teap_dgp_conflict WITH EMPTY KEY,
-    tt_result_cross_release   TYPE STANDARD TABLE OF /sdf/teap_scv_crit_obj WITH EMPTY KEY,
-    tt_result_import_time     TYPE STANDARD TABLE OF /sdf/teap_tr_imp_time WITH EMPTY KEY,
-    tt_result_online_import   TYPE STANDARD TABLE OF /sdf/oi_result WITH EMPTY KEY.
+    tt_result_cross_reference TYPE STANDARD TABLE OF /sdf/teap_envi_ana_result WITH DEFAULT KEY,
+    tt_result_sequence        TYPE STANDARD TABLE OF /sdf/teap_dgp_conflict WITH DEFAULT KEY,
+    tt_result_cross_release   TYPE STANDARD TABLE OF /sdf/teap_scv_crit_obj WITH DEFAULT KEY,
+    tt_result_import_time     TYPE STANDARD TABLE OF /sdf/teap_tr_imp_time WITH DEFAULT KEY,
+    tt_result_online_import   TYPE STANDARD TABLE OF /sdf/oi_result WITH DEFAULT KEY.
 
   TYPES:
     BEGIN OF ts_result_all,
@@ -57,7 +57,7 @@ INTERFACE zif_adu_check_transport
 
   METHODS save_results
     IMPORTING
-      commit TYPE abap_bool
+      commit TYPE abap_bool DEFAULT abap_true
     RAISING
       zcx_adu_check_transport.
 

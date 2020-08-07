@@ -44,6 +44,12 @@
      <MSGNR>006</MSGNR>
      <TEXT>Error deleting &amp;1 in table &amp;2</TEXT>
     </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZADU_CHECK_TRANSPORT</ARBGB>
+     <MSGNR>007</MSGNR>
+     <TEXT>Authority check &amp;1 failed for &amp;2</TEXT>
+    </T100>
    </T100>
   </asx:values>
  </asx:abap>

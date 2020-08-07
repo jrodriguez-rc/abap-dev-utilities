@@ -1,4 +1,4 @@
-FUNCTION ZADU_TRANSPORT_UPDATE_HEADER.
+FUNCTION zadu_transport_update_header.
 *"----------------------------------------------------------------------
 *"*"Update Function Module:
 *"
@@ -6,6 +6,7 @@ FUNCTION ZADU_TRANSPORT_UPDATE_HEADER.
 *"  IMPORTING
 *"     VALUE(HEADER) TYPE  ZADU_S_CHKTR_HEAD_UPDATE
 *"----------------------------------------------------------------------
+
   DATA: header_db TYPE zadu_chktr_head.
 
   header_db = header.

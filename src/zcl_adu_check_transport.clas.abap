@@ -369,6 +369,8 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
 
   METHOD zif_adu_check_transport~save_results.
 
+    DATA: sequence TYPE i.
+
     IF run_data-run_code IS INITIAL.
       RAISE EXCEPTION TYPE zcx_adu_check_transport
         EXPORTING
@@ -377,23 +379,104 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
 
     GET TIME STAMP FIELD DATA(current_timestamp).
 
-    DATA(header) = VALUE zadu_s_chktr_head_update( client          = sy-mandt
-                                                   run_code        = run_data-run_code
-                                                   timestamp       = current_timestamp
-                                                   username        = sy-uname
-                                                   source          = run_data-rfc_source
-                                                   target          = run_data-rfc_destination
-                                                   cross_reference = run_data-checked_cross_reference
-                                                   sequence        = run_data-checked_sequence
-                                                   cross_release   = run_data-checked_cross_release
-                                                   import_time     = run_data-checked_import_time
-                                                   online_import   = run_data-checked_online_import
-                                                   crud_ind        = zif_adu_constants=>crud-create ).
+    DATA(header) = VALUE zadu_s_chktr_head_update(
+                               client            = sy-mandt
+                               run_code          = run_data-run_code
+                               transport_request = run_data-transport_request
+                               timestamp         = current_timestamp
+                               username          = sy-uname
+                               source            = run_data-rfc_source
+                               target            = run_data-rfc_destination
+                               cross_reference   = run_data-checked_cross_reference
+                               sequence          = run_data-checked_sequence
+                               cross_release     = run_data-checked_cross_release
+                               import_time       = run_data-checked_import_time
+                               online_import     = run_data-checked_online_import
+                               crud_ind          = zif_adu_constants=>crud-create ).
 
     CALL FUNCTION 'ZADU_TRANSPORT_UPDATE_HEADER'
       IN UPDATE TASK
       EXPORTING
         header = header.
+
+    IF results_cross_reference IS NOT INITIAL.
+      DATA(cross_reference_updates) = CORRESPONDING zadu_t_chktr_crref_update( results_cross_reference ).
+      LOOP AT cross_reference_updates REFERENCE INTO DATA(cross_reference_update).
+        sequence = sy-tabix.
+        cross_reference_update->client   = sy-mandt.
+        cross_reference_update->run_code = run_data-run_code.
+        cross_reference_update->sequence = sequence.
+        cross_reference_update->crud_ind = zif_adu_constants=>crud-create.
+      ENDLOOP.
+      CALL FUNCTION 'ZADU_TRANSPORT_UPDATE_CROSSREF'
+        IN UPDATE TASK
+        EXPORTING
+          cross_reference_updates = cross_reference_updates.
+    ENDIF.
+
+    IF results_sequence IS NOT INITIAL.
+      DATA(sequence_updates) = CORRESPONDING zadu_t_chktr_seq_update( results_sequence ).
+      LOOP AT sequence_updates REFERENCE INTO DATA(sequence_update).
+        sequence = sy-tabix.
+        sequence_update->client   = sy-mandt.
+        sequence_update->run_code = run_data-run_code.
+        sequence_update->sequence = sequence.
+        sequence_update->crud_ind = zif_adu_constants=>crud-create.
+      ENDLOOP.
+      CALL FUNCTION 'ZADU_TRANSPORT_UPDATE_SEQUENCE'
+        IN UPDATE TASK
+        EXPORTING
+          sequence_updates = sequence_updates.
+    ENDIF.
+
+    IF results_cross_release IS NOT INITIAL.
+      DATA(cross_release_updates) = CORRESPONDING zadu_t_chktr_crrel_update( results_cross_release ).
+      LOOP AT cross_release_updates REFERENCE INTO DATA(cross_release_update).
+        sequence = sy-tabix.
+        cross_release_update->client   = sy-mandt.
+        cross_release_update->run_code = run_data-run_code.
+        cross_release_update->sequence = sequence.
+        cross_release_update->crud_ind = zif_adu_constants=>crud-create.
+      ENDLOOP.
+      CALL FUNCTION 'ZADU_TRANSPORT_UPDATE_CROSSREL'
+        IN UPDATE TASK
+        EXPORTING
+          cross_release_updates = cross_release_updates.
+    ENDIF.
+
+    IF results_import_time IS NOT INITIAL.
+      DATA(import_time_updates) = CORRESPONDING zadu_t_chktr_imtim_update( results_import_time ).
+      LOOP AT import_time_updates REFERENCE INTO DATA(import_time_update).
+        sequence = sy-tabix.
+        import_time_update->client   = sy-mandt.
+        import_time_update->run_code = run_data-run_code.
+        import_time_update->sequence = sequence.
+        import_time_update->crud_ind = zif_adu_constants=>crud-create.
+      ENDLOOP.
+      CALL FUNCTION 'ZADU_TRANSPORT_UPDATE_IMP_TIME'
+        IN UPDATE TASK
+        EXPORTING
+          import_time_updates = import_time_updates.
+    ENDIF.
+
+    IF results_online_import IS NOT INITIAL.
+      DATA(online_import_updates) = CORRESPONDING zadu_t_chktr_imtim_update( results_online_import ).
+      LOOP AT online_import_updates REFERENCE INTO DATA(online_import_update).
+        sequence = sy-tabix.
+        online_import_update->client   = sy-mandt.
+        online_import_update->run_code = run_data-run_code.
+        online_import_update->sequence = sequence.
+        online_import_update->crud_ind = zif_adu_constants=>crud-create.
+      ENDLOOP.
+      CALL FUNCTION 'ZADU_TRANSPORT_UPDATE_ONL_IMP'
+        IN UPDATE TASK
+        EXPORTING
+          online_import_updates = online_import_updates.
+    ENDIF.
+
+    IF commit = abap_true.
+      COMMIT WORK.
+    ENDIF.
 
     after_save( ).
 
@@ -403,7 +486,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
   METHOD after_save.
 
     CLEAR: run_data, results_cross_reference, results_sequence, results_cross_release,
-           results_import_time, results_online_import.
+         results_import_time, results_online_import.
 
   ENDMETHOD.
 
@@ -424,8 +507,12 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
         user_not_authorized = 3
         user_is_locked      = 4
         OTHERS              = 5.
-    IF sy-subrc <> 0.
-      zcx_adu_check_transport=>raise_system( ).
+    IF sy-subrc <> 2.
+      RAISE EXCEPTION TYPE zcx_adu_check_transport
+        EXPORTING
+          textid = zcx_adu_check_transport=>authority_check_failed
+          text1  = CONV #( authority_object )
+          text2  = CONV #( rfcdest ).
     ENDIF.
 
   ENDMETHOD.
