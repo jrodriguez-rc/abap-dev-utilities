@@ -42,7 +42,9 @@ CLASS zcl_adu_check_transport_reader DEFINITION
       tt_online_import_db   TYPE STANDARD TABLE OF zadu_chktr_onlim WITH DEFAULT KEY.
 
     DATA:
-      logs TYPE zcl_adu_check_transport_reader=>tt_logs.
+      transport_request TYPE trkorr,
+      logs              TYPE zcl_adu_check_transport_reader=>tt_logs,
+      salv_data         TYPE REF TO lcl_salv_data.
 
     METHODS add_header_log
       IMPORTING
@@ -126,6 +128,30 @@ CLASS zcl_adu_check_transport_reader DEFINITION
       RETURNING
         VALUE(severity) TYPE zif_adu_check_transport_reader=>ty_severity.
 
+    METHODS prepare_alv_log
+      RETURNING
+        VALUE(salv_table) TYPE REF TO cl_salv_table.
+
+    METHODS prepare_alv_cross_reference
+      RETURNING
+        VALUE(salv_table) TYPE REF TO cl_salv_table.
+
+    METHODS prepare_alv_sequence
+      RETURNING
+        VALUE(salv_table) TYPE REF TO cl_salv_table.
+
+    METHODS prepare_alv_cross_release
+      RETURNING
+        VALUE(salv_table) TYPE REF TO cl_salv_table.
+
+    METHODS prepare_alv_import_time
+      RETURNING
+        VALUE(salv_table) TYPE REF TO cl_salv_table.
+
+    METHODS prepare_alv_online_import
+      RETURNING
+        VALUE(salv_table) TYPE REF TO cl_salv_table.
+
 ENDCLASS.
 
 
@@ -137,6 +163,8 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
     DATA:
       run_code_range TYPE RANGE OF zadu_run_code.
+
+    me->transport_request = transport_request.
 
     run_code_range = COND #( WHEN run_code IS NOT INITIAL
                                  THEN VALUE #( ( sign = 'I' option = 'EQ' low = run_code ) ) ).
@@ -150,6 +178,8 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
       RETURN.
     ENDIF.
 
+    salv_data = NEW #( ).
+
     LOOP AT header_logs REFERENCE INTO DATA(header_log).
       add_header_log( header_log->* ).
     ENDLOOP.
@@ -159,59 +189,171 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
   METHOD zif_adu_check_transport_reader~display.
 
-    DATA:
-      headers TYPE STANDARD TABLE OF zif_adu_check_transport_reader=>ts_header WITH DEFAULT KEY.
+    CLEAR: salv_data->header.
 
     LOOP AT logs REFERENCE INTO DATA(log).
-      INSERT log->header INTO TABLE headers.
+      INSERT log->header INTO TABLE salv_data->header.
     ENDLOOP.
 
-    TRY.
-        cl_salv_table=>factory( IMPORTING r_salv_table  = DATA(salv_table)
-                                CHANGING  t_table       = headers ).
-      CATCH cx_salv_msg INTO DATA(salv_msg_exception).
-        RETURN. " TODO: Pending raise exception
-    ENDTRY.
+    DATA(salv_table) = prepare_alv_log( ).
 
-    DATA(salv_columns) = salv_table->get_columns( ).
+    IF as_popup = abap_true.
+      salv_table->set_screen_popup( start_column = 30
+                                    end_column   = 120
+                                    start_line   = 10
+                                    end_line     = 20 ).
+    ENDIF.
 
-    TRY.
-        salv_columns->set_color_column( 'COLOR' ).
-      CATCH cx_salv_data_error.
-    ENDTRY.
-
-    TRY.
-        salv_columns->set_exception_column( 'EXCEPTION' ).
-      CATCH cx_salv_data_error.
-    ENDTRY.
-
-    salv_columns->set_optimize( ).
-
-    DATA(salv_column) = CAST cl_salv_column_table( salv_columns->get_column( 'CROSS_REFERENCE_MESSAGES' ) ).
-    salv_column->set_cell_type( if_salv_c_cell_type=>hotspot ).
-
-    salv_column = CAST cl_salv_column_table( salv_columns->get_column( 'SEQUENCE_MESSAGES' ) ).
-    salv_column->set_cell_type( if_salv_c_cell_type=>hotspot ).
-
-    salv_column = CAST cl_salv_column_table( salv_columns->get_column( 'CROSS_RELEASE_MESSAGES' ) ).
-    salv_column->set_cell_type( if_salv_c_cell_type=>hotspot ).
-
-    salv_column = CAST cl_salv_column_table( salv_columns->get_column( 'IMPORT_TIME_MESSAGES' ) ).
-    salv_column->set_cell_type( if_salv_c_cell_type=>hotspot ).
-
-    salv_column = CAST cl_salv_column_table( salv_columns->get_column( 'ONLINE_IMPORT_MESSAGES' ) ).
-    salv_column->set_cell_type( if_salv_c_cell_type=>hotspot ).
+    salv_table->display( ).
 
     DATA(salv_events) = salv_table->get_event( ).
-    SET HANDLER handle_header_link_click FOR salv_events.
+    SET HANDLER handle_header_link_click FOR salv_events ACTIVATION abap_false.
 
-    salv_table->get_display_settings( )->set_list_header( 'Transport Check Logs'(001) ).
+  ENDMETHOD.
+
+
+  METHOD zif_adu_check_transport_reader~display_cross_reference.
+
+    TRY.
+        DATA(log) = logs[ run_code = run_code ].
+      CATCH cx_sy_itab_line_not_found.
+        RETURN.
+    ENDTRY.
+
+    salv_data->cross_reference = log-cross_reference.
+
+    DATA(salv_table) = prepare_alv_cross_reference( ).
+
+    IF as_popup = abap_true.
+      salv_table->set_screen_popup( start_column = 30
+                                    end_column   = 120
+                                    start_line   = 10
+                                    end_line     = 20 ).
+    ENDIF.
+
+    salv_table->display( ).
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_check_transport_reader~display_sequence.
+
+    TRY.
+        DATA(log) = logs[ run_code = run_code ].
+      CATCH cx_sy_itab_line_not_found.
+        RETURN.
+    ENDTRY.
+
+    salv_data->sequence = log-sequence.
+
+    DATA(salv_table) = prepare_alv_sequence( ).
+
+    IF as_popup = abap_true.
+      salv_table->set_screen_popup( start_column = 30
+                                    end_column   = 120
+                                    start_line   = 10
+                                    end_line     = 20 ).
+    ENDIF.
+
+    salv_table->display( ).
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_check_transport_reader~display_cross_release.
+
+    TRY.
+        DATA(log) = logs[ run_code = run_code ].
+      CATCH cx_sy_itab_line_not_found.
+        RETURN.
+    ENDTRY.
+
+    salv_data->cross_release = log-cross_release.
+
+    DATA(salv_table) = prepare_alv_cross_release( ).
+
+    IF as_popup = abap_true.
+      salv_table->set_screen_popup( start_column = 30
+                                    end_column   = 120
+                                    start_line   = 10
+                                    end_line     = 20 ).
+    ENDIF.
+
+    salv_table->display( ).
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_check_transport_reader~display_import_time.
+
+    TRY.
+        DATA(log) = logs[ run_code = run_code ].
+      CATCH cx_sy_itab_line_not_found.
+        RETURN.
+    ENDTRY.
+
+    salv_data->import_time = log-import_time.
+
+    DATA(salv_table) = prepare_alv_import_time( ).
+
+    IF as_popup = abap_true.
+      salv_table->set_screen_popup( start_column = 30
+                                    end_column   = 120
+                                    start_line   = 10
+                                    end_line     = 20 ).
+    ENDIF.
+
+    salv_table->display( ).
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_check_transport_reader~display_online_import.
+
+    TRY.
+        DATA(log) = logs[ run_code = run_code ].
+      CATCH cx_sy_itab_line_not_found.
+        RETURN.
+    ENDTRY.
+
+    salv_data->online_import = log-online_import.
+
+    DATA(salv_table) = prepare_alv_online_import( ).
+
+    IF as_popup = abap_true.
+      salv_table->set_screen_popup( start_column = 30
+                                    end_column   = 120
+                                    start_line   = 10
+                                    end_line     = 20 ).
+    ENDIF.
+
     salv_table->display( ).
 
   ENDMETHOD.
 
 
   METHOD handle_header_link_click.
+
+    DATA(log_header) = salv_data->header[ row ].
+
+    CASE column.
+      WHEN 'CROSS_REFERENCE_MESSAGES'.
+        zif_adu_check_transport_reader~display_cross_reference( log_header-run_code ).
+
+      WHEN 'SEQUENCE_MESSAGES'.
+        zif_adu_check_transport_reader~display_sequence( log_header-run_code ).
+
+      WHEN 'CROSS_RELEASE_MESSAGES'.
+        zif_adu_check_transport_reader~display_cross_release( log_header-run_code ).
+
+      WHEN 'IMPORT_TIME_MESSAGES'.
+        zif_adu_check_transport_reader~display_import_time( log_header-run_code ).
+
+      WHEN 'ONLINE_IMPORT_MESSAGES'.
+        zif_adu_check_transport_reader~display_online_import( log_header-run_code ).
+
+    ENDCASE.
+
   ENDMETHOD.
 
 
@@ -273,7 +415,22 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
   METHOD fill_header.
 
+    DATA:
+      timezone TYPE timezone.
+
     filled = CORRESPONDING #( data ).
+
+    CALL FUNCTION 'GET_SYSTEM_TIMEZONE'
+      IMPORTING
+        timezone            = timezone " Time Zone
+      EXCEPTIONS
+        customizing_missing = 1
+        OTHERS              = 2.
+    IF sy-subrc <> 0.
+      timezone = 'UTC'.
+    ENDIF.
+
+    CONVERT TIME STAMP data-timestamp TIME ZONE timezone INTO DATE filled-date TIME filled-time.
 
     filled-cross_reference_messages = lines( cross_reference ).
     filled-sequence_messages        = lines( sequence ).
@@ -362,11 +519,11 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
     severity =
         COND #(
-            WHEN line_exists( data[ severity = zif_adu_constants=>check_cross_reference_status-only_in_source ] )
-              OR line_exists( data[ severity = zif_adu_constants=>check_cross_reference_status-only_in_target ] )
-              OR line_exists( data[ severity = zif_adu_constants=>check_cross_reference_status-different_version  ] )
-              OR line_exists( data[ severity = zif_adu_constants=>check_cross_reference_status-inconsistent_source ] )
-              OR line_exists( data[ severity = zif_adu_constants=>check_cross_reference_status-locked_target ] )
+            WHEN line_exists( data[ status = zif_adu_constants=>check_cross_reference_status-only_in_source ] )
+              OR line_exists( data[ status = zif_adu_constants=>check_cross_reference_status-only_in_target ] )
+              OR line_exists( data[ status = zif_adu_constants=>check_cross_reference_status-different_version  ] )
+              OR line_exists( data[ status = zif_adu_constants=>check_cross_reference_status-inconsistent_source ] )
+              OR line_exists( data[ status = zif_adu_constants=>check_cross_reference_status-locked_target ] )
                 THEN zif_adu_constants=>severity-error
                 ELSE zif_adu_constants=>severity-warning ).
 
@@ -397,6 +554,387 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
   METHOD severity_for_online_import.
 
     severity = COND #( WHEN data IS NOT INITIAL THEN zif_adu_constants=>severity-info ).
+
+  ENDMETHOD.
+
+
+  METHOD prepare_alv_log.
+
+    TRY.
+        cl_salv_table=>factory( IMPORTING r_salv_table  = salv_table
+                                CHANGING  t_table       = salv_data->header ).
+      CATCH cx_salv_msg INTO DATA(salv_msg_exception).
+        RETURN. " TODO: Pending raise exception
+    ENDTRY.
+
+    salv_table->get_display_settings( )->set_list_header( |{ 'Transport Check Logs'(001) }: { transport_request }| ).
+
+    salv_table->get_functions( )->set_all( ).
+
+    DATA(salv_sorts) = salv_table->get_sorts( ).
+
+    TRY.
+        salv_sorts->add_sort( columnname = 'DATE' position = 1 sequence = if_salv_c_sort=>sort_down ).
+        salv_sorts->add_sort( columnname = 'TIME' position = 2 sequence = if_salv_c_sort=>sort_down ).
+      CATCH cx_salv_not_found cx_salv_existing cx_salv_data_error.
+    ENDTRY.
+
+    DATA(salv_columns) = salv_table->get_columns( ).
+
+    salv_columns->set_column_position( columnname = 'DATE' position = 3 ).
+    salv_columns->set_column_position( columnname = 'TIME' position = 4 ).
+
+    TRY.
+        salv_columns->set_color_column( 'COLOR' ).
+      CATCH cx_salv_data_error.
+    ENDTRY.
+
+    TRY.
+        salv_columns->set_exception_column( 'EXCEPTION' ).
+      CATCH cx_salv_data_error.
+    ENDTRY.
+
+    LOOP AT salv_columns->get( ) INTO DATA(column).
+
+      CASE column-columnname.
+        WHEN 'CLIENT' OR 'TIMESTAMP'.
+          column-r_column->set_technical( ).
+
+        WHEN 'TRANSPORT_REQUEST'.
+          column-r_column->set_visible( abap_false ).
+
+        WHEN 'CROSS_REFERENCE'.
+          CAST cl_salv_column_table( column-r_column )->set_cell_type( if_salv_c_cell_type=>checkbox ).
+          column-r_column->set_output_length( 3 ).
+          column-r_column->set_short_text( CONV #( 'XRefExec'(023) ) ).
+          column-r_column->set_medium_text( CONV #( 'Cross Ref. Executed'(024) ) ).
+          column-r_column->set_long_text( CONV #( 'Cross Reference Executed'(025) ) ).
+
+        WHEN 'SEQUENCE'.
+          CAST cl_salv_column_table( column-r_column )->set_cell_type( if_salv_c_cell_type=>checkbox ).
+          column-r_column->set_output_length( 3 ).
+          column-r_column->set_short_text( CONV #( 'SeqExec'(026) ) ).
+          column-r_column->set_medium_text( CONV #( 'Sequence Executed'(027) ) ).
+          column-r_column->set_long_text( CONV #( 'Sequence Executed'(027) ) ).
+
+        WHEN 'CROSS_RELEASE'.
+          CAST cl_salv_column_table( column-r_column )->set_cell_type( if_salv_c_cell_type=>checkbox ).
+          column-r_column->set_output_length( 3 ).
+          column-r_column->set_short_text( CONV #( 'XRelExec'(028) ) ).
+          column-r_column->set_medium_text( CONV #( 'Cross Rel. Executed'(029) ) ).
+          column-r_column->set_long_text( CONV #( 'Cross Release Executed'(030) ) ).
+
+        WHEN 'IMPORT_TIME'.
+          CAST cl_salv_column_table( column-r_column )->set_cell_type( if_salv_c_cell_type=>checkbox ).
+          column-r_column->set_output_length( 3 ).
+          column-r_column->set_short_text( CONV #( 'ImpTimeExec'(031) ) ).
+          column-r_column->set_medium_text( CONV #( 'Import Time Executed'(032) ) ).
+          column-r_column->set_long_text( CONV #( 'Import Time Executed'(032) ) ).
+
+        WHEN 'ONLINE_IMPORT'.
+          CAST cl_salv_column_table( column-r_column )->set_cell_type( if_salv_c_cell_type=>checkbox ).
+          column-r_column->set_output_length( 3 ).
+          column-r_column->set_short_text( CONV #( 'OnlImpExec'(033) ) ).
+          column-r_column->set_medium_text( CONV #( 'Online Imp. Executed'(034) ) ).
+          column-r_column->set_long_text( CONV #( 'Online Import Executed'(035) ) ).
+
+        WHEN 'CROSS_REFERENCE_MESSAGES'.
+          CAST cl_salv_column_table( column-r_column )->set_cell_type( if_salv_c_cell_type=>hotspot ).
+          column-r_column->set_output_length( 3 ).
+          column-r_column->set_short_text( CONV #( 'XRefMsg'(010) ) ).
+          column-r_column->set_medium_text( CONV #( 'Cross Ref. Messages'(011) ) ).
+          column-r_column->set_long_text( CONV #( 'Cross Reference Messages'(012) ) ).
+
+        WHEN 'SEQUENCE_MESSAGES'.
+          CAST cl_salv_column_table( column-r_column )->set_cell_type( if_salv_c_cell_type=>hotspot ).
+          column-r_column->set_output_length( 3 ).
+          column-r_column->set_short_text( CONV #( 'SeqMsg'(013) ) ).
+          column-r_column->set_medium_text( CONV #( 'Sequence Messages'(014) ) ).
+          column-r_column->set_long_text( CONV #( 'Sequence Messages'(014) ) ).
+
+        WHEN 'CROSS_RELEASE_MESSAGES'.
+          CAST cl_salv_column_table( column-r_column )->set_cell_type( if_salv_c_cell_type=>hotspot ).
+          column-r_column->set_output_length( 3 ).
+          column-r_column->set_short_text( CONV #( 'XRelMsg'(015) ) ).
+          column-r_column->set_medium_text( CONV #( 'Cross Rel. Messages'(016) ) ).
+          column-r_column->set_long_text( CONV #( 'Cross Release Messages'(017) ) ).
+
+        WHEN 'IMPORT_TIME_MESSAGES'.
+          CAST cl_salv_column_table( column-r_column )->set_cell_type( if_salv_c_cell_type=>hotspot ).
+          column-r_column->set_output_length( 3 ).
+          column-r_column->set_short_text( CONV #( 'ImpTimeMsg'(018) ) ).
+          column-r_column->set_medium_text( CONV #( 'Import Time Messages'(019) ) ).
+          column-r_column->set_long_text( CONV #( 'Import Time Messages'(019) ) ).
+
+        WHEN 'ONLINE_IMPORT_MESSAGES'.
+          CAST cl_salv_column_table( column-r_column )->set_cell_type( if_salv_c_cell_type=>hotspot ).
+          column-r_column->set_output_length( 3 ).
+          column-r_column->set_short_text( CONV #( 'OnlImpMsg'(020) ) ).
+          column-r_column->set_medium_text( CONV #( 'Online Imp. Messages'(021) ) ).
+          column-r_column->set_long_text( CONV #( 'Online Import Messages'(022) ) ).
+
+        WHEN 'SOURCE' OR 'TARGET'.
+          column-r_column->set_output_length( 15 ).
+
+        WHEN 'DATE'.
+          column-r_column->set_output_length( 10 ).
+          column-r_column->set_short_text( CONV #( 'Date'(008) ) ).
+          column-r_column->set_medium_text( CONV #( 'Date'(008) ) ).
+          column-r_column->set_long_text( CONV #( 'Date'(008) ) ).
+
+        WHEN 'TIME'.
+          column-r_column->set_output_length( 10 ).
+          column-r_column->set_short_text( CONV #( 'Time'(009) ) ).
+          column-r_column->set_medium_text( CONV #( 'Time'(009) ) ).
+          column-r_column->set_long_text( CONV #( 'Time'(009) ) ).
+
+      ENDCASE.
+
+    ENDLOOP.
+
+    DATA(salv_events) = salv_table->get_event( ).
+    SET HANDLER handle_header_link_click FOR salv_events ACTIVATION abap_true.
+
+  ENDMETHOD.
+
+
+  METHOD prepare_alv_cross_reference.
+
+    TRY.
+        cl_salv_table=>factory( IMPORTING r_salv_table  = salv_table
+                                CHANGING  t_table       = salv_data->cross_reference ).
+      CATCH cx_salv_msg INTO DATA(salv_msg_exception).
+        RETURN. " TODO: Pending raise exception
+    ENDTRY.
+
+    salv_table->get_display_settings( )->set_list_header( 'Cross reference checks'(002) ).
+
+    salv_table->get_functions( )->set_all( ).
+
+    DATA(salv_columns) = salv_table->get_columns( ).
+
+    salv_columns->set_column_position( columnname = 'SEVERITY' position = 1 ).
+    salv_columns->set_column_position( columnname = 'STATUS_DESCRIPTION' position = 2 ).
+
+    LOOP AT salv_columns->get( ) INTO DATA(column).
+
+      CASE column-columnname.
+        WHEN 'CLIENT' OR 'ANA_TRKORR' OR 'TAR_TRKORR' OR 'ANA_TR_AS4DATE' OR 'ANA_TR_AS4TIME'
+          OR 'TAR_TR_AS4DATE' OR 'TAR_TR_AS4TIME' OR 'ANA_TR_OWNER' OR 'TAR_TR_OWNER' OR 'REF_OBJ_OWNER'.
+          column-r_column->set_technical( ).
+
+        WHEN 'RUN_CODE' OR 'SEQUENCE' OR 'CHK_TRKORR' OR 'AS4POS'.
+          column-r_column->set_visible( abap_false ).
+
+        WHEN 'OBJ_NAME'.
+          column-r_column->set_output_length( 30 ).
+
+        WHEN 'REF_OBJ_NAME'.
+          column-r_column->set_output_length( 60 ).
+
+        WHEN 'PGMID' OR 'OBJ_TYPE' OR 'REF_OBJ_TYPE'.
+          column-r_column->set_output_length( 5 ).
+
+        WHEN 'REM_ANAL'.
+          column-r_column->set_output_length( 3 ).
+
+        WHEN 'STATUS_DESCRIPTION'.
+          column-r_column->set_output_length( 20 ).
+          column-r_column->set_short_text( CONV #( 'Status'(007) ) ).
+          column-r_column->set_medium_text( CONV #( 'Status'(007) ) ).
+          column-r_column->set_long_text( CONV #( 'Status'(007) ) ).
+
+      ENDCASE.
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD prepare_alv_sequence.
+
+    TRY.
+        cl_salv_table=>factory( IMPORTING r_salv_table  = salv_table
+                                CHANGING  t_table       = salv_data->sequence ).
+      CATCH cx_salv_msg INTO DATA(salv_msg_exception).
+        RETURN. " TODO: Pending raise exception
+    ENDTRY.
+
+    salv_table->get_display_settings( )->set_list_header( 'Sequence checks'(003) ).
+
+    salv_table->get_functions( )->set_all( ).
+
+    DATA(salv_columns) = salv_table->get_columns( ).
+
+    TRY.
+        salv_columns->set_color_column( 'COLOR' ).
+      CATCH cx_salv_data_error.
+    ENDTRY.
+
+    TRY.
+        salv_columns->set_exception_column( 'EXCEPTION' ).
+      CATCH cx_salv_data_error.
+    ENDTRY.
+
+    LOOP AT salv_columns->get( ) INTO DATA(column).
+
+      CASE column-columnname.
+        WHEN 'CLIENT'.
+          column-r_column->set_technical( ).
+
+        WHEN 'RUN_CODE'.
+          column-r_column->set_visible( abap_false ).
+
+        WHEN 'SEQUENCE'.
+          column-r_column->set_visible( abap_false ).
+
+        WHEN 'TRANSPORT_REQUEST'.
+          column-r_column->set_visible( abap_false ).
+
+      ENDCASE.
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD prepare_alv_cross_release.
+
+    TRY.
+        cl_salv_table=>factory( IMPORTING r_salv_table  = salv_table
+                                CHANGING  t_table       = salv_data->cross_release ).
+      CATCH cx_salv_msg INTO DATA(salv_msg_exception).
+        RETURN. " TODO: Pending raise exception
+    ENDTRY.
+
+    salv_table->get_display_settings( )->set_list_header( 'Cross release checks'(004) ).
+
+    salv_table->get_functions( )->set_all( ).
+
+    DATA(salv_columns) = salv_table->get_columns( ).
+
+    TRY.
+        salv_columns->set_color_column( 'COLOR' ).
+      CATCH cx_salv_data_error.
+    ENDTRY.
+
+    TRY.
+        salv_columns->set_exception_column( 'EXCEPTION' ).
+      CATCH cx_salv_data_error.
+    ENDTRY.
+
+    LOOP AT salv_columns->get( ) INTO DATA(column).
+
+      CASE column-columnname.
+        WHEN 'CLIENT'.
+          column-r_column->set_technical( ).
+
+        WHEN 'RUN_CODE'.
+          column-r_column->set_visible( abap_false ).
+
+        WHEN 'SEQUENCE'.
+          column-r_column->set_visible( abap_false ).
+
+        WHEN 'TRANSPORT_REQUEST'.
+          column-r_column->set_visible( abap_false ).
+
+      ENDCASE.
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD prepare_alv_import_time.
+
+    TRY.
+        cl_salv_table=>factory( IMPORTING r_salv_table  = salv_table
+                                CHANGING  t_table       = salv_data->import_time ).
+      CATCH cx_salv_msg INTO DATA(salv_msg_exception).
+        RETURN. " TODO: Pending raise exception
+    ENDTRY.
+
+    salv_table->get_display_settings( )->set_list_header( 'Import time checks'(005) ).
+
+    salv_table->get_functions( )->set_all( ).
+
+    DATA(salv_columns) = salv_table->get_columns( ).
+
+    TRY.
+        salv_columns->set_color_column( 'COLOR' ).
+      CATCH cx_salv_data_error.
+    ENDTRY.
+
+    TRY.
+        salv_columns->set_exception_column( 'EXCEPTION' ).
+      CATCH cx_salv_data_error.
+    ENDTRY.
+
+    LOOP AT salv_columns->get( ) INTO DATA(column).
+
+      CASE column-columnname.
+        WHEN 'CLIENT'.
+          column-r_column->set_technical( ).
+
+        WHEN 'RUN_CODE'.
+          column-r_column->set_visible( abap_false ).
+
+        WHEN 'SEQUENCE'.
+          column-r_column->set_visible( abap_false ).
+
+        WHEN 'TRANSPORT_REQUEST'.
+          column-r_column->set_visible( abap_false ).
+
+      ENDCASE.
+
+    ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD prepare_alv_online_import.
+
+    TRY.
+        cl_salv_table=>factory( IMPORTING r_salv_table  = salv_table
+                                CHANGING  t_table       = salv_data->online_import ).
+      CATCH cx_salv_msg INTO DATA(salv_msg_exception).
+        RETURN. " TODO: Pending raise exception
+    ENDTRY.
+
+    salv_table->get_display_settings( )->set_list_header( 'Online import checks'(006) ).
+
+    salv_table->get_functions( )->set_all( ).
+
+    DATA(salv_columns) = salv_table->get_columns( ).
+
+    TRY.
+        salv_columns->set_color_column( 'COLOR' ).
+      CATCH cx_salv_data_error.
+    ENDTRY.
+
+    TRY.
+        salv_columns->set_exception_column( 'EXCEPTION' ).
+      CATCH cx_salv_data_error.
+    ENDTRY.
+
+    LOOP AT salv_columns->get( ) INTO DATA(column).
+
+      CASE column-columnname.
+        WHEN 'CLIENT'.
+          column-r_column->set_technical( ).
+
+        WHEN 'RUN_CODE'.
+          column-r_column->set_visible( abap_false ).
+
+        WHEN 'SEQUENCE'.
+          column-r_column->set_visible( abap_false ).
+
+        WHEN 'TRANSPORT_REQUEST'.
+          column-r_column->set_visible( abap_false ).
+
+      ENDCASE.
+
+    ENDLOOP.
 
   ENDMETHOD.
 

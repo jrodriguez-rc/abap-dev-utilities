@@ -63,6 +63,8 @@ INTERFACE zif_adu_check_transport_reader
     BEGIN OF ts_header.
       INCLUDE TYPE zadu_chktr_head.
     TYPES:
+      date                     TYPE d,
+      time                     TYPE t,
       cross_reference_messages TYPE i,
       sequence_messages        TYPE i,
       cross_release_messages   TYPE i,
@@ -75,6 +77,33 @@ INTERFACE zif_adu_check_transport_reader
         WITH UNIQUE KEY run_code
         WITH NON-UNIQUE SORTED KEY req COMPONENTS transport_request.
 
-  METHODS display.
+  METHODS display
+    IMPORTING
+      as_popup TYPE abap_bool DEFAULT abap_false.
+
+  METHODS display_cross_reference
+    IMPORTING
+      run_code TYPE zadu_run_code
+      as_popup TYPE abap_bool DEFAULT abap_false.
+
+  METHODS display_sequence
+    IMPORTING
+      run_code TYPE zadu_run_code
+      as_popup TYPE abap_bool DEFAULT abap_false.
+
+  METHODS display_cross_release
+    IMPORTING
+      run_code TYPE zadu_run_code
+      as_popup TYPE abap_bool DEFAULT abap_false.
+
+  METHODS display_import_time
+    IMPORTING
+      run_code TYPE zadu_run_code
+      as_popup TYPE abap_bool DEFAULT abap_false.
+
+  METHODS display_online_import
+    IMPORTING
+      run_code TYPE zadu_run_code
+      as_popup TYPE abap_bool DEFAULT abap_false.
 
 ENDINTERFACE.
