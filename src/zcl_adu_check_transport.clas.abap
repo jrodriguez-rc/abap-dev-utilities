@@ -490,7 +490,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     ENDIF.
 
     IF results_online_import IS NOT INITIAL.
-      DATA(online_import_updates) = CORRESPONDING zadu_t_chktr_imtim_update( results_online_import ).
+      DATA(online_import_updates) = CORRESPONDING zadu_t_chktr_onlim_update( results_online_import ).
       LOOP AT online_import_updates REFERENCE INTO DATA(online_import_update).
         sequence = sy-tabix.
         online_import_update->client   = sy-mandt.
