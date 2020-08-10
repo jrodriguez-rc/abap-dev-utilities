@@ -332,7 +332,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
         communication_failure    = 4
         resource_failure         = 5
         OTHERS                   = 6.
-    IF sy-subrc <> 0.
+    IF sy-subrc > 2.
       RAISE EXCEPTION TYPE zcx_adu_check_transport
         EXPORTING
           textid = zcx_adu_check_transport=>error_in
