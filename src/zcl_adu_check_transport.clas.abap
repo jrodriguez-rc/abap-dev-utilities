@@ -4,7 +4,9 @@ CLASS zcl_adu_check_transport DEFINITION
   CREATE PUBLIC .
 
   PUBLIC SECTION.
-    INTERFACES zif_adu_check_transport.
+    INTERFACES:
+      zif_adu_check_transport,
+      if_serializable_object.
 
     "! <p class="shorttext synchronized" lang="en">Generate instantiation</p>
     "!

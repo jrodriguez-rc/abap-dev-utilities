@@ -5,7 +5,9 @@ CLASS zcl_adu_check_transport_reader DEFINITION
   CREATE PUBLIC .
 
   PUBLIC SECTION.
-    INTERFACES zif_adu_check_transport_reader.
+    INTERFACES:
+      zif_adu_check_transport_reader,
+      if_serializable_object.
 
     "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
     "!
