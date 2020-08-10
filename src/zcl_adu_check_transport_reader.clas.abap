@@ -37,16 +37,39 @@ CLASS zcl_adu_check_transport_reader DEFINITION
           WITH NON-UNIQUE SORTED KEY req COMPONENTS transport_request.
 
     TYPES:
+      BEGIN OF ts_online_import_config,
+        tabreads_y TYPE i,
+        tabreads_r TYPE i,
+        tabwrite_y TYPE i,
+        tabwrite_r TYPE i,
+        tabsize_y  TYPE i,
+        tabsize_r  TYPE i,
+        repexe_y   TYPE i,
+        repexe_r   TYPE i,
+        repexedd_y TYPE i,
+        repexedd_r TYPE i,
+      END OF ts_online_import_config.
+
+    TYPES:
       tt_cross_reference_db TYPE STANDARD TABLE OF zadu_chktr_crref WITH DEFAULT KEY,
       tt_sequence_db        TYPE STANDARD TABLE OF zadu_chktr_seq   WITH DEFAULT KEY,
       tt_cross_release_db   TYPE STANDARD TABLE OF zadu_chktr_crrel WITH DEFAULT KEY,
       tt_import_time_db     TYPE STANDARD TABLE OF zadu_chktr_imtim WITH DEFAULT KEY,
       tt_online_import_db   TYPE STANDARD TABLE OF zadu_chktr_onlim WITH DEFAULT KEY.
 
+    CONSTANTS:
+      BEGIN OF alv_column,
+        BEGIN OF object_name,
+          length TYPE lvc_outlen VALUE 40,
+        END OF object_name,
+      END OF alv_column.
+
     DATA:
-      transport_request TYPE trkorr,
-      logs              TYPE zcl_adu_check_transport_reader=>tt_logs,
-      salv_data         TYPE REF TO lcl_salv_data.
+      report_configuration TYPE HASHED TABLE OF /sdf/cmo_tr_conf WITH UNIQUE KEY config_param,
+      online_import_config TYPE ts_online_import_config,
+      transport_request    TYPE trkorr,
+      logs                 TYPE zcl_adu_check_transport_reader=>tt_logs,
+      salv_data            TYPE REF TO lcl_salv_data.
 
     METHODS add_header_log
       IMPORTING
@@ -154,6 +177,8 @@ CLASS zcl_adu_check_transport_reader DEFINITION
       RETURNING
         VALUE(salv_table) TYPE REF TO cl_salv_table.
 
+    METHODS set_online_import_config.
+
 ENDCLASS.
 
 
@@ -179,6 +204,12 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     IF sy-subrc <> 0.
       RETURN.
     ENDIF.
+
+    SELECT *
+      INTO TABLE @report_configuration
+      FROM /sdf/cmo_tr_conf.
+
+    set_online_import_config( ).
 
     salv_data = NEW #( ).
 
@@ -482,12 +513,42 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
     filled-status_description = cl_proxy_utils=>get_domain_text_for_value( filled-status ).
 
+    CASE severity_for_cross_reference( VALUE #( ( data ) ) ).
+      WHEN zif_adu_constants=>severity-error.
+        filled-exception = '1'.
+        filled-color     = VALUE #( ( color-col = col_negative ) ).
+
+      WHEN zif_adu_constants=>severity-warning.
+        filled-exception = '2'.
+        filled-color     = VALUE #( ( color-col = col_key ) ).
+
+      WHEN OTHERS.
+        filled-exception = '3'.
+        filled-color     = VALUE #( ( color-col = col_normal ) ).
+
+    ENDCASE.
+
   ENDMETHOD.
 
 
   METHOD fill_sequence.
 
     filled = CORRESPONDING #( data ).
+
+    CASE severity_for_sequence( VALUE #( ( data ) ) ).
+      WHEN zif_adu_constants=>severity-error.
+        filled-exception = '1'.
+        filled-color     = VALUE #( ( color-col = col_negative ) ).
+
+      WHEN zif_adu_constants=>severity-warning.
+        filled-exception = '2'.
+        filled-color     = VALUE #( ( color-col = col_key ) ).
+
+      WHEN OTHERS.
+        filled-exception = '3'.
+        filled-color     = VALUE #( ( color-col = col_normal ) ).
+
+    ENDCASE.
 
   ENDMETHOD.
 
@@ -510,6 +571,25 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
     filled = CORRESPONDING #( data ).
 
+    IF filled-sequence = 100.
+      filled-criticality = '@0A@'.
+    ENDIF.
+
+    CASE severity_for_online_import( VALUE #( ( data ) ) ).
+      WHEN zif_adu_constants=>severity-error.
+        filled-exception = '1'.
+        filled-color     = VALUE #( ( color-col = col_negative ) ).
+
+      WHEN zif_adu_constants=>severity-warning.
+        filled-exception = '2'.
+        filled-color     = VALUE #( ( color-col = col_key ) ).
+
+      WHEN OTHERS.
+        filled-exception = '3'.
+        filled-color     = VALUE #( ( color-col = col_positive ) ).
+
+    ENDCASE.
+
   ENDMETHOD.
 
 
@@ -523,7 +603,6 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
         COND #(
             WHEN line_exists( data[ status = zif_adu_constants=>check_cross_reference_status-only_in_source ] )
               OR line_exists( data[ status = zif_adu_constants=>check_cross_reference_status-only_in_target ] )
-              OR line_exists( data[ status = zif_adu_constants=>check_cross_reference_status-different_version  ] )
               OR line_exists( data[ status = zif_adu_constants=>check_cross_reference_status-inconsistent_source ] )
               OR line_exists( data[ status = zif_adu_constants=>check_cross_reference_status-locked_target ] )
                 THEN zif_adu_constants=>severity-error
@@ -555,7 +634,34 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
   METHOD severity_for_online_import.
 
-    severity = COND #( WHEN data IS NOT INITIAL THEN zif_adu_constants=>severity-info ).
+    LOOP AT data INTO DATA(result).
+
+      severity =
+        COND #(
+            WHEN result-chcnt > online_import_config-tabwrite_r
+              OR result-accnt > online_import_config-tabreads_r
+              OR ( result-action IS NOT INITIAL AND
+                   result-occtb > online_import_config-tabsize_r )
+              OR ( result-action IS NOT INITIAL AND
+                   result-occtb > online_import_config-tabsize_y AND
+                   ( result-chcnt > online_import_config-tabwrite_y OR
+                     result-accnt > online_import_config-tabreads_y ) )
+              OR result-execnt > online_import_config-repexe_r
+              OR result-execnt_dd > online_import_config-repexedd_r
+              OR result-criobj = abap_true
+                THEN zif_adu_constants=>severity-error
+            WHEN severity <> zif_adu_constants=>severity-error
+             AND ( result-chcnt > online_import_config-tabwrite_y
+                  OR result-accnt > online_import_config-tabreads_y
+                  OR result-execnt > online_import_config-repexe_y
+                  OR result-execnt_dd > online_import_config-repexedd_y OR
+                     ( result-action IS NOT INITIAL AND result-occtb > online_import_config-tabsize_y ) )
+                THEN zif_adu_constants=>severity-warning
+            WHEN severity IS INITIAL
+                THEN zif_adu_constants=>severity-info
+                ELSE severity ).
+
+    ENDLOOP.
 
   ENDMETHOD.
 
@@ -642,41 +748,42 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
         WHEN 'CROSS_REFERENCE_MESSAGES'.
           CAST cl_salv_column_table( column-r_column )->set_cell_type( if_salv_c_cell_type=>hotspot ).
-          column-r_column->set_output_length( 3 ).
+          column-r_column->set_optimized( ).
           column-r_column->set_short_text( CONV #( 'XRefMsg'(010) ) ).
           column-r_column->set_medium_text( CONV #( 'Cross Ref. Messages'(011) ) ).
           column-r_column->set_long_text( CONV #( 'Cross Reference Messages'(012) ) ).
 
         WHEN 'SEQUENCE_MESSAGES'.
           CAST cl_salv_column_table( column-r_column )->set_cell_type( if_salv_c_cell_type=>hotspot ).
-          column-r_column->set_output_length( 3 ).
+          column-r_column->set_optimized( ).
           column-r_column->set_short_text( CONV #( 'SeqMsg'(013) ) ).
           column-r_column->set_medium_text( CONV #( 'Sequence Messages'(014) ) ).
           column-r_column->set_long_text( CONV #( 'Sequence Messages'(014) ) ).
 
         WHEN 'CROSS_RELEASE_MESSAGES'.
           CAST cl_salv_column_table( column-r_column )->set_cell_type( if_salv_c_cell_type=>hotspot ).
-          column-r_column->set_output_length( 3 ).
+          column-r_column->set_optimized( ).
           column-r_column->set_short_text( CONV #( 'XRelMsg'(015) ) ).
           column-r_column->set_medium_text( CONV #( 'Cross Rel. Messages'(016) ) ).
           column-r_column->set_long_text( CONV #( 'Cross Release Messages'(017) ) ).
 
         WHEN 'IMPORT_TIME_MESSAGES'.
           CAST cl_salv_column_table( column-r_column )->set_cell_type( if_salv_c_cell_type=>hotspot ).
-          column-r_column->set_output_length( 3 ).
+          column-r_column->set_optimized( ).
           column-r_column->set_short_text( CONV #( 'ImpTimeMsg'(018) ) ).
           column-r_column->set_medium_text( CONV #( 'Import Time Messages'(019) ) ).
           column-r_column->set_long_text( CONV #( 'Import Time Messages'(019) ) ).
 
         WHEN 'ONLINE_IMPORT_MESSAGES'.
           CAST cl_salv_column_table( column-r_column )->set_cell_type( if_salv_c_cell_type=>hotspot ).
-          column-r_column->set_output_length( 3 ).
+          column-r_column->set_optimized( ).
           column-r_column->set_short_text( CONV #( 'OnlImpMsg'(020) ) ).
           column-r_column->set_medium_text( CONV #( 'Online Imp. Messages'(021) ) ).
           column-r_column->set_long_text( CONV #( 'Online Import Messages'(022) ) ).
 
         WHEN 'SOURCE' OR 'DESTINATION'.
           column-r_column->set_output_length( 15 ).
+          column-r_column->set_visible( abap_false ).
 
         WHEN 'DATE'.
           column-r_column->set_output_length( 10 ).
@@ -715,21 +822,32 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
     DATA(salv_columns) = salv_table->get_columns( ).
 
-    salv_columns->set_column_position( columnname = 'SEVERITY' position = 1 ).
+    TRY.
+        salv_columns->set_color_column( 'COLOR' ).
+      CATCH cx_salv_data_error.
+    ENDTRY.
+
+    TRY.
+        salv_columns->set_exception_column( 'EXCEPTION' ).
+      CATCH cx_salv_data_error.
+    ENDTRY.
+
+*    salv_columns->set_column_position( columnname = 'SEVERITY' position = 1 ).
     salv_columns->set_column_position( columnname = 'STATUS_DESCRIPTION' position = 2 ).
 
     LOOP AT salv_columns->get( ) INTO DATA(column).
 
       CASE column-columnname.
-        WHEN 'CLIENT' OR 'ANA_TRKORR' OR 'TAR_TRKORR' OR 'ANA_TR_AS4DATE' OR 'ANA_TR_AS4TIME'
-          OR 'TAR_TR_AS4DATE' OR 'TAR_TR_AS4TIME' OR 'ANA_TR_OWNER' OR 'TAR_TR_OWNER' OR 'REF_OBJ_OWNER'.
+        WHEN 'CLIENT' OR 'SEVERITY' OR 'ANA_TRKORR' OR 'TAR_TRKORR' OR 'ANA_SID' OR 'TAR_SID'
+          OR 'ANA_TR_AS4DATE' OR 'ANA_TR_AS4TIME' OR 'TAR_TR_AS4DATE' OR 'TAR_TR_AS4TIME'
+          OR 'ANA_TR_OWNER' OR 'TAR_TR_OWNER' OR 'REF_OBJ_OWNER'.
           column-r_column->set_technical( ).
 
         WHEN 'RUN_CODE' OR 'SEQUENCE' OR 'CHK_TRKORR' OR 'AS4POS'.
           column-r_column->set_visible( abap_false ).
 
         WHEN 'OBJ_NAME'.
-          column-r_column->set_output_length( 30 ).
+          column-r_column->set_output_length( alv_column-object_name-length ).
 
         WHEN 'REF_OBJ_NAME'.
           column-r_column->set_output_length( 60 ).
@@ -784,14 +902,22 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
         WHEN 'CLIENT'.
           column-r_column->set_technical( ).
 
-        WHEN 'RUN_CODE'.
+        WHEN 'RUN_CODE' OR 'SEQUENCE' OR 'TRANSPORT_REQUEST' OR 'CHECKED_TRKORR'
+          OR 'CRITICALITY_1' OR 'CRITICALITY_2' OR 'CHECKED_TR_EXP_TIME' OR 'CONFLICT_TR_EXP_TIME'
+          OR 'SOLVE_TR_EXP_TIME' OR 'CONFLICT_TR_CTS_PRJ' OR 'CONFLICT_TR_OWNER'.
           column-r_column->set_visible( abap_false ).
 
-        WHEN 'SEQUENCE'.
-          column-r_column->set_visible( abap_false ).
+        WHEN 'CONFLICT_OBJNAME'.
+          column-r_column->set_output_length( alv_column-object_name-length ).
 
-        WHEN 'TRANSPORT_REQUEST'.
-          column-r_column->set_visible( abap_false ).
+        WHEN 'CONFLICT_PGMID' OR 'CONFLICT_OBJECT'.
+          column-r_column->set_output_length( 5 ).
+
+        WHEN 'CONFLICT_TABLE'.
+          column-r_column->set_output_length( 20 ).
+
+        WHEN 'CONFLICT_TABKEY'.
+          column-r_column->set_output_length( 40 ).
 
       ENDCASE.
 
@@ -907,6 +1033,13 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
     salv_table->get_functions( )->set_all( ).
 
+    DATA(salv_sorts) = salv_table->get_sorts( ).
+
+    TRY.
+        salv_sorts->add_sort( columnname = 'EXCEPTION' position = 1 sequence = if_salv_c_sort=>sort_up ).
+      CATCH cx_salv_not_found cx_salv_existing cx_salv_data_error.
+    ENDTRY.
+
     DATA(salv_columns) = salv_table->get_columns( ).
 
     TRY.
@@ -922,21 +1055,89 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     LOOP AT salv_columns->get( ) INTO DATA(column).
 
       CASE column-columnname.
-        WHEN 'CLIENT'.
+        WHEN 'CLIENT' OR 'RUN_CODE' OR 'SEQUENCE' OR 'CRITICALITY'.
           column-r_column->set_technical( ).
 
-        WHEN 'RUN_CODE'.
+        WHEN 'TRKORR' OR 'COMPONENT' OR 'CRIOBJ'.
           column-r_column->set_visible( abap_false ).
 
-        WHEN 'SEQUENCE'.
-          column-r_column->set_visible( abap_false ).
+        WHEN 'OBJ_NAME'.
+          column-r_column->set_output_length( alv_column-object_name-length ).
 
-        WHEN 'TRANSPORT_REQUEST'.
-          column-r_column->set_visible( abap_false ).
+        WHEN 'OBJECT'.
+          column-r_column->set_output_length( 5 ).
+
+        WHEN 'ACCNT' OR 'CHCNT' OR 'OCCTB' OR 'EXECNT' OR 'EXECNT_DD'.
+          column-r_column->set_output_length( 15 ).
 
       ENDCASE.
 
     ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD set_online_import_config.
+
+    TRY.
+        online_import_config-tabreads_y = report_configuration[ config_param = 'TABREADS_Y' ]-param_value_i.
+      CATCH cx_sy_itab_line_not_found.
+        online_import_config-tabreads_y = 10000.
+    ENDTRY.
+
+    TRY.
+        online_import_config-tabreads_r = report_configuration[ config_param = 'TABREADS_R' ]-param_value_i.
+      CATCH cx_sy_itab_line_not_found.
+        online_import_config-tabreads_r = 100000.
+    ENDTRY.
+
+    TRY.
+        online_import_config-tabwrite_y = report_configuration[ config_param = 'TABWRITE_Y' ]-param_value_i.
+      CATCH cx_sy_itab_line_not_found.
+        online_import_config-tabwrite_y = 500.
+    ENDTRY.
+
+    TRY.
+        online_import_config-tabwrite_r = report_configuration[ config_param = 'TABWRITE_R' ]-param_value_i.
+      CATCH cx_sy_itab_line_not_found.
+        online_import_config-tabwrite_r = 5000.
+    ENDTRY.
+
+    TRY.
+        online_import_config-tabsize_y = report_configuration[ config_param = 'TABSIZE_Y' ]-param_value_i.
+      CATCH cx_sy_itab_line_not_found.
+        online_import_config-tabsize_y = 100000.
+    ENDTRY.
+
+    TRY.
+        online_import_config-tabsize_r = report_configuration[ config_param = 'TABSIZE_R' ]-param_value_i.
+      CATCH cx_sy_itab_line_not_found.
+        online_import_config-tabsize_r = 600000.
+    ENDTRY.
+
+    TRY.
+        online_import_config-repexe_y = report_configuration[ config_param = 'REPEXE_Y' ]-param_value_i.
+      CATCH cx_sy_itab_line_not_found.
+        online_import_config-repexe_y = 5000000.
+    ENDTRY.
+
+    TRY.
+        online_import_config-repexe_r = report_configuration[ config_param = 'REPEXE_R' ]-param_value_i.
+      CATCH cx_sy_itab_line_not_found.
+        online_import_config-repexe_r = 50000000.
+    ENDTRY.
+
+    TRY.
+        online_import_config-repexedd_y = report_configuration[ config_param = 'REPEXEDD_Y' ]-param_value_i.
+      CATCH cx_sy_itab_line_not_found.
+        online_import_config-repexedd_y = 1000000.
+    ENDTRY.
+
+    TRY.
+        online_import_config-repexedd_r = report_configuration[ config_param = 'REPEXEDD_R' ]-param_value_i.
+      CATCH cx_sy_itab_line_not_found.
+        online_import_config-repexedd_r = 10000000.
+    ENDTRY.
 
   ENDMETHOD.
 

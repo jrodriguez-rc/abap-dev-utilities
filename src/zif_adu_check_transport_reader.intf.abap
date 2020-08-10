@@ -10,6 +10,8 @@ INTERFACE zif_adu_check_transport_reader
       INCLUDE TYPE zadu_chktr_crref.
     TYPES:
       status_description TYPE string,
+      exception          TYPE c LENGTH 1,
+      color              TYPE lvc_t_scol,
     END OF ts_cross_reference,
     tt_cross_reference TYPE HASHED TABLE OF zif_adu_check_transport_reader=>ts_cross_reference
         WITH UNIQUE KEY run_code sequence
