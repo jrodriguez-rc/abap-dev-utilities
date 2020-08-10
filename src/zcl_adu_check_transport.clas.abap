@@ -45,7 +45,7 @@ CLASS zcl_adu_check_transport DEFINITION
         run_code                TYPE zadu_run_code,
         transport_request       TYPE trkorr,
         rfc_source              TYPE rfcdest,
-        rfc_target              TYPE rfcdest,
+        rfc_destination         TYPE rfcdest,
         source_system_name      TYPE sysname,
         destination_system_name TYPE sysname,
         checked_cross_reference TYPE abap_bool,
@@ -107,7 +107,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
 
     run_data-transport_request = transport_request.
     run_data-rfc_source        = rfc_source.
-    run_data-rfc_target   = rfc_target.
+    run_data-rfc_destination   = rfc_target.
 
     run_data-source_system_name      = get_system_info( rfc_source ).
     run_data-destination_system_name = get_system_info( rfc_target ).
@@ -146,14 +146,14 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     run_data-checked_cross_reference = abap_true.
 
     check_authorization( rfcdest = run_data-rfc_source      authority_object = lc_authorization-source ).
-    check_authorization( rfcdest = run_data-rfc_target authority_object = lc_authorization-destionation ).
+    check_authorization( rfcdest = run_data-rfc_destination authority_object = lc_authorization-destionation ).
 
     requests = VALUE #( ( trkorr = run_data-transport_request ) ).
 
     CALL FUNCTION '/SDF/TEAP_ENVI_ANA'
       EXPORTING
         iv_ana_rfc                 = run_data-rfc_source
-        iv_tar_rfc                 = run_data-rfc_target
+        iv_tar_rfc                 = run_data-rfc_destination
       TABLES
         it_reqs                    = requests
         et_envanal_res_err         = results_cross_reference
@@ -196,7 +196,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     run_data-checked_sequence = abap_true.
 
     check_authorization( rfcdest = run_data-rfc_source      authority_object = lc_authorization-source ).
-    check_authorization( rfcdest = run_data-rfc_target authority_object = lc_authorization-destionation ).
+    check_authorization( rfcdest = run_data-rfc_destination authority_object = lc_authorization-destionation ).
 
     DATA(alog) = VALUE tmstpalogs( ( listname = '/SDF/CMO_TR_CHECK'
                                      trkorr   = run_data-transport_request
@@ -217,7 +217,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
         iv_dev_sid                 = run_data-source_system_name
         iv_tar_sid                 = run_data-destination_system_name
         iv_dev_rfc                 = run_data-rfc_source
-        iv_tar_rfc                 = run_data-rfc_target
+        iv_tar_rfc                 = run_data-rfc_destination
         iv_start_date              = start_date
         iv_end_date                = sy-datum
       TABLES
@@ -262,7 +262,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     run_data-checked_cross_release = abap_true.
 
     check_authorization( rfcdest = run_data-rfc_source      authority_object = lc_authorization-source ).
-    check_authorization( rfcdest = run_data-rfc_target authority_object = lc_authorization-destionation ).
+    check_authorization( rfcdest = run_data-rfc_destination authority_object = lc_authorization-destionation ).
 
     DATA(alog) = VALUE tmstpalogs( ( listname = '/SDF/CMO_TR_CHECK'
                                      trkorr   = run_data-transport_request
@@ -273,7 +273,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
         iv_dev_sid            = run_data-source_system_name
         iv_tar_sid            = run_data-destination_system_name
         iv_dev_rfc            = run_data-rfc_source
-        iv_tar_rfc            = run_data-rfc_target
+        iv_tar_rfc            = run_data-rfc_destination
         iv_start_date         = sy-datum
         iv_end_date           = sy-datum
       TABLES
@@ -362,14 +362,14 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     run_data-checked_online_import = abap_true.
 
     check_authorization( rfcdest = run_data-rfc_source      authority_object = lc_authorization-source ).
-    check_authorization( rfcdest = run_data-rfc_target authority_object = lc_authorization-destionation ).
+    check_authorization( rfcdest = run_data-rfc_destination authority_object = lc_authorization-destionation ).
 
     requests = VALUE #( ( trkorr = run_data-transport_request ) ).
 
     CALL FUNCTION '/SDF/OI_CHECK'
       EXPORTING
         iv_ana_rfc                  = run_data-rfc_source
-        iv_tar_rfc                  = run_data-rfc_target
+        iv_tar_rfc                  = run_data-rfc_destination
       TABLES
         it_reqs                     = requests
         et_result                   = online_import
@@ -408,19 +408,21 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     GET TIME STAMP FIELD DATA(current_timestamp).
 
     DATA(header) = VALUE zadu_s_chktr_head_update(
-                               client            = sy-mandt
-                               run_code          = run_data-run_code
-                               transport_request = run_data-transport_request
-                               timestamp         = current_timestamp
-                               username          = sy-uname
-                               source            = run_data-rfc_source
-                               target            = run_data-rfc_target
-                               cross_reference   = run_data-checked_cross_reference
-                               sequence          = run_data-checked_sequence
-                               cross_release     = run_data-checked_cross_release
-                               import_time       = run_data-checked_import_time
-                               online_import     = run_data-checked_online_import
-                               crud_ind          = zif_adu_constants=>crud-create ).
+                               client             = sy-mandt
+                               run_code           = run_data-run_code
+                               transport_request  = run_data-transport_request
+                               timestamp          = current_timestamp
+                               username           = sy-uname
+                               source             = run_data-rfc_source
+                               source_system      = run_data-source_system_name
+                               destination        = run_data-rfc_destination
+                               destination_system = run_data-destination_system_name
+                               cross_reference    = run_data-checked_cross_reference
+                               sequence           = run_data-checked_sequence
+                               cross_release      = run_data-checked_cross_release
+                               import_time        = run_data-checked_import_time
+                               online_import      = run_data-checked_online_import
+                               crud_ind           = zif_adu_constants=>crud-create ).
 
     CALL FUNCTION 'ZADU_TRANSPORT_UPDATE_HEADER'
       IN UPDATE TASK

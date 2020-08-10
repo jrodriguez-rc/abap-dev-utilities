@@ -673,7 +673,7 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
           column-r_column->set_medium_text( CONV #( 'Online Imp. Messages'(021) ) ).
           column-r_column->set_long_text( CONV #( 'Online Import Messages'(022) ) ).
 
-        WHEN 'SOURCE' OR 'TARGET'.
+        WHEN 'SOURCE' OR 'DESTINATION'.
           column-r_column->set_output_length( 15 ).
 
         WHEN 'DATE'.
