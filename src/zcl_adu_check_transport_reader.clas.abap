@@ -157,12 +157,6 @@ CLASS zcl_adu_check_transport_reader DEFINITION
       RETURNING
         VALUE(severity) TYPE zif_adu_check_transport_reader=>ty_severity.
 
-    METHODS severity_for_online_import_sum
-      IMPORTING
-        data            TYPE tt_online_import_summary_db
-      RETURNING
-        VALUE(severity) TYPE zif_adu_check_transport_reader=>ty_severity.
-
     METHODS severity_for_online_import
       IMPORTING
         data            TYPE tt_online_import_db
@@ -463,21 +457,21 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     ENDLOOP.
 
     SELECT *
-      INTO TABLE @DATA(online_import_summaries)
-      FROM zadu_chktr_oisum
-      WHERE run_code          = @header_log-run_code
-        AND transport_request = @header_log-transport_request.
-    LOOP AT online_import_summaries REFERENCE INTO DATA(online_import_summary).
-      INSERT fill_online_import_summary( online_import_summary->* ) INTO TABLE log->online_import_summary.
-    ENDLOOP.
-
-    SELECT *
       INTO TABLE @DATA(online_imports)
       FROM zadu_chktr_onlim
       WHERE run_code          = @header_log-run_code
         AND transport_request = @header_log-transport_request.
     LOOP AT online_imports REFERENCE INTO DATA(online_import).
       INSERT fill_online_import( online_import->* ) INTO TABLE log->online_import.
+    ENDLOOP.
+
+    SELECT *
+      INTO TABLE @DATA(online_import_summaries)
+      FROM zadu_chktr_oisum
+      WHERE run_code          = @header_log-run_code
+        AND transport_request = @header_log-transport_request.
+    LOOP AT online_import_summaries REFERENCE INTO DATA(online_import_summary).
+      INSERT fill_online_import_summary( online_import_summary->* ) INTO TABLE log->online_import_summary.
     ENDLOOP.
 
     log->header = fill_header( data                  = header_log
@@ -531,7 +525,7 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     ENDIF.
 
     IF severity IS INITIAL.
-      severity = severity_for_online_import_sum( online_import_summary ).
+      severity = severity_for_online_import( online_import ).
     ENDIF.
 
     CASE severity.
@@ -630,7 +624,9 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
       CLEAR: filled-details_icon.
     ENDIF.
 
-    CASE severity_for_online_import_sum( VALUE #( ( data ) ) ).
+    CASE severity_for_online_import(
+                            CORRESPONDING #( logs[ run_code          = data-run_code
+                                                   transport_request = data-transport_request ]-online_import ) ).
       WHEN zif_adu_constants=>severity-error.
         filled-exception = '1'.
         filled-color     = VALUE #( ( color-col = col_negative ) ).
@@ -720,10 +716,6 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
     severity = COND #( WHEN data IS NOT INITIAL THEN zif_adu_constants=>severity-info ).
 
-  ENDMETHOD.
-
-
-  METHOD severity_for_online_import_sum.
   ENDMETHOD.
 
 
