@@ -76,6 +76,23 @@
      </DOCUMENTATION>
     </item>
     <item>
+     <FUNCNAME>ZADU_TRANSPORT_UPDATE_OI_SUM</FUNCNAME>
+     <UPDATE_TASK>1</UPDATE_TASK>
+     <SHORT_TEXT>Check Transport Online Import Summary DB update</SHORT_TEXT>
+     <IMPORT>
+      <RSIMP>
+       <PARAMETER>ONLINE_IMPORT_SUMMARY_UPDATES</PARAMETER>
+       <TYP>ZADU_T_CHKTR_OISUM_UPDATE</TYP>
+      </RSIMP>
+     </IMPORT>
+     <DOCUMENTATION>
+      <RSFDO>
+       <PARAMETER>ONLINE_IMPORT_SUMMARY_UPDATES</PARAMETER>
+       <KIND>P</KIND>
+      </RSFDO>
+     </DOCUMENTATION>
+    </item>
+    <item>
      <FUNCNAME>ZADU_TRANSPORT_UPDATE_ONL_IMP</FUNCNAME>
      <UPDATE_TASK>1</UPDATE_TASK>
      <SHORT_TEXT>Check Transport Online Import DB update</SHORT_TEXT>

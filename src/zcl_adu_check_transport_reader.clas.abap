@@ -23,14 +23,15 @@ CLASS zcl_adu_check_transport_reader DEFINITION
   PRIVATE SECTION.
     TYPES:
       BEGIN OF ts_logs,
-        run_code          TYPE zadu_run_code,
-        transport_request TYPE trkorr,
-        header            TYPE zif_adu_check_transport_reader=>ts_header,
-        cross_reference   TYPE zif_adu_check_transport_reader=>tt_cross_reference,
-        sequence          TYPE zif_adu_check_transport_reader=>tt_sequence,
-        cross_release     TYPE zif_adu_check_transport_reader=>tt_cross_release,
-        import_time       TYPE zif_adu_check_transport_reader=>tt_import_time,
-        online_import     TYPE zif_adu_check_transport_reader=>tt_online_import,
+        run_code              TYPE zadu_run_code,
+        transport_request     TYPE trkorr,
+        header                TYPE zif_adu_check_transport_reader=>ts_header,
+        cross_reference       TYPE zif_adu_check_transport_reader=>tt_cross_reference,
+        sequence              TYPE zif_adu_check_transport_reader=>tt_sequence,
+        cross_release         TYPE zif_adu_check_transport_reader=>tt_cross_release,
+        import_time           TYPE zif_adu_check_transport_reader=>tt_import_time,
+        online_import_summary TYPE zif_adu_check_transport_reader=>tt_online_import_summary,
+        online_import         TYPE zif_adu_check_transport_reader=>tt_online_import,
       END OF ts_logs,
       tt_logs TYPE HASHED TABLE OF ts_logs
           WITH UNIQUE KEY run_code transport_request
@@ -52,11 +53,12 @@ CLASS zcl_adu_check_transport_reader DEFINITION
       END OF ts_online_import_config.
 
     TYPES:
-      tt_cross_reference_db TYPE STANDARD TABLE OF zadu_chktr_crref WITH DEFAULT KEY,
-      tt_sequence_db        TYPE STANDARD TABLE OF zadu_chktr_seq   WITH DEFAULT KEY,
-      tt_cross_release_db   TYPE STANDARD TABLE OF zadu_chktr_crrel WITH DEFAULT KEY,
-      tt_import_time_db     TYPE STANDARD TABLE OF zadu_chktr_imtim WITH DEFAULT KEY,
-      tt_online_import_db   TYPE STANDARD TABLE OF zadu_chktr_onlim WITH DEFAULT KEY.
+      tt_cross_reference_db       TYPE STANDARD TABLE OF zadu_chktr_crref WITH DEFAULT KEY,
+      tt_sequence_db              TYPE STANDARD TABLE OF zadu_chktr_seq   WITH DEFAULT KEY,
+      tt_cross_release_db         TYPE STANDARD TABLE OF zadu_chktr_crrel WITH DEFAULT KEY,
+      tt_import_time_db           TYPE STANDARD TABLE OF zadu_chktr_imtim WITH DEFAULT KEY,
+      tt_online_import_summary_db TYPE STANDARD TABLE OF zadu_chktr_oisum WITH DEFAULT KEY,
+      tt_online_import_db         TYPE STANDARD TABLE OF zadu_chktr_onlim WITH DEFAULT KEY.
 
     CONSTANTS:
       BEGIN OF alv_column,
@@ -76,23 +78,17 @@ CLASS zcl_adu_check_transport_reader DEFINITION
       IMPORTING
         header_log TYPE zadu_chktr_head.
 
-    METHODS handle_header_link_click
-        FOR EVENT if_salv_events_actions_table~link_click OF cl_salv_events_table
-      IMPORTING
-        row
-        column
-        sender.
-
     METHODS fill_header
       IMPORTING
-        data            TYPE zadu_chktr_head
-        cross_reference TYPE tt_cross_reference_db OPTIONAL
-        sequence        TYPE tt_sequence_db OPTIONAL
-        cross_release   TYPE tt_cross_release_db OPTIONAL
-        import_time     TYPE tt_import_time_db OPTIONAL
-        online_import   TYPE tt_online_import_db OPTIONAL
+        data                  TYPE zadu_chktr_head
+        cross_reference       TYPE tt_cross_reference_db OPTIONAL
+        sequence              TYPE tt_sequence_db OPTIONAL
+        cross_release         TYPE tt_cross_release_db OPTIONAL
+        import_time           TYPE tt_import_time_db OPTIONAL
+        online_import_summary TYPE tt_online_import_summary_db OPTIONAL
+        online_import         TYPE tt_online_import_db OPTIONAL
       RETURNING
-        VALUE(filled)   TYPE zif_adu_check_transport_reader=>ts_header.
+        VALUE(filled)         TYPE zif_adu_check_transport_reader=>ts_header.
 
     METHODS fill_cross_reference
       IMPORTING
@@ -117,6 +113,12 @@ CLASS zcl_adu_check_transport_reader DEFINITION
         data          TYPE zadu_chktr_imtim
       RETURNING
         VALUE(filled) TYPE zif_adu_check_transport_reader=>ts_import_time.
+
+    METHODS fill_online_import_summary
+      IMPORTING
+        data          TYPE zadu_chktr_oisum
+      RETURNING
+        VALUE(filled) TYPE zif_adu_check_transport_reader=>ts_online_import_summary.
 
     METHODS fill_online_import
       IMPORTING
@@ -182,6 +184,10 @@ CLASS zcl_adu_check_transport_reader DEFINITION
         VALUE(salv_table) TYPE REF TO cl_salv_table.
 
     METHODS prepare_alv_import_time
+      RETURNING
+        VALUE(salv_table) TYPE REF TO cl_salv_table.
+
+    METHODS prepare_alv_online_import_sum
       RETURNING
         VALUE(salv_table) TYPE REF TO cl_salv_table.
 
@@ -254,9 +260,6 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     ENDIF.
 
     salv_table->display( ).
-
-    DATA(salv_events) = salv_table->get_event( ).
-    SET HANDLER handle_header_link_click FOR salv_events ACTIVATION abap_false.
 
   ENDMETHOD.
 
@@ -361,6 +364,31 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD zif_adu_check_transport_reader~display_online_import_summary.
+
+    CLEAR: salv_data->online_import_summary.
+
+    DATA(filtered_logs) = filter_logs( run_code          = run_code
+                                       transport_request = transport_request ).
+
+    LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
+      INSERT LINES OF filtered_log->online_import_summary INTO TABLE salv_data->online_import_summary.
+    ENDLOOP.
+
+    DATA(salv_table) = prepare_alv_online_import_sum( ).
+
+    IF as_popup = abap_true.
+      salv_table->set_screen_popup( start_column = 30
+                                    end_column   = 120
+                                    start_line   = 10
+                                    end_line     = 20 ).
+    ENDIF.
+
+    salv_table->display( ).
+
+  ENDMETHOD.
+
+
   METHOD zif_adu_check_transport_reader~display_online_import.
 
     CLEAR: salv_data->online_import.
@@ -382,36 +410,6 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     ENDIF.
 
     salv_table->display( ).
-
-  ENDMETHOD.
-
-
-  METHOD handle_header_link_click.
-
-    DATA(log_header) = salv_data->header[ row ].
-
-    CASE column.
-      WHEN 'CROSS_REFERENCE_MESSAGES'.
-        zif_adu_check_transport_reader~display_cross_reference( run_code          = log_header-run_code
-                                                                transport_request = log_header-transport_request ).
-
-      WHEN 'SEQUENCE_MESSAGES'.
-        zif_adu_check_transport_reader~display_sequence( run_code          = log_header-run_code
-                                                         transport_request = log_header-transport_request ).
-
-      WHEN 'CROSS_RELEASE_MESSAGES'.
-        zif_adu_check_transport_reader~display_cross_release( run_code          = log_header-run_code
-                                                              transport_request = log_header-transport_request ).
-
-      WHEN 'IMPORT_TIME_MESSAGES'.
-        zif_adu_check_transport_reader~display_import_time( run_code          = log_header-run_code
-                                                            transport_request = log_header-transport_request ).
-
-      WHEN 'ONLINE_IMPORT_MESSAGES'.
-        zif_adu_check_transport_reader~display_online_import( run_code          = log_header-run_code
-                                                              transport_request = log_header-transport_request ).
-
-    ENDCASE.
 
   ENDMETHOD.
 
@@ -467,12 +465,22 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
       INSERT fill_online_import( online_import->* ) INTO TABLE log->online_import.
     ENDLOOP.
 
-    log->header = fill_header( data            = header_log
-                               cross_reference = CONV #( cross_references )
-                               sequence        = CONV #( sequences )
-                               cross_release   = CONV #( cross_releases )
-                               import_time     = CONV #( import_times )
-                               online_import   = CONV #( online_imports ) ).
+    SELECT *
+      INTO TABLE @DATA(online_import_summaries)
+      FROM zadu_chktr_oisum
+      WHERE run_code          = @header_log-run_code
+        AND transport_request = @header_log-transport_request.
+    LOOP AT online_import_summaries REFERENCE INTO DATA(online_import_summary).
+      INSERT fill_online_import_summary( online_import_summary->* ) INTO TABLE log->online_import_summary.
+    ENDLOOP.
+
+    log->header = fill_header( data                  = header_log
+                               cross_reference       = CONV #( cross_references )
+                               sequence              = CONV #( sequences )
+                               cross_release         = CONV #( cross_releases )
+                               import_time           = CONV #( import_times )
+                               online_import_summary = CONV #( online_import_summaries )
+                               online_import         = CONV #( online_imports ) ).
 
   ENDMETHOD.
 
@@ -500,7 +508,7 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     filled-sequence_messages        = lines( sequence ).
     filled-cross_release_messages   = lines( cross_release ).
     filled-import_time_messages     = lines( import_time ).
-    filled-online_import_messages   = lines( online_import ).
+    filled-online_import_messages   = lines( online_import_summary ).
 
     DATA(severity) = severity_for_cross_reference( cross_reference ).
 
@@ -598,13 +606,47 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD fill_online_import.
+  METHOD fill_online_import_summary.
 
     filled = CORRESPONDING #( data ).
 
-    IF filled-sequence = 100.
-      filled-criticality = '@0A@'.
+    CALL FUNCTION 'ICON_CREATE'
+      EXPORTING
+        name                  = icon_doc_item_detail
+        info                  = 'Display details'
+      IMPORTING
+        result                = filled-details_icon
+      EXCEPTIONS
+        icon_not_found        = 1
+        outputfield_too_short = 2
+        OTHERS                = 3.
+    IF sy-subrc <> 0.
+      CLEAR: filled-details_icon.
     ENDIF.
+
+    CASE severity_for_online_import(
+                            CORRESPONDING #( logs[ run_code          = data-run_code
+                                                   transport_request = data-transport_request ]-online_import ) ).
+      WHEN zif_adu_constants=>severity-error.
+        filled-exception = '1'.
+        filled-color     = VALUE #( ( color-col = col_negative ) ).
+
+      WHEN zif_adu_constants=>severity-warning.
+        filled-exception = '2'.
+        filled-color     = VALUE #( ( color-col = col_key ) ).
+
+      WHEN OTHERS.
+        filled-exception = '3'.
+        filled-color     = VALUE #( ( color-col = col_positive ) ).
+
+    ENDCASE.
+
+  ENDMETHOD.
+
+
+  METHOD fill_online_import.
+
+    filled = CORRESPONDING #( data ).
 
     CASE severity_for_online_import( VALUE #( ( data ) ) ).
       WHEN zif_adu_constants=>severity-error.
@@ -720,7 +762,11 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
         RETURN. " TODO: Pending raise exception
     ENDTRY.
 
-    salv_table->get_display_settings( )->set_list_header( |{ 'Transport Check Logs'(001) }: { transport_request }| ).
+    salv_table->get_display_settings( )->set_list_header(
+                COND #( LET text = |{ 'Transport Check Logs'(001) }|
+                        IN WHEN transport_request IS INITIAL
+                               THEN text
+                               ELSE |{ text }: { transport_request }| ) ).
 
     salv_table->get_functions( )->set_all( ).
 
@@ -735,7 +781,11 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     prepare_alv_log_columns( salv_table->get_columns( ) ).
 
     DATA(salv_events) = salv_table->get_event( ).
-    SET HANDLER handle_header_link_click FOR salv_events ACTIVATION abap_true.
+
+    DATA(event_handler) = NEW lcl_event_handler( reader     = me
+                                                 salv_table = salv_table ).
+
+    SET HANDLER event_handler->header_link_click FOR salv_events ACTIVATION abap_true.
 
   ENDMETHOD.
 
@@ -1065,6 +1115,111 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
       ENDCASE.
 
     ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD prepare_alv_online_import_sum.
+
+    TRY.
+        cl_salv_table=>factory( IMPORTING r_salv_table = salv_table
+                                CHANGING  t_table      = salv_data->online_import_summary ).
+      CATCH cx_salv_msg INTO DATA(salv_msg_exception).
+        RETURN. " TODO: Pending raise exception
+    ENDTRY.
+
+    salv_table->get_display_settings( )->set_list_header( 'Online import summary checks'(036) ).
+
+    salv_table->get_functions( )->set_all( ).
+
+    DATA(salv_sorts) = salv_table->get_sorts( ).
+
+    TRY.
+        salv_sorts->add_sort( columnname = 'EXCEPTION' position = 1 sequence = if_salv_c_sort=>sort_up ).
+      CATCH cx_salv_not_found cx_salv_existing cx_salv_data_error.
+    ENDTRY.
+
+    DATA(salv_columns) = salv_table->get_columns( ).
+
+    TRY.
+        salv_columns->set_color_column( 'COLOR' ).
+      CATCH cx_salv_data_error.
+    ENDTRY.
+
+    TRY.
+        salv_columns->set_exception_column( 'EXCEPTION' ).
+      CATCH cx_salv_data_error.
+    ENDTRY.
+
+    salv_columns->set_column_position( columnname = 'DETAILS_ICON' position = 3 ).
+
+    LOOP AT salv_columns->get( ) INTO DATA(column).
+
+      CASE column-columnname.
+        WHEN 'CLIENT' OR 'RUN_CODE' OR 'SEQUENCE' OR 'TRKORR' OR 'CRITICALITY' OR 'AS4USER'.
+          column-r_column->set_technical( ).
+
+        WHEN 'DETAILS_ICON'.
+          CAST cl_salv_column_table( column-r_column )->set_cell_type( if_salv_c_cell_type=>hotspot ).
+          column-r_column->set_output_length( 5 ).
+          column-r_column->set_short_text( CONV #( 'Details'(053) ) ).
+          column-r_column->set_medium_text( CONV #( 'Details'(053) ) ).
+          column-r_column->set_long_text( CONV #( 'Details)'(053) ) ).
+
+        WHEN 'ACCNT'.
+          column-r_column->set_short_text( CONV #( 'Tab.Read/H'(037) ) ).
+          column-r_column->set_medium_text( CONV #( 'Table Reads per Hour'(038) ) ).
+          column-r_column->set_long_text( CONV #( 'Table Reads per Hour'(038) ) ).
+
+        WHEN 'CHCNT'.
+          column-r_column->set_short_text( CONV #( 'TabWrite/H'(039) ) ).
+          column-r_column->set_medium_text( CONV #( 'Table Writes per Hour'(040) ) ).
+          column-r_column->set_long_text( CONV #( 'Table Writes per Hour'(040) ) ).
+
+        WHEN 'OCCTB'.
+          column-r_column->set_short_text( CONV #( 'Table Size'(041) ) ).
+          column-r_column->set_medium_text( CONV #( 'Table Size [KB]'(042) ) ).
+          column-r_column->set_long_text( CONV #( 'Table Size [KB]'(042) ) ).
+
+        WHEN 'ACTION'.
+          column-r_column->set_short_text( CONV #( 'DB Action'(043) ) ).
+          column-r_column->set_medium_text( CONV #( 'DB Action'(043) ) ).
+          column-r_column->set_long_text( CONV #( 'DB Action'(043) ) ).
+
+        WHEN 'EXECNT'.
+          column-r_column->set_short_text( CONV #( 'RepExec/h'(044) ) ).
+          column-r_column->set_medium_text( CONV #( 'Report Exec.per Hour'(045) ) ).
+          column-r_column->set_long_text( CONV #( 'Report Exec.per Hour'(045) ) ).
+
+        WHEN 'EXECNT_DD'.
+          column-r_column->set_short_text( CONV #( 'RepEx/hDD'(046) ) ).
+          column-r_column->set_medium_text( CONV #( 'Report Exec./Hour DD'(047) ) ).
+          column-r_column->set_long_text( CONV #( 'Report Exec.per Hour (DD)'(048) ) ).
+
+        WHEN 'CRIOBJ'.
+          CAST cl_salv_column_table( column-r_column )->set_cell_type( if_salv_c_cell_type=>checkbox ).
+          column-r_column->set_output_length( 3 ).
+          column-r_column->set_short_text( CONV #( 'Crit.Obj.'(049) ) ).
+          column-r_column->set_medium_text( CONV #( 'Critical Object'(050) ) ).
+          column-r_column->set_long_text( CONV #( 'Critical Object)'(050) ) ).
+
+        WHEN 'REQ_IN_TAR'.
+          CAST cl_salv_column_table( column-r_column )->set_cell_type( if_salv_c_cell_type=>checkbox ).
+          column-r_column->set_output_length( 3 ).
+          column-r_column->set_short_text( CONV #( 'ReqInTarg'(051) ) ).
+          column-r_column->set_medium_text( CONV #( 'Request in Target'(052) ) ).
+          column-r_column->set_long_text( CONV #( 'Request in Target'(052) ) ).
+
+      ENDCASE.
+
+    ENDLOOP.
+
+    DATA(salv_events) = salv_table->get_event( ).
+
+    DATA(event_handler) = NEW lcl_event_handler( reader     = me
+                                                 salv_table = salv_table ).
+
+    SET HANDLER event_handler->oi_summary_link_click FOR salv_events ACTIVATION abap_true.
 
   ENDMETHOD.
 
