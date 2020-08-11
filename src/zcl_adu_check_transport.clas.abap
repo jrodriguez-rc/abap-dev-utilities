@@ -432,7 +432,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     DATA(sequence_updates) = CORRESPONDING zadu_t_chktr_seq_update( results_sequence ).
     DATA(cross_release_updates) = CORRESPONDING zadu_t_chktr_crrel_update( results_cross_release ).
     DATA(import_time_updates) = CORRESPONDING zadu_t_chktr_imtim_update( results_import_time ).
-    DATA(online_import_summary_updates) = CORRESPONDING zadu_t_chktr_onlim_update( results_online_import-summary ).
+    DATA(online_import_summary_updates) = CORRESPONDING zadu_t_chktr_oisum_update( results_online_import-summary ).
     DATA(online_import_updates) = CORRESPONDING zadu_t_chktr_onlim_update( results_online_import-all ).
 
     LOOP AT transport_requests REFERENCE INTO DATA(transport_request).
