@@ -48,13 +48,11 @@ CLASS lcl_event_handler IMPLEMENTATION.
 
     DATA(online_import_summary) = reader->salv_data->online_import_summary[ row ].
 
-    CASE column.
-      WHEN 'DETAILS_ICON'.
-        reader->zif_adu_check_transport_reader~display_online_import(
-                                                          run_code          = online_import_summary-run_code
-                                                          transport_request = online_import_summary-transport_request ).
-
-    ENDCASE.
+    IF column = 'DETAILS_ICON'.
+      reader->zif_adu_check_transport_reader~display_online_import(
+                                                        run_code          = online_import_summary-run_code
+                                                        transport_request = online_import_summary-transport_request ).
+    ENDIF.
 
   ENDMETHOD.
 
