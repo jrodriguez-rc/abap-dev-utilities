@@ -151,7 +151,9 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     check_authorization( rfcdest = run_data-rfc_source      authority_object = lc_authorization-source ).
     check_authorization( rfcdest = run_data-rfc_destination authority_object = lc_authorization-destionation ).
 
-    requests = CORRESPONDING #( transport_requests MAPPING trkorr = table_line ).
+    LOOP AT transport_requests REFERENCE INTO DATA(transport_request).
+      INSERT VALUE #( trkorr = transport_request->* ) INTO TABLE requests.
+    ENDLOOP.
 
     CALL FUNCTION '/SDF/TEAP_ENVI_ANA'
       EXPORTING
@@ -377,7 +379,9 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     check_authorization( rfcdest = run_data-rfc_source      authority_object = lc_authorization-source ).
     check_authorization( rfcdest = run_data-rfc_destination authority_object = lc_authorization-destionation ).
 
-    requests = CORRESPONDING #( transport_requests MAPPING trkorr = table_line ).
+    LOOP AT transport_requests REFERENCE INTO DATA(transport_request).
+      INSERT VALUE #( trkorr = transport_request->* ) INTO TABLE requests.
+    ENDLOOP.
 
     CALL FUNCTION '/SDF/OI_CHECK'
       EXPORTING
