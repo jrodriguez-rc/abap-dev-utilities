@@ -78,13 +78,6 @@ CLASS zcl_adu_check_transport_reader DEFINITION
       IMPORTING
         header_log TYPE zadu_chktr_head.
 
-    METHODS handle_header_link_click
-        FOR EVENT if_salv_events_actions_table~link_click OF cl_salv_events_table
-      IMPORTING
-        row
-        column
-        sender.
-
     METHODS fill_header
       IMPORTING
         data                  TYPE zadu_chktr_head
@@ -274,9 +267,6 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
     salv_table->display( ).
 
-    DATA(salv_events) = salv_table->get_event( ).
-    SET HANDLER handle_header_link_click FOR salv_events ACTIVATION abap_false.
-
   ENDMETHOD.
 
 
@@ -391,7 +381,7 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
       INSERT LINES OF filtered_log->online_import_summary INTO TABLE salv_data->online_import_summary.
     ENDLOOP.
 
-    DATA(salv_table) = prepare_alv_online_import( ).
+    DATA(salv_table) = prepare_alv_online_import_sum( ).
 
     IF as_popup = abap_true.
       salv_table->set_screen_popup( start_column = 30
@@ -426,37 +416,6 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     ENDIF.
 
     salv_table->display( ).
-
-  ENDMETHOD.
-
-
-  METHOD handle_header_link_click.
-
-    DATA(log_header) = salv_data->header[ row ].
-
-    CASE column.
-      WHEN 'CROSS_REFERENCE_MESSAGES'.
-        zif_adu_check_transport_reader~display_cross_reference( run_code          = log_header-run_code
-                                                                transport_request = log_header-transport_request ).
-
-      WHEN 'SEQUENCE_MESSAGES'.
-        zif_adu_check_transport_reader~display_sequence( run_code          = log_header-run_code
-                                                         transport_request = log_header-transport_request ).
-
-      WHEN 'CROSS_RELEASE_MESSAGES'.
-        zif_adu_check_transport_reader~display_cross_release( run_code          = log_header-run_code
-                                                              transport_request = log_header-transport_request ).
-
-      WHEN 'IMPORT_TIME_MESSAGES'.
-        zif_adu_check_transport_reader~display_import_time( run_code          = log_header-run_code
-                                                            transport_request = log_header-transport_request ).
-
-      WHEN 'ONLINE_IMPORT_MESSAGES'.
-        zif_adu_check_transport_reader~display_online_import_summary(
-                                                            run_code          = log_header-run_code
-                                                            transport_request = log_header-transport_request ).
-
-    ENDCASE.
 
   ENDMETHOD.
 
@@ -657,6 +616,20 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
     filled = CORRESPONDING #( data ).
 
+    CALL FUNCTION 'ICON_CREATE'
+      EXPORTING
+        name                  = icon_doc_item_detail
+        info                  = 'Display details'
+      IMPORTING
+        result                = filled-details_icon
+      EXCEPTIONS
+        icon_not_found        = 1
+        outputfield_too_short = 2
+        OTHERS                = 3.
+    IF sy-subrc <> 0.
+      CLEAR: filled-details_icon.
+    ENDIF.
+
     CASE severity_for_online_import_sum( VALUE #( ( data ) ) ).
       WHEN zif_adu_constants=>severity-error.
         filled-exception = '1'.
@@ -816,7 +789,11 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     prepare_alv_log_columns( salv_table->get_columns( ) ).
 
     DATA(salv_events) = salv_table->get_event( ).
-    SET HANDLER handle_header_link_click FOR salv_events ACTIVATION abap_true.
+
+    DATA(event_handler) = NEW lcl_event_handler( reader     = me
+                                                 salv_table = salv_table ).
+
+    SET HANDLER event_handler->header_link_click FOR salv_events ACTIVATION abap_true.
 
   ENDMETHOD.
 
@@ -1153,8 +1130,8 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
   METHOD prepare_alv_online_import_sum.
 
     TRY.
-        cl_salv_table=>factory( IMPORTING r_salv_table  = salv_table
-                                CHANGING  t_table       = salv_data->online_import ).
+        cl_salv_table=>factory( IMPORTING r_salv_table = salv_table
+                                CHANGING  t_table      = salv_data->online_import_summary ).
       CATCH cx_salv_msg INTO DATA(salv_msg_exception).
         RETURN. " TODO: Pending raise exception
     ENDTRY.
@@ -1182,15 +1159,75 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
       CATCH cx_salv_data_error.
     ENDTRY.
 
+    salv_columns->set_column_position( columnname = 'DETAILS_ICON' position = 3 ).
+
     LOOP AT salv_columns->get( ) INTO DATA(column).
 
       CASE column-columnname.
-        WHEN 'CLIENT' OR 'RUN_CODE' OR 'SEQUENCE' OR 'TRKORR' OR 'CRITICALITY'.
+        WHEN 'CLIENT' OR 'RUN_CODE' OR 'SEQUENCE' OR 'TRKORR' OR 'CRITICALITY' OR 'AS4USER'.
           column-r_column->set_technical( ).
+
+        WHEN 'DETAILS_ICON'.
+          CAST cl_salv_column_table( column-r_column )->set_cell_type( if_salv_c_cell_type=>hotspot ).
+          column-r_column->set_output_length( 5 ).
+          column-r_column->set_short_text( CONV #( 'Details'(053) ) ).
+          column-r_column->set_medium_text( CONV #( 'Details'(053) ) ).
+          column-r_column->set_long_text( CONV #( 'Details)'(053) ) ).
+
+        WHEN 'ACCNT'.
+          column-r_column->set_short_text( CONV #( 'Tab.Read/H'(037) ) ).
+          column-r_column->set_medium_text( CONV #( 'Table Reads per Hour'(038) ) ).
+          column-r_column->set_long_text( CONV #( 'Table Reads per Hour'(038) ) ).
+
+        WHEN 'CHCNT'.
+          column-r_column->set_short_text( CONV #( 'TabWrite/H'(039) ) ).
+          column-r_column->set_medium_text( CONV #( 'Table Writes per Hour'(040) ) ).
+          column-r_column->set_long_text( CONV #( 'Table Writes per Hour'(040) ) ).
+
+        WHEN 'OCCTB'.
+          column-r_column->set_short_text( CONV #( 'Table Size'(041) ) ).
+          column-r_column->set_medium_text( CONV #( 'Table Size [KB]'(042) ) ).
+          column-r_column->set_long_text( CONV #( 'Table Size [KB]'(042) ) ).
+
+        WHEN 'ACTION'.
+          column-r_column->set_short_text( CONV #( 'DB Action'(043) ) ).
+          column-r_column->set_medium_text( CONV #( 'DB Action'(043) ) ).
+          column-r_column->set_long_text( CONV #( 'DB Action'(043) ) ).
+
+        WHEN 'EXECNT'.
+          column-r_column->set_short_text( CONV #( 'RepExec/h'(044) ) ).
+          column-r_column->set_medium_text( CONV #( 'Report Exec.per Hour'(045) ) ).
+          column-r_column->set_long_text( CONV #( 'Report Exec.per Hour'(045) ) ).
+
+        WHEN 'EXECNT_DD'.
+          column-r_column->set_short_text( CONV #( 'RepEx/hDD'(046) ) ).
+          column-r_column->set_medium_text( CONV #( 'Report Exec./Hour DD'(047) ) ).
+          column-r_column->set_long_text( CONV #( 'Report Exec.per Hour (DD)'(048) ) ).
+
+        WHEN 'CRIOBJ'.
+          CAST cl_salv_column_table( column-r_column )->set_cell_type( if_salv_c_cell_type=>checkbox ).
+          column-r_column->set_output_length( 3 ).
+          column-r_column->set_short_text( CONV #( 'Crit.Obj.'(049) ) ).
+          column-r_column->set_medium_text( CONV #( 'Critical Object'(050) ) ).
+          column-r_column->set_long_text( CONV #( 'Critical Object)'(050) ) ).
+
+        WHEN 'REQ_IN_TAR'.
+          CAST cl_salv_column_table( column-r_column )->set_cell_type( if_salv_c_cell_type=>checkbox ).
+          column-r_column->set_output_length( 3 ).
+          column-r_column->set_short_text( CONV #( 'ReqInTarg'(051) ) ).
+          column-r_column->set_medium_text( CONV #( 'Request in Target'(052) ) ).
+          column-r_column->set_long_text( CONV #( 'Request in Target'(052) ) ).
 
       ENDCASE.
 
     ENDLOOP.
+
+    DATA(salv_events) = salv_table->get_event( ).
+
+    DATA(event_handler) = NEW lcl_event_handler( reader     = me
+                                                 salv_table = salv_table ).
+
+    SET HANDLER event_handler->oi_summary_link_click FOR salv_events ACTIVATION abap_true.
 
   ENDMETHOD.
 

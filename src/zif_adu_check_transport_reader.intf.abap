@@ -8,7 +8,7 @@ INTERFACE zif_adu_check_transport_reader
   TYPES:
     BEGIN OF ts_cross_reference.
       INCLUDE TYPE zadu_chktr_crref.
-  TYPES:
+    TYPES:
       status_description TYPE string,
       exception          TYPE c LENGTH 1,
       color              TYPE lvc_t_scol,
@@ -20,7 +20,7 @@ INTERFACE zif_adu_check_transport_reader
   TYPES:
     BEGIN OF ts_sequence.
       INCLUDE TYPE zadu_chktr_seq.
-  TYPES:
+    TYPES:
       exception TYPE c LENGTH 1,
       color     TYPE lvc_t_scol,
     END OF ts_sequence,
@@ -31,7 +31,7 @@ INTERFACE zif_adu_check_transport_reader
   TYPES:
     BEGIN OF ts_cross_release.
       INCLUDE TYPE zadu_chktr_crrel.
-  TYPES:
+    TYPES:
       exception TYPE c LENGTH 1,
       color     TYPE lvc_t_scol,
     END OF ts_cross_release,
@@ -42,7 +42,7 @@ INTERFACE zif_adu_check_transport_reader
   TYPES:
     BEGIN OF ts_import_time.
       INCLUDE TYPE zadu_chktr_imtim.
-  TYPES:
+    TYPES:
       exception TYPE c LENGTH 1,
       color     TYPE lvc_t_scol,
     END OF ts_import_time,
@@ -53,9 +53,10 @@ INTERFACE zif_adu_check_transport_reader
   TYPES:
     BEGIN OF ts_online_import_summary.
       INCLUDE TYPE zadu_chktr_oisum.
-  TYPES:
-      exception TYPE c LENGTH 1,
-      color     TYPE lvc_t_scol,
+    TYPES:
+      details_icon TYPE c LENGTH 50,
+      exception    TYPE c LENGTH 1,
+      color        TYPE lvc_t_scol,
     END OF ts_online_import_summary,
     tt_online_import_summary TYPE HASHED TABLE OF zif_adu_check_transport_reader=>ts_online_import_summary
         WITH UNIQUE KEY run_code sequence
@@ -64,7 +65,7 @@ INTERFACE zif_adu_check_transport_reader
   TYPES:
     BEGIN OF ts_online_import.
       INCLUDE TYPE zadu_chktr_onlim.
-  TYPES:
+    TYPES:
       exception TYPE c LENGTH 1,
       color     TYPE lvc_t_scol,
     END OF ts_online_import,
@@ -75,7 +76,7 @@ INTERFACE zif_adu_check_transport_reader
   TYPES:
     BEGIN OF ts_header.
       INCLUDE TYPE zadu_chktr_head.
-  TYPES:
+    TYPES:
       date                     TYPE d,
       time                     TYPE t,
       cross_reference_messages TYPE i,
