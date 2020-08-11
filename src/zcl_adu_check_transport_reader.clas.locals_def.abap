@@ -1,6 +1,7 @@
-CLASS lcl_salv_data DEFINITION.
+CLASS lcl_salv_data DEFINITION
+  FRIENDS zcl_adu_check_transport_reader.
 
-  PUBLIC SECTION.
+  PRIVATE SECTION.
     DATA:
       header            TYPE STANDARD TABLE OF zif_adu_check_transport_reader=>ts_header WITH DEFAULT KEY,
       cross_reference   TYPE STANDARD TABLE OF zif_adu_check_transport_reader=>ts_cross_reference WITH DEFAULT KEY,

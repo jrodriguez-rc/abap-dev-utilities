@@ -32,7 +32,7 @@ CLASS zcl_adu_check_transport_reader DEFINITION
         import_time       TYPE zif_adu_check_transport_reader=>tt_import_time,
         online_import     TYPE zif_adu_check_transport_reader=>tt_online_import,
       END OF ts_logs,
-      tt_logs TYPE HASHED TABLE OF zcl_adu_check_transport_reader=>ts_logs
+      tt_logs TYPE HASHED TABLE OF ts_logs
           WITH UNIQUE KEY run_code transport_request
           WITH NON-UNIQUE SORTED KEY run COMPONENTS run_code
           WITH NON-UNIQUE SORTED KEY req COMPONENTS transport_request.
@@ -69,7 +69,7 @@ CLASS zcl_adu_check_transport_reader DEFINITION
       report_configuration TYPE HASHED TABLE OF /sdf/cmo_tr_conf WITH UNIQUE KEY config_param,
       online_import_config TYPE ts_online_import_config,
       transport_request    TYPE trkorr,
-      logs                 TYPE zcl_adu_check_transport_reader=>tt_logs,
+      logs                 TYPE tt_logs,
       salv_data            TYPE REF TO lcl_salv_data.
 
     METHODS add_header_log
@@ -86,11 +86,11 @@ CLASS zcl_adu_check_transport_reader DEFINITION
     METHODS fill_header
       IMPORTING
         data            TYPE zadu_chktr_head
-        cross_reference TYPE zcl_adu_check_transport_reader=>tt_cross_reference_db OPTIONAL
-        sequence        TYPE zcl_adu_check_transport_reader=>tt_sequence_db OPTIONAL
-        cross_release   TYPE zcl_adu_check_transport_reader=>tt_cross_release_db OPTIONAL
-        import_time     TYPE zcl_adu_check_transport_reader=>tt_import_time_db OPTIONAL
-        online_import   TYPE zcl_adu_check_transport_reader=>tt_online_import_db OPTIONAL
+        cross_reference TYPE tt_cross_reference_db OPTIONAL
+        sequence        TYPE tt_sequence_db OPTIONAL
+        cross_release   TYPE tt_cross_release_db OPTIONAL
+        import_time     TYPE tt_import_time_db OPTIONAL
+        online_import   TYPE tt_online_import_db OPTIONAL
       RETURNING
         VALUE(filled)   TYPE zif_adu_check_transport_reader=>ts_header.
 
@@ -129,41 +129,45 @@ CLASS zcl_adu_check_transport_reader DEFINITION
         run_code             TYPE zadu_run_code
         transport_request    TYPE trkorr OPTIONAL
       RETURNING
-        VALUE(filtered_logs) TYPE zcl_adu_check_transport_reader=>tt_logs.
+        VALUE(filtered_logs) TYPE tt_logs.
 
     METHODS severity_for_cross_reference
       IMPORTING
-        data            TYPE zcl_adu_check_transport_reader=>tt_cross_reference_db
+        data            TYPE tt_cross_reference_db
       RETURNING
         VALUE(severity) TYPE zif_adu_check_transport_reader=>ty_severity.
 
     METHODS severity_for_sequence
       IMPORTING
-        data            TYPE zcl_adu_check_transport_reader=>tt_sequence_db
+        data            TYPE tt_sequence_db
       RETURNING
         VALUE(severity) TYPE zif_adu_check_transport_reader=>ty_severity.
 
     METHODS severity_for_cross_release
       IMPORTING
-        data            TYPE zcl_adu_check_transport_reader=>tt_cross_release_db
+        data            TYPE tt_cross_release_db
       RETURNING
         VALUE(severity) TYPE zif_adu_check_transport_reader=>ty_severity.
 
     METHODS severity_for_import_time
       IMPORTING
-        data            TYPE zcl_adu_check_transport_reader=>tt_import_time_db
+        data            TYPE tt_import_time_db
       RETURNING
         VALUE(severity) TYPE zif_adu_check_transport_reader=>ty_severity.
 
     METHODS severity_for_online_import
       IMPORTING
-        data            TYPE zcl_adu_check_transport_reader=>tt_online_import_db
+        data            TYPE tt_online_import_db
       RETURNING
         VALUE(severity) TYPE zif_adu_check_transport_reader=>ty_severity.
 
     METHODS prepare_alv_log
       RETURNING
         VALUE(salv_table) TYPE REF TO cl_salv_table.
+
+    METHODS prepare_alv_log_columns
+      IMPORTING
+        salv_columns TYPE REF TO cl_salv_columns_table.
 
     METHODS prepare_alv_cross_reference
       RETURNING
@@ -728,7 +732,15 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
       CATCH cx_salv_not_found cx_salv_existing cx_salv_data_error.
     ENDTRY.
 
-    DATA(salv_columns) = salv_table->get_columns( ).
+    prepare_alv_log_columns( salv_table->get_columns( ) ).
+
+    DATA(salv_events) = salv_table->get_event( ).
+    SET HANDLER handle_header_link_click FOR salv_events ACTIVATION abap_true.
+
+  ENDMETHOD.
+
+
+  METHOD prepare_alv_log_columns.
 
     salv_columns->set_column_position( columnname = 'DATE' position = 3 ).
     salv_columns->set_column_position( columnname = 'TIME' position = 4 ).
@@ -842,9 +854,6 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
     ENDLOOP.
 
-    DATA(salv_events) = salv_table->get_event( ).
-    SET HANDLER handle_header_link_click FOR salv_events ACTIVATION abap_true.
-
   ENDMETHOD.
 
 
@@ -873,7 +882,6 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
       CATCH cx_salv_data_error.
     ENDTRY.
 
-*    salv_columns->set_column_position( columnname = 'SEVERITY' position = 1 ).
     salv_columns->set_column_position( columnname = 'STATUS_DESCRIPTION' position = 2 ).
 
     LOOP AT salv_columns->get( ) INTO DATA(column).
