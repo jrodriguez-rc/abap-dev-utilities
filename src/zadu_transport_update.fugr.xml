@@ -77,6 +77,7 @@
     </item>
     <item>
      <FUNCNAME>ZADU_TRANSPORT_UPDATE_OI_SUM</FUNCNAME>
+     <UPDATE_TASK>1</UPDATE_TASK>
      <SHORT_TEXT>Check Transport Online Import Summary DB update</SHORT_TEXT>
      <IMPORT>
       <RSIMP>

@@ -1,5 +1,7 @@
 FUNCTION zadu_transport_update_oi_sum.
 *"----------------------------------------------------------------------
+*"*"Update Function Module:
+*"
 *"*"Local Interface:
 *"  IMPORTING
 *"     VALUE(ONLINE_IMPORT_SUMMARY_UPDATES) TYPE
