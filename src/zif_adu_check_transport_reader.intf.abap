@@ -81,31 +81,38 @@ INTERFACE zif_adu_check_transport_reader
 
   METHODS display
     IMPORTING
-      as_popup TYPE abap_bool DEFAULT abap_false.
+      run_code          TYPE zadu_run_code OPTIONAL
+      transport_request TYPE trkorr OPTIONAL
+      as_popup          TYPE abap_bool DEFAULT abap_false.
 
   METHODS display_cross_reference
     IMPORTING
-      run_code TYPE zadu_run_code
-      as_popup TYPE abap_bool DEFAULT abap_false.
+      run_code          TYPE zadu_run_code
+      transport_request TYPE trkorr OPTIONAL
+      as_popup          TYPE abap_bool DEFAULT abap_false.
 
   METHODS display_sequence
     IMPORTING
-      run_code TYPE zadu_run_code
-      as_popup TYPE abap_bool DEFAULT abap_false.
+      run_code          TYPE zadu_run_code
+      transport_request TYPE trkorr OPTIONAL
+      as_popup          TYPE abap_bool DEFAULT abap_false.
 
   METHODS display_cross_release
     IMPORTING
-      run_code TYPE zadu_run_code
-      as_popup TYPE abap_bool DEFAULT abap_false.
+      run_code          TYPE zadu_run_code
+      transport_request TYPE trkorr OPTIONAL
+      as_popup          TYPE abap_bool DEFAULT abap_false.
 
   METHODS display_import_time
     IMPORTING
-      run_code TYPE zadu_run_code
-      as_popup TYPE abap_bool DEFAULT abap_false.
+      run_code          TYPE zadu_run_code
+      transport_request TYPE trkorr OPTIONAL
+      as_popup          TYPE abap_bool DEFAULT abap_false.
 
   METHODS display_online_import
     IMPORTING
-      run_code TYPE zadu_run_code
-      as_popup TYPE abap_bool DEFAULT abap_false.
+      run_code          TYPE zadu_run_code
+      transport_request TYPE trkorr OPTIONAL
+      as_popup          TYPE abap_bool DEFAULT abap_false.
 
 ENDINTERFACE.

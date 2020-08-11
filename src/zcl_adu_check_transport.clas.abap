@@ -10,32 +10,32 @@ CLASS zcl_adu_check_transport DEFINITION
 
     "! <p class="shorttext synchronized" lang="en">Generate instantiation</p>
     "!
-    "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport request</p>
+    "! @parameter transport_requests | <p class="shorttext synchronized" lang="en">Transport requests</p>
     "! @parameter rfc_source | <p class="shorttext synchronized" lang="en">Source RFC</p>
     "! @parameter rfc_target | <p class="shorttext synchronized" lang="en">Target RFC</p>
     "! @parameter checker | <p class="shorttext synchronized" lang="en">Checker</p>
     "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check exception</p>
     CLASS-METHODS create
       IMPORTING
-        transport_request TYPE trkorr
-        rfc_source        TYPE rfcdest DEFAULT 'NONE'
-        rfc_target        TYPE rfcdest
+        transport_requests TYPE trkorrs
+        rfc_source         TYPE rfcdest DEFAULT 'NONE'
+        rfc_target         TYPE rfcdest
       RETURNING
-        VALUE(checker)    TYPE REF TO zif_adu_check_transport
+        VALUE(checker)     TYPE REF TO zif_adu_check_transport
       RAISING
         zcx_adu_check_transport.
 
     "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
     "!
-    "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport request</p>
+    "! @parameter transport_requests | <p class="shorttext synchronized" lang="en">Transport requests</p>
     "! @parameter rfc_source | <p class="shorttext synchronized" lang="en">Source RFC</p>
     "! @parameter rfc_target | <p class="shorttext synchronized" lang="en">Target RFC</p>
     "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check exception</p>
     METHODS constructor
       IMPORTING
-        transport_request TYPE trkorr
-        rfc_source        TYPE rfcdest DEFAULT 'NONE'
-        rfc_target        TYPE rfcdest
+        transport_requests TYPE trkorrs
+        rfc_source         TYPE rfcdest DEFAULT 'NONE'
+        rfc_target         TYPE rfcdest
       RAISING
         zcx_adu_check_transport.
 
@@ -45,7 +45,6 @@ CLASS zcl_adu_check_transport DEFINITION
     TYPES:
       BEGIN OF ts_run_data,
         run_code                TYPE zadu_run_code,
-        transport_request       TYPE trkorr,
         rfc_source              TYPE rfcdest,
         rfc_destination         TYPE rfcdest,
         source_system_name      TYPE sysname,
@@ -58,6 +57,7 @@ CLASS zcl_adu_check_transport DEFINITION
       END OF ts_run_data.
     DATA:
       run_data                TYPE ts_run_data,
+      transport_requests      TYPE trkorrs,
       results_cross_reference TYPE zif_adu_check_transport~tt_result_cross_reference,
       results_sequence        TYPE zif_adu_check_transport~tt_result_sequence,
       results_cross_release   TYPE zif_adu_check_transport~tt_result_cross_release,
@@ -98,18 +98,19 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
 
   METHOD create.
 
-    checker = NEW zcl_adu_check_transport( transport_request = transport_request
-                                           rfc_source        = rfc_source
-                                           rfc_target   = rfc_target ).
+    checker = NEW zcl_adu_check_transport( transport_requests = transport_requests
+                                           rfc_source         = rfc_source
+                                           rfc_target         = rfc_target ).
 
   ENDMETHOD.
 
 
   METHOD constructor.
 
-    run_data-transport_request = transport_request.
-    run_data-rfc_source        = rfc_source.
-    run_data-rfc_destination   = rfc_target.
+    me->transport_requests = transport_requests.
+
+    run_data-rfc_source      = rfc_source.
+    run_data-rfc_destination = rfc_target.
 
     run_data-source_system_name      = get_system_info( rfc_source ).
     run_data-destination_system_name = get_system_info( rfc_target ).
@@ -150,7 +151,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     check_authorization( rfcdest = run_data-rfc_source      authority_object = lc_authorization-source ).
     check_authorization( rfcdest = run_data-rfc_destination authority_object = lc_authorization-destionation ).
 
-    requests = VALUE #( ( trkorr = run_data-transport_request ) ).
+    requests = CORRESPONDING #( transport_requests MAPPING trkorr = table_line ).
 
     CALL FUNCTION '/SDF/TEAP_ENVI_ANA'
       EXPORTING
@@ -191,6 +192,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
       END OF lc_authorization.
 
     DATA:
+      alog      TYPE tmstpalogs,
       conflicts LIKE results.
 
     fill_empty_run_code( ).
@@ -200,9 +202,11 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     check_authorization( rfcdest = run_data-rfc_source      authority_object = lc_authorization-source ).
     check_authorization( rfcdest = run_data-rfc_destination authority_object = lc_authorization-destionation ).
 
-    DATA(alog) = VALUE tmstpalogs( ( listname = '/SDF/CMO_TR_CHECK'
-                                     trkorr   = run_data-transport_request
-                                     trtime   = CONV #( |{ sy-datum }{ sy-uzeit }| ) ) ).
+    LOOP AT transport_requests REFERENCE INTO DATA(transport_request).
+      INSERT VALUE #( listname = '/SDF/CMO_TR_CHECK'
+                      trkorr   = transport_request->*
+                      trtime   = CONV #( |{ sy-datum }{ sy-uzeit }| ) ) INTO TABLE alog.
+    ENDLOOP.
 
     SELECT SINGLE param_value_i
       FROM /sdf/cmo_tr_conf
@@ -257,6 +261,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
       END OF lc_authorization.
 
     DATA:
+      alog          TYPE tmstpalogs,
       cross_release LIKE results.
 
     fill_empty_run_code( ).
@@ -266,9 +271,11 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     check_authorization( rfcdest = run_data-rfc_source      authority_object = lc_authorization-source ).
     check_authorization( rfcdest = run_data-rfc_destination authority_object = lc_authorization-destionation ).
 
-    DATA(alog) = VALUE tmstpalogs( ( listname = '/SDF/CMO_TR_CHECK'
-                                     trkorr   = run_data-transport_request
-                                     trtime   = CONV #( |{ sy-datum }{ sy-uzeit }| ) ) ).
+    LOOP AT transport_requests REFERENCE INTO DATA(transport_request).
+      INSERT VALUE #( listname = '/SDF/CMO_TR_CHECK'
+                      trkorr   = transport_request->*
+                      trtime   = CONV #( |{ sy-datum }{ sy-uzeit }| ) ) INTO TABLE alog.
+    ENDLOOP.
 
     CALL FUNCTION '/SDF/TEAP_SCV_CHECK'
       EXPORTING
@@ -310,6 +317,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
       END OF lc_authorization.
 
     DATA:
+      alog        TYPE tmstpalogs,
       import_time LIKE results.
 
     fill_empty_run_code( ).
@@ -318,9 +326,11 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
 
     check_authorization( rfcdest = run_data-rfc_source authority_object = lc_authorization-source ).
 
-    DATA(alog) = VALUE tmstpalogs( ( listname = '/SDF/CMO_TR_CHECK'
-                                     trkorr   = run_data-transport_request
-                                     trtime   = CONV #( |{ sy-datum }{ sy-uzeit }| ) ) ).
+    LOOP AT transport_requests REFERENCE INTO DATA(transport_request).
+      INSERT VALUE #( listname = '/SDF/CMO_TR_CHECK'
+                      trkorr   = transport_request->*
+                      trtime   = CONV #( |{ sy-datum }{ sy-uzeit }| ) ) INTO TABLE alog.
+    ENDLOOP.
 
     CALL FUNCTION '/SDF/TEAP_IMPORT_TIME'
       DESTINATION run_data-source_system_name
@@ -366,7 +376,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     check_authorization( rfcdest = run_data-rfc_source      authority_object = lc_authorization-source ).
     check_authorization( rfcdest = run_data-rfc_destination authority_object = lc_authorization-destionation ).
 
-    requests = VALUE #( ( trkorr = run_data-transport_request ) ).
+    requests = CORRESPONDING #( transport_requests MAPPING trkorr = table_line ).
 
     CALL FUNCTION '/SDF/OI_CHECK'
       EXPORTING
@@ -409,97 +419,117 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
 
     GET TIME STAMP FIELD DATA(current_timestamp).
 
-    DATA(header) = VALUE zadu_s_chktr_head_update(
-                               client             = sy-mandt
-                               run_code           = run_data-run_code
-                               transport_request  = run_data-transport_request
-                               timestamp          = current_timestamp
-                               username           = sy-uname
-                               source             = run_data-rfc_source
-                               source_system      = run_data-source_system_name
-                               destination        = run_data-rfc_destination
-                               destination_system = run_data-destination_system_name
-                               cross_reference    = run_data-checked_cross_reference
-                               sequence           = run_data-checked_sequence
-                               cross_release      = run_data-checked_cross_release
-                               import_time        = run_data-checked_import_time
-                               online_import      = run_data-checked_online_import
-                               crud_ind           = zif_adu_constants=>crud-create ).
+    DATA(cross_reference_updates) = CORRESPONDING zadu_t_chktr_crref_update( results_cross_reference ).
+    DATA(sequence_updates) = CORRESPONDING zadu_t_chktr_seq_update( results_sequence ).
+    DATA(cross_release_updates) = CORRESPONDING zadu_t_chktr_crrel_update( results_cross_release ).
+    DATA(import_time_updates) = CORRESPONDING zadu_t_chktr_imtim_update( results_import_time ).
+    DATA(online_import_updates) = CORRESPONDING zadu_t_chktr_onlim_update( results_online_import ).
 
-    CALL FUNCTION 'ZADU_TRANSPORT_UPDATE_HEADER'
-      IN UPDATE TASK
-      EXPORTING
-        header = header.
+    LOOP AT transport_requests REFERENCE INTO DATA(transport_request).
 
-    IF results_cross_reference IS NOT INITIAL.
-      DATA(cross_reference_updates) = CORRESPONDING zadu_t_chktr_crref_update( results_cross_reference ).
-      LOOP AT cross_reference_updates REFERENCE INTO DATA(cross_reference_update).
+      DATA(header) = VALUE zadu_s_chktr_head_update(
+                                 client             = sy-mandt
+                                 run_code           = run_data-run_code
+                                 transport_request  = transport_request->*
+                                 timestamp          = current_timestamp
+                                 username           = sy-uname
+                                 source             = run_data-rfc_source
+                                 source_system      = run_data-source_system_name
+                                 destination        = run_data-rfc_destination
+                                 destination_system = run_data-destination_system_name
+                                 cross_reference    = run_data-checked_cross_reference
+                                 sequence           = run_data-checked_sequence
+                                 cross_release      = run_data-checked_cross_release
+                                 import_time        = run_data-checked_import_time
+                                 online_import      = run_data-checked_online_import
+                                 crud_ind           = zif_adu_constants=>crud-create ).
+
+      CALL FUNCTION 'ZADU_TRANSPORT_UPDATE_HEADER'
+        IN UPDATE TASK
+        EXPORTING
+          header = header.
+
+      LOOP AT cross_reference_updates REFERENCE INTO DATA(cross_reference_update)
+          WHERE chk_trkorr = transport_request->*.
         sequence = sy-tabix.
-        cross_reference_update->client   = sy-mandt.
-        cross_reference_update->run_code = run_data-run_code.
-        cross_reference_update->sequence = sequence.
-        cross_reference_update->crud_ind = zif_adu_constants=>crud-create.
+        cross_reference_update->client            = sy-mandt.
+        cross_reference_update->run_code          = run_data-run_code.
+        cross_reference_update->transport_request = transport_request->*.
+        cross_reference_update->sequence          = sequence.
+        cross_reference_update->crud_ind          = zif_adu_constants=>crud-create.
       ENDLOOP.
+
+      LOOP AT sequence_updates REFERENCE INTO DATA(sequence_update)
+          WHERE checked_trkorr = transport_request->*.
+        sequence = sy-tabix.
+        sequence_update->client            = sy-mandt.
+        sequence_update->run_code          = run_data-run_code.
+        sequence_update->transport_request = transport_request->*.
+        sequence_update->sequence          = sequence.
+        sequence_update->crud_ind          = zif_adu_constants=>crud-create.
+      ENDLOOP.
+
+      LOOP AT cross_release_updates REFERENCE INTO DATA(cross_release_update)
+          WHERE trkorr = transport_request->*.
+        sequence = sy-tabix.
+        cross_release_update->client            = sy-mandt.
+        cross_release_update->run_code          = run_data-run_code.
+        cross_release_update->transport_request = transport_request->*.
+        cross_release_update->sequence          = sequence.
+        cross_release_update->crud_ind          = zif_adu_constants=>crud-create.
+      ENDLOOP.
+
+      LOOP AT import_time_updates REFERENCE INTO DATA(import_time_update)
+          WHERE trkorr = transport_request->*.
+        sequence = sy-tabix.
+        import_time_update->client            = sy-mandt.
+        import_time_update->run_code          = run_data-run_code.
+        import_time_update->transport_request = transport_request->*.
+        import_time_update->sequence          = sequence.
+        import_time_update->crud_ind          = zif_adu_constants=>crud-create.
+      ENDLOOP.
+
+      LOOP AT online_import_updates REFERENCE INTO DATA(online_import_update)
+          WHERE trkorr = transport_request->*.
+        sequence = sy-tabix.
+        online_import_update->client            = sy-mandt.
+        online_import_update->run_code          = run_data-run_code.
+        online_import_update->transport_request = transport_request->*.
+        online_import_update->sequence          = sequence.
+        online_import_update->crud_ind          = zif_adu_constants=>crud-create.
+      ENDLOOP.
+
+    ENDLOOP.
+
+    IF cross_reference_updates IS NOT INITIAL.
       CALL FUNCTION 'ZADU_TRANSPORT_UPDATE_CROSSREF'
         IN UPDATE TASK
         EXPORTING
           cross_reference_updates = cross_reference_updates.
     ENDIF.
 
-    IF results_sequence IS NOT INITIAL.
-      DATA(sequence_updates) = CORRESPONDING zadu_t_chktr_seq_update( results_sequence ).
-      LOOP AT sequence_updates REFERENCE INTO DATA(sequence_update).
-        sequence = sy-tabix.
-        sequence_update->client   = sy-mandt.
-        sequence_update->run_code = run_data-run_code.
-        sequence_update->sequence = sequence.
-        sequence_update->crud_ind = zif_adu_constants=>crud-create.
-      ENDLOOP.
+    IF sequence_updates IS NOT INITIAL.
       CALL FUNCTION 'ZADU_TRANSPORT_UPDATE_SEQUENCE'
         IN UPDATE TASK
         EXPORTING
           sequence_updates = sequence_updates.
     ENDIF.
 
-    IF results_cross_release IS NOT INITIAL.
-      DATA(cross_release_updates) = CORRESPONDING zadu_t_chktr_crrel_update( results_cross_release ).
-      LOOP AT cross_release_updates REFERENCE INTO DATA(cross_release_update).
-        sequence = sy-tabix.
-        cross_release_update->client   = sy-mandt.
-        cross_release_update->run_code = run_data-run_code.
-        cross_release_update->sequence = sequence.
-        cross_release_update->crud_ind = zif_adu_constants=>crud-create.
-      ENDLOOP.
+    IF cross_release_updates IS NOT INITIAL.
       CALL FUNCTION 'ZADU_TRANSPORT_UPDATE_CROSSREL'
         IN UPDATE TASK
         EXPORTING
           cross_release_updates = cross_release_updates.
     ENDIF.
 
-    IF results_import_time IS NOT INITIAL.
-      DATA(import_time_updates) = CORRESPONDING zadu_t_chktr_imtim_update( results_import_time ).
-      LOOP AT import_time_updates REFERENCE INTO DATA(import_time_update).
-        sequence = sy-tabix.
-        import_time_update->client   = sy-mandt.
-        import_time_update->run_code = run_data-run_code.
-        import_time_update->sequence = sequence.
-        import_time_update->crud_ind = zif_adu_constants=>crud-create.
-      ENDLOOP.
+    IF import_time_updates IS NOT INITIAL.
       CALL FUNCTION 'ZADU_TRANSPORT_UPDATE_IMP_TIME'
         IN UPDATE TASK
         EXPORTING
           import_time_updates = import_time_updates.
     ENDIF.
 
-    IF results_online_import IS NOT INITIAL.
-      DATA(online_import_updates) = CORRESPONDING zadu_t_chktr_onlim_update( results_online_import ).
-      LOOP AT online_import_updates REFERENCE INTO DATA(online_import_update).
-        sequence = sy-tabix.
-        online_import_update->client   = sy-mandt.
-        online_import_update->run_code = run_data-run_code.
-        online_import_update->sequence = sequence.
-        online_import_update->crud_ind = zif_adu_constants=>crud-create.
-      ENDLOOP.
+    IF online_import_updates IS NOT INITIAL.
       CALL FUNCTION 'ZADU_TRANSPORT_UPDATE_ONL_IMP'
         IN UPDATE TASK
         EXPORTING

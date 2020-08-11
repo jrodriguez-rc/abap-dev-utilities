@@ -33,7 +33,8 @@ CLASS zcl_adu_check_transport_reader DEFINITION
         online_import     TYPE zif_adu_check_transport_reader=>tt_online_import,
       END OF ts_logs,
       tt_logs TYPE HASHED TABLE OF zcl_adu_check_transport_reader=>ts_logs
-          WITH UNIQUE KEY run_code
+          WITH UNIQUE KEY run_code transport_request
+          WITH NON-UNIQUE SORTED KEY run COMPONENTS run_code
           WITH NON-UNIQUE SORTED KEY req COMPONENTS transport_request.
 
     TYPES:
@@ -123,6 +124,13 @@ CLASS zcl_adu_check_transport_reader DEFINITION
       RETURNING
         VALUE(filled) TYPE zif_adu_check_transport_reader=>ts_online_import.
 
+    METHODS filter_logs
+      IMPORTING
+        run_code             TYPE zadu_run_code
+        transport_request    TYPE trkorr OPTIONAL
+      RETURNING
+        VALUE(filtered_logs) TYPE zcl_adu_check_transport_reader=>tt_logs.
+
     METHODS severity_for_cross_reference
       IMPORTING
         data            TYPE zcl_adu_check_transport_reader=>tt_cross_reference_db
@@ -189,18 +197,22 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
   METHOD constructor.
 
     DATA:
-      run_code_range TYPE RANGE OF zadu_run_code.
+      run_code_range          TYPE RANGE OF zadu_run_code,
+      transport_request_range TYPE RANGE OF trkorr.
 
     me->transport_request = transport_request.
 
     run_code_range = COND #( WHEN run_code IS NOT INITIAL
                                  THEN VALUE #( ( sign = 'I' option = 'EQ' low = run_code ) ) ).
 
+    transport_request_range = COND #( WHEN transport_request IS NOT INITIAL
+                                          THEN VALUE #( ( sign = 'I' option = 'EQ' low = transport_request ) ) ).
+
     SELECT *
       INTO TABLE @DATA(header_logs)
       FROM zadu_chktr_head
       WHERE run_code          IN @run_code_range
-        AND transport_request = @transport_request.
+        AND transport_request IN @transport_request_range.
     IF sy-subrc <> 0.
       RETURN.
     ENDIF.
@@ -247,13 +259,14 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
   METHOD zif_adu_check_transport_reader~display_cross_reference.
 
-    TRY.
-        DATA(log) = logs[ run_code = run_code ].
-      CATCH cx_sy_itab_line_not_found.
-        RETURN.
-    ENDTRY.
+    CLEAR: salv_data->cross_reference.
 
-    salv_data->cross_reference = log-cross_reference.
+    DATA(filtered_logs) = filter_logs( run_code          = run_code
+                                       transport_request = transport_request ).
+
+    LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
+      INSERT LINES OF filtered_log->cross_reference INTO TABLE salv_data->cross_reference.
+    ENDLOOP.
 
     DATA(salv_table) = prepare_alv_cross_reference( ).
 
@@ -271,13 +284,14 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
   METHOD zif_adu_check_transport_reader~display_sequence.
 
-    TRY.
-        DATA(log) = logs[ run_code = run_code ].
-      CATCH cx_sy_itab_line_not_found.
-        RETURN.
-    ENDTRY.
+    CLEAR: salv_data->sequence.
 
-    salv_data->sequence = log-sequence.
+    DATA(filtered_logs) = filter_logs( run_code          = run_code
+                                       transport_request = transport_request ).
+
+    LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
+      INSERT LINES OF filtered_log->sequence INTO TABLE salv_data->sequence.
+    ENDLOOP.
 
     DATA(salv_table) = prepare_alv_sequence( ).
 
@@ -295,13 +309,14 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
   METHOD zif_adu_check_transport_reader~display_cross_release.
 
-    TRY.
-        DATA(log) = logs[ run_code = run_code ].
-      CATCH cx_sy_itab_line_not_found.
-        RETURN.
-    ENDTRY.
+    CLEAR: salv_data->cross_release.
 
-    salv_data->cross_release = log-cross_release.
+    DATA(filtered_logs) = filter_logs( run_code          = run_code
+                                       transport_request = transport_request ).
+
+    LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
+      INSERT LINES OF filtered_log->cross_release INTO TABLE salv_data->cross_release.
+    ENDLOOP.
 
     DATA(salv_table) = prepare_alv_cross_release( ).
 
@@ -319,13 +334,14 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
   METHOD zif_adu_check_transport_reader~display_import_time.
 
-    TRY.
-        DATA(log) = logs[ run_code = run_code ].
-      CATCH cx_sy_itab_line_not_found.
-        RETURN.
-    ENDTRY.
+    CLEAR: salv_data->import_time.
 
-    salv_data->import_time = log-import_time.
+    DATA(filtered_logs) = filter_logs( run_code          = run_code
+                                       transport_request = transport_request ).
+
+    LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
+      INSERT LINES OF filtered_log->import_time INTO TABLE salv_data->import_time.
+    ENDLOOP.
 
     DATA(salv_table) = prepare_alv_import_time( ).
 
@@ -343,13 +359,14 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
   METHOD zif_adu_check_transport_reader~display_online_import.
 
-    TRY.
-        DATA(log) = logs[ run_code = run_code ].
-      CATCH cx_sy_itab_line_not_found.
-        RETURN.
-    ENDTRY.
+    CLEAR: salv_data->online_import.
 
-    salv_data->online_import = log-online_import.
+    DATA(filtered_logs) = filter_logs( run_code          = run_code
+                                       transport_request = transport_request ).
+
+    LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
+      INSERT LINES OF filtered_log->online_import INTO TABLE salv_data->online_import.
+    ENDLOOP.
 
     DATA(salv_table) = prepare_alv_online_import( ).
 
@@ -371,19 +388,24 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
     CASE column.
       WHEN 'CROSS_REFERENCE_MESSAGES'.
-        zif_adu_check_transport_reader~display_cross_reference( log_header-run_code ).
+        zif_adu_check_transport_reader~display_cross_reference( run_code          = log_header-run_code
+                                                                transport_request = log_header-transport_request ).
 
       WHEN 'SEQUENCE_MESSAGES'.
-        zif_adu_check_transport_reader~display_sequence( log_header-run_code ).
+        zif_adu_check_transport_reader~display_sequence( run_code          = log_header-run_code
+                                                         transport_request = log_header-transport_request ).
 
       WHEN 'CROSS_RELEASE_MESSAGES'.
-        zif_adu_check_transport_reader~display_cross_release( log_header-run_code ).
+        zif_adu_check_transport_reader~display_cross_release( run_code          = log_header-run_code
+                                                              transport_request = log_header-transport_request ).
 
       WHEN 'IMPORT_TIME_MESSAGES'.
-        zif_adu_check_transport_reader~display_import_time( log_header-run_code ).
+        zif_adu_check_transport_reader~display_import_time( run_code          = log_header-run_code
+                                                            transport_request = log_header-transport_request ).
 
       WHEN 'ONLINE_IMPORT_MESSAGES'.
-        zif_adu_check_transport_reader~display_online_import( log_header-run_code ).
+        zif_adu_check_transport_reader~display_online_import( run_code          = log_header-run_code
+                                                              transport_request = log_header-transport_request ).
 
     ENDCASE.
 
@@ -399,7 +421,8 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     SELECT *
       INTO TABLE @DATA(cross_references)
       FROM zadu_chktr_crref
-      WHERE run_code = @header_log-run_code.
+      WHERE run_code          = @header_log-run_code
+        AND transport_request = @header_log-transport_request.
     LOOP AT cross_references REFERENCE INTO DATA(cross_reference).
       INSERT fill_cross_reference( cross_reference->* ) INTO TABLE log->cross_reference.
     ENDLOOP.
@@ -407,7 +430,8 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     SELECT *
       INTO TABLE @DATA(sequences)
       FROM zadu_chktr_seq
-      WHERE run_code = @header_log-run_code.
+      WHERE run_code          = @header_log-run_code
+        AND transport_request = @header_log-transport_request.
     LOOP AT sequences REFERENCE INTO DATA(sequence).
       INSERT fill_sequence( sequence->* ) INTO TABLE log->sequence.
     ENDLOOP.
@@ -415,7 +439,8 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     SELECT *
       INTO TABLE @DATA(cross_releases)
       FROM zadu_chktr_crrel
-      WHERE run_code = @header_log-run_code.
+      WHERE run_code          = @header_log-run_code
+        AND transport_request = @header_log-transport_request.
     LOOP AT cross_releases REFERENCE INTO DATA(cross_release).
       INSERT fill_cross_release( cross_release->* ) INTO TABLE log->cross_release.
     ENDLOOP.
@@ -423,7 +448,8 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     SELECT *
       INTO TABLE @DATA(import_times)
       FROM zadu_chktr_imtim
-      WHERE run_code = @header_log-run_code.
+      WHERE run_code          = @header_log-run_code
+        AND transport_request = @header_log-transport_request.
     LOOP AT import_times REFERENCE INTO DATA(import_time).
       INSERT fill_import_time( import_time->* ) INTO TABLE log->import_time.
     ENDLOOP.
@@ -431,7 +457,8 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     SELECT *
       INTO TABLE @DATA(online_imports)
       FROM zadu_chktr_onlim
-      WHERE run_code = @header_log-run_code.
+      WHERE run_code          = @header_log-run_code
+        AND transport_request = @header_log-transport_request.
     LOOP AT online_imports REFERENCE INTO DATA(online_import).
       INSERT fill_online_import( online_import->* ) INTO TABLE log->online_import.
     ENDLOOP.
@@ -589,6 +616,20 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
         filled-color     = VALUE #( ( color-col = col_positive ) ).
 
     ENDCASE.
+
+  ENDMETHOD.
+
+
+  METHOD filter_logs.
+
+    TRY.
+        filtered_logs =
+            COND tt_logs( WHEN transport_request IS NOT INITIAL
+                              THEN FILTER #( logs WHERE run_code = run_code AND transport_request = transport_request )
+                              ELSE FILTER #( logs USING KEY run WHERE run_code = run_code ) ).
+      CATCH cx_sy_itab_line_not_found.
+        CLEAR: filtered_logs.
+    ENDTRY.
 
   ENDMETHOD.
 
