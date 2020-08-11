@@ -62,7 +62,7 @@ CLASS zcl_adu_check_transport DEFINITION
       results_sequence        TYPE zif_adu_check_transport~tt_result_sequence,
       results_cross_release   TYPE zif_adu_check_transport~tt_result_cross_release,
       results_import_time     TYPE zif_adu_check_transport~tt_result_import_time,
-      results_online_import   TYPE zif_adu_check_transport~tt_result_online_import.
+      results_online_import   TYPE zif_adu_check_transport~ts_result_online_import.
 
     METHODS after_save.
 
@@ -367,7 +367,8 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
 
     DATA:
       requests      TYPE STANDARD TABLE OF e070 WITH DEFAULT KEY,
-      online_import LIKE results.
+      summary       LIKE results-summary,
+      online_import LIKE results-all.
 
     fill_empty_run_code( ).
 
@@ -385,6 +386,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
       TABLES
         it_reqs                     = requests
         et_result                   = online_import
+        et_results                  = summary
       EXCEPTIONS
         destination_not_reached     = 1
         no_objs_specified_for_anal  = 2
@@ -401,8 +403,11 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
           text1  = '/SDF/OI_CHECK'.
     ENDIF.
 
-    results_online_import = online_import.
-    results = online_import.
+    results_online_import-summary = summary.
+    results_online_import-all     = online_import.
+
+    results-summary = summary.
+    results-all     = online_import.
 
   ENDMETHOD.
 
@@ -423,7 +428,8 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     DATA(sequence_updates) = CORRESPONDING zadu_t_chktr_seq_update( results_sequence ).
     DATA(cross_release_updates) = CORRESPONDING zadu_t_chktr_crrel_update( results_cross_release ).
     DATA(import_time_updates) = CORRESPONDING zadu_t_chktr_imtim_update( results_import_time ).
-    DATA(online_import_updates) = CORRESPONDING zadu_t_chktr_onlim_update( results_online_import ).
+    DATA(online_import_summary_updates) = CORRESPONDING zadu_t_chktr_onlim_update( results_online_import-summary ).
+    DATA(online_import_updates) = CORRESPONDING zadu_t_chktr_onlim_update( results_online_import-all ).
 
     LOOP AT transport_requests REFERENCE INTO DATA(transport_request).
 
@@ -489,6 +495,16 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
         import_time_update->crud_ind          = zif_adu_constants=>crud-create.
       ENDLOOP.
 
+      LOOP AT online_import_summary_updates REFERENCE INTO DATA(online_import_summary_update)
+          WHERE trkorr = transport_request->*.
+        sequence = sy-tabix.
+        online_import_summary_update->client            = sy-mandt.
+        online_import_summary_update->run_code          = run_data-run_code.
+        online_import_summary_update->transport_request = transport_request->*.
+        online_import_summary_update->sequence          = sequence.
+        online_import_summary_update->crud_ind          = zif_adu_constants=>crud-create.
+      ENDLOOP.
+
       LOOP AT online_import_updates REFERENCE INTO DATA(online_import_update)
           WHERE trkorr = transport_request->*.
         sequence = sy-tabix.
@@ -527,6 +543,13 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
         IN UPDATE TASK
         EXPORTING
           import_time_updates = import_time_updates.
+    ENDIF.
+
+    IF online_import_summary_updates IS NOT INITIAL.
+      CALL FUNCTION 'ZADU_TRANSPORT_UPDATE_OI_SUM'
+        IN UPDATE TASK
+        EXPORTING
+          online_import_summary_updates = online_import_summary_updates.
     ENDIF.
 
     IF online_import_updates IS NOT INITIAL.

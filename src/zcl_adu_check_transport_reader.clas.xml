@@ -222,6 +222,12 @@
      <ENTRY>Online Import Executed</ENTRY>
      <LENGTH>44</LENGTH>
     </item>
+    <item>
+     <ID>I</ID>
+     <KEY>036</KEY>
+     <ENTRY>Online import summary checks</ENTRY>
+     <LENGTH>56</LENGTH>
+    </item>
    </TPOOL>
    <DESCRIPTIONS>
     <SEOCOMPOTX>

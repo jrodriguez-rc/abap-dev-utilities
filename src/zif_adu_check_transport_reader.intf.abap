@@ -51,6 +51,17 @@ INTERFACE zif_adu_check_transport_reader
         WITH NON-UNIQUE SORTED KEY head COMPONENTS run_code.
 
   TYPES:
+    BEGIN OF ts_online_import_summary.
+      INCLUDE TYPE zadu_chktr_oisum.
+  TYPES:
+      exception TYPE c LENGTH 1,
+      color     TYPE lvc_t_scol,
+    END OF ts_online_import_summary,
+    tt_online_import_summary TYPE HASHED TABLE OF zif_adu_check_transport_reader=>ts_online_import_summary
+        WITH UNIQUE KEY run_code sequence
+        WITH NON-UNIQUE SORTED KEY head COMPONENTS run_code.
+
+  TYPES:
     BEGIN OF ts_online_import.
       INCLUDE TYPE zadu_chktr_onlim.
   TYPES:
@@ -129,6 +140,17 @@ INTERFACE zif_adu_check_transport_reader
   "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
   "! @parameter as_popup | <p class="shorttext synchronized" lang="en">Display as a popup</p>
   METHODS display_import_time
+    IMPORTING
+      run_code          TYPE zadu_run_code
+      transport_request TYPE trkorr OPTIONAL
+      as_popup          TYPE abap_bool DEFAULT abap_false.
+
+  "! <p class="shorttext synchronized" lang="en">Display Online Import Summary check logs</p>
+  "!
+  "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
+  "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
+  "! @parameter as_popup | <p class="shorttext synchronized" lang="en">Display as a popup</p>
+  METHODS display_online_import_summary
     IMPORTING
       run_code          TYPE zadu_run_code
       transport_request TYPE trkorr OPTIONAL
