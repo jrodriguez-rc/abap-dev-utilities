@@ -263,11 +263,8 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
   METHOD zif_adu_check_transport_reader~display.
 
-    CLEAR: salv_data->header.
-
-    LOOP AT logs REFERENCE INTO DATA(log).
-      INSERT log->header INTO TABLE salv_data->header.
-    ENDLOOP.
+    salv_data->header = zif_adu_check_transport_reader~get_header( run_code          = run_code
+                                                                   transport_request = transport_request ).
 
     DATA(salv_table) = prepare_alv_log( ).
 
@@ -285,14 +282,9 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
   METHOD zif_adu_check_transport_reader~display_cross_reference.
 
-    CLEAR: salv_data->cross_reference.
-
-    DATA(filtered_logs) = filter_logs( run_code          = run_code
-                                       transport_request = transport_request ).
-
-    LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
-      INSERT LINES OF filtered_log->cross_reference INTO TABLE salv_data->cross_reference.
-    ENDLOOP.
+    salv_data->cross_reference = zif_adu_check_transport_reader~get_cross_reference(
+                                                                            run_code          = run_code
+                                                                            transport_request = transport_request ).
 
     DATA(salv_table) = prepare_alv_cross_reference( ).
 
@@ -500,6 +492,90 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
                                import_time           = CONV #( import_times )
                                online_import_summary = CONV #( online_import_summaries )
                                online_import         = CONV #( online_imports ) ).
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_check_transport_reader~get_header.
+
+    DATA(filtered_logs) = filter_logs( run_code          = run_code
+                                       transport_request = transport_request ).
+
+    LOOP AT filtered_logs REFERENCE INTO DATA(log).
+      INSERT log->header INTO TABLE logs.
+    ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_check_transport_reader~get_cross_reference.
+
+    DATA(filtered_logs) = filter_logs( run_code          = run_code
+                                       transport_request = transport_request ).
+
+    LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
+      INSERT LINES OF filtered_log->cross_reference INTO TABLE logs.
+    ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_check_transport_reader~get_sequence.
+
+    DATA(filtered_logs) = filter_logs( run_code          = run_code
+                                       transport_request = transport_request ).
+
+    LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
+      INSERT LINES OF filtered_log->sequence INTO TABLE logs.
+    ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_check_transport_reader~get_cross_release.
+
+    DATA(filtered_logs) = filter_logs( run_code          = run_code
+                                       transport_request = transport_request ).
+
+    LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
+      INSERT LINES OF filtered_log->cross_release INTO TABLE logs.
+    ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_check_transport_reader~get_import_time.
+
+    DATA(filtered_logs) = filter_logs( run_code          = run_code
+                                       transport_request = transport_request ).
+
+    LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
+      INSERT LINES OF filtered_log->import_time INTO TABLE logs.
+    ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_check_transport_reader~get_online_import.
+
+    DATA(filtered_logs) = filter_logs( run_code          = run_code
+                                       transport_request = transport_request ).
+
+    LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
+      INSERT LINES OF filtered_log->online_import INTO TABLE logs.
+    ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_check_transport_reader~get_online_import_summary.
+
+    DATA(filtered_logs) = filter_logs( run_code          = run_code
+                                       transport_request = transport_request ).
+
+    LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
+      INSERT LINES OF filtered_log->online_import_summary INTO TABLE logs.
+    ENDLOOP.
 
   ENDMETHOD.
 
