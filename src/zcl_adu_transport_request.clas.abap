@@ -55,6 +55,10 @@ CLASS zcl_adu_transport_request IMPLEMENTATION.
 
   METHOD zif_adu_transport_request~change_target.
 
+    IF transport_request_header-tarsystem = target.
+      RETURN.
+    ENDIF.
+
     DATA(e070) = CORRESPONDING e070( transport_request_header ).
 
     e070-tarsystem = target.
