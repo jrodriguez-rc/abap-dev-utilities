@@ -192,11 +192,11 @@
             ]
         },
         "indentation": {
-            "alignTryCatch": false,
+            "alignTryCatch": true,
             "ignoreExceptions": false,
             "globalClassSkipFirst": false,
             "ignoreGlobalClassDefinition": false,
-            "ignoreGlobalInterface": false,
+            "ignoreGlobalInterface": true,
             "exclude":[
                 ".*WRITE*.DOC*"
             ]
