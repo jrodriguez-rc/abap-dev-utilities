@@ -1,0 +1,20 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_MSAG" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <T100A>
+    <ARBGB>ZADU_TRANSPORT_REQ</ARBGB>
+    <MASTERLANG>E</MASTERLANG>
+    <STEXT>Transport request</STEXT>
+   </T100A>
+   <T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZADU_TRANSPORT_REQ</ARBGB>
+     <MSGNR>001</MSGNR>
+     <TEXT>Transport request &amp;1 doesn&apos;t exist</TEXT>
+    </T100>
+   </T100>
+  </asx:values>
+ </asx:abap>
+</abapGit>
