@@ -13,9 +13,8 @@ INTERFACE zif_adu_check_transport_reader
       exception          TYPE c LENGTH 1,
       color              TYPE lvc_t_scol,
     END OF ts_cross_reference,
-    tt_cross_reference TYPE HASHED TABLE OF zif_adu_check_transport_reader=>ts_cross_reference
-        WITH UNIQUE KEY run_code sequence
-        WITH NON-UNIQUE SORTED KEY head COMPONENTS run_code.
+    tt_cross_reference TYPE SORTED TABLE OF zif_adu_check_transport_reader=>ts_cross_reference
+        WITH UNIQUE KEY run_code sequence.
 
   TYPES:
     BEGIN OF ts_sequence.
@@ -24,9 +23,8 @@ INTERFACE zif_adu_check_transport_reader
       exception TYPE c LENGTH 1,
       color     TYPE lvc_t_scol,
     END OF ts_sequence,
-    tt_sequence TYPE HASHED TABLE OF zif_adu_check_transport_reader=>ts_sequence
-        WITH UNIQUE KEY run_code sequence
-        WITH NON-UNIQUE SORTED KEY head COMPONENTS run_code.
+    tt_sequence TYPE SORTED TABLE OF zif_adu_check_transport_reader=>ts_sequence
+        WITH UNIQUE KEY run_code sequence.
 
   TYPES:
     BEGIN OF ts_cross_release.
@@ -35,9 +33,8 @@ INTERFACE zif_adu_check_transport_reader
       exception TYPE c LENGTH 1,
       color     TYPE lvc_t_scol,
     END OF ts_cross_release,
-    tt_cross_release TYPE HASHED TABLE OF zif_adu_check_transport_reader=>ts_cross_release
-        WITH UNIQUE KEY run_code sequence
-        WITH NON-UNIQUE SORTED KEY head COMPONENTS run_code.
+    tt_cross_release TYPE SORTED TABLE OF zif_adu_check_transport_reader=>ts_cross_release
+        WITH UNIQUE KEY run_code sequence.
 
   TYPES:
     BEGIN OF ts_import_time.
@@ -46,9 +43,8 @@ INTERFACE zif_adu_check_transport_reader
       exception TYPE c LENGTH 1,
       color     TYPE lvc_t_scol,
     END OF ts_import_time,
-    tt_import_time TYPE HASHED TABLE OF zif_adu_check_transport_reader=>ts_import_time
-        WITH UNIQUE KEY run_code sequence
-        WITH NON-UNIQUE SORTED KEY head COMPONENTS run_code.
+    tt_import_time TYPE SORTED TABLE OF zif_adu_check_transport_reader=>ts_import_time
+        WITH UNIQUE KEY run_code sequence.
 
   TYPES:
     BEGIN OF ts_online_import_summary.
@@ -58,9 +54,8 @@ INTERFACE zif_adu_check_transport_reader
       exception    TYPE c LENGTH 1,
       color        TYPE lvc_t_scol,
     END OF ts_online_import_summary,
-    tt_online_import_summary TYPE HASHED TABLE OF zif_adu_check_transport_reader=>ts_online_import_summary
-        WITH UNIQUE KEY run_code sequence
-        WITH NON-UNIQUE SORTED KEY head COMPONENTS run_code.
+    tt_online_import_summary TYPE SORTED TABLE OF zif_adu_check_transport_reader=>ts_online_import_summary
+        WITH UNIQUE KEY run_code sequence.
 
   TYPES:
     BEGIN OF ts_online_import.
@@ -69,9 +64,8 @@ INTERFACE zif_adu_check_transport_reader
       exception TYPE c LENGTH 1,
       color     TYPE lvc_t_scol,
     END OF ts_online_import,
-    tt_online_import TYPE HASHED TABLE OF zif_adu_check_transport_reader=>ts_online_import
-        WITH UNIQUE KEY run_code sequence
-        WITH NON-UNIQUE SORTED KEY head COMPONENTS run_code.
+    tt_online_import TYPE SORTED TABLE OF zif_adu_check_transport_reader=>ts_online_import
+        WITH UNIQUE KEY run_code sequence.
 
   TYPES:
     BEGIN OF ts_header.
@@ -87,7 +81,7 @@ INTERFACE zif_adu_check_transport_reader
       exception                TYPE c LENGTH 1,
       color                    TYPE lvc_t_scol,
     END OF ts_header,
-    tt_header TYPE HASHED TABLE OF zif_adu_check_transport_reader=>ts_header
+    tt_header TYPE SORTED TABLE OF zif_adu_check_transport_reader=>ts_header
         WITH UNIQUE KEY run_code
         WITH NON-UNIQUE SORTED KEY req COMPONENTS transport_request.
 

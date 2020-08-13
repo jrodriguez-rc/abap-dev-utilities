@@ -763,14 +763,15 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
   METHOD filter_logs.
 
-    TRY.
-        filtered_logs =
-            COND tt_logs( WHEN transport_request IS NOT INITIAL
-                              THEN FILTER #( logs WHERE run_code = run_code AND transport_request = transport_request )
-                              ELSE FILTER #( logs USING KEY run WHERE run_code = run_code ) ).
-      CATCH cx_sy_itab_line_not_found.
-        CLEAR: filtered_logs.
-    ENDTRY.
+    filtered_logs =
+        COND #( WHEN transport_request IS NOT INITIAL
+                     THEN FILTER #( logs USING KEY req WHERE transport_request = transport_request )
+                     ELSE logs ).
+
+    filtered_logs =
+        COND #( WHEN run_code IS NOT INITIAL
+                     THEN FILTER #( logs USING KEY run WHERE run_code = run_code )
+                     ELSE filtered_logs ).
 
   ENDMETHOD.
 
