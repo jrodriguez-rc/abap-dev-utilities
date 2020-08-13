@@ -8,7 +8,7 @@ INTERFACE zif_adu_check_transport_reader
   TYPES:
     BEGIN OF ts_cross_reference.
       INCLUDE TYPE zadu_chktr_crref.
-  TYPES:
+    TYPES:
       status_description TYPE string,
       exception          TYPE c LENGTH 1,
       color              TYPE lvc_t_scol,
@@ -20,7 +20,7 @@ INTERFACE zif_adu_check_transport_reader
   TYPES:
     BEGIN OF ts_sequence.
       INCLUDE TYPE zadu_chktr_seq.
-  TYPES:
+    TYPES:
       exception TYPE c LENGTH 1,
       color     TYPE lvc_t_scol,
     END OF ts_sequence,
@@ -31,7 +31,7 @@ INTERFACE zif_adu_check_transport_reader
   TYPES:
     BEGIN OF ts_cross_release.
       INCLUDE TYPE zadu_chktr_crrel.
-  TYPES:
+    TYPES:
       exception TYPE c LENGTH 1,
       color     TYPE lvc_t_scol,
     END OF ts_cross_release,
@@ -42,7 +42,7 @@ INTERFACE zif_adu_check_transport_reader
   TYPES:
     BEGIN OF ts_import_time.
       INCLUDE TYPE zadu_chktr_imtim.
-  TYPES:
+    TYPES:
       exception TYPE c LENGTH 1,
       color     TYPE lvc_t_scol,
     END OF ts_import_time,
@@ -53,7 +53,7 @@ INTERFACE zif_adu_check_transport_reader
   TYPES:
     BEGIN OF ts_online_import_summary.
       INCLUDE TYPE zadu_chktr_oisum.
-  TYPES:
+    TYPES:
       details_icon TYPE c LENGTH 50,
       exception    TYPE c LENGTH 1,
       color        TYPE lvc_t_scol,
@@ -65,7 +65,7 @@ INTERFACE zif_adu_check_transport_reader
   TYPES:
     BEGIN OF ts_online_import.
       INCLUDE TYPE zadu_chktr_onlim.
-  TYPES:
+    TYPES:
       exception TYPE c LENGTH 1,
       color     TYPE lvc_t_scol,
     END OF ts_online_import,
@@ -76,7 +76,7 @@ INTERFACE zif_adu_check_transport_reader
   TYPES:
     BEGIN OF ts_header.
       INCLUDE TYPE zadu_chktr_head.
-  TYPES:
+    TYPES:
       date                     TYPE d,
       time                     TYPE t,
       cross_reference_messages TYPE i,
@@ -96,76 +96,97 @@ INTERFACE zif_adu_check_transport_reader
   "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
   "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
   "! @parameter as_popup | <p class="shorttext synchronized" lang="en">Display as a popup</p>
+  "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
   METHODS display
     IMPORTING
       run_code          TYPE zadu_run_code OPTIONAL
       transport_request TYPE trkorr OPTIONAL
-      as_popup          TYPE abap_bool DEFAULT abap_false.
+      as_popup          TYPE abap_bool DEFAULT abap_false
+    RAISING
+      zcx_adu_check_transport.
 
   "! <p class="shorttext synchronized" lang="en">Display Cross Reference check logs</p>
   "!
   "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
   "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
   "! @parameter as_popup | <p class="shorttext synchronized" lang="en">Display as a popup</p>
+  "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
   METHODS display_cross_reference
     IMPORTING
       run_code          TYPE zadu_run_code
       transport_request TYPE trkorr OPTIONAL
-      as_popup          TYPE abap_bool DEFAULT abap_false.
+      as_popup          TYPE abap_bool DEFAULT abap_false
+    RAISING
+      zcx_adu_check_transport.
 
   "! <p class="shorttext synchronized" lang="en">Display Sequence check logs</p>
   "!
   "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
   "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
   "! @parameter as_popup | <p class="shorttext synchronized" lang="en">Display as a popup</p>
+  "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
   METHODS display_sequence
     IMPORTING
       run_code          TYPE zadu_run_code
       transport_request TYPE trkorr OPTIONAL
-      as_popup          TYPE abap_bool DEFAULT abap_false.
+      as_popup          TYPE abap_bool DEFAULT abap_false
+    RAISING
+      zcx_adu_check_transport.
 
   "! <p class="shorttext synchronized" lang="en">Display Cross Release check logs</p>
   "!
   "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
   "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
   "! @parameter as_popup | <p class="shorttext synchronized" lang="en">Display as a popup</p>
+  "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
   METHODS display_cross_release
     IMPORTING
       run_code          TYPE zadu_run_code
       transport_request TYPE trkorr OPTIONAL
-      as_popup          TYPE abap_bool DEFAULT abap_false.
+      as_popup          TYPE abap_bool DEFAULT abap_false
+    RAISING
+      zcx_adu_check_transport.
 
   "! <p class="shorttext synchronized" lang="en">Display Import Time check logs</p>
   "!
   "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
   "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
   "! @parameter as_popup | <p class="shorttext synchronized" lang="en">Display as a popup</p>
+  "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
   METHODS display_import_time
     IMPORTING
       run_code          TYPE zadu_run_code
       transport_request TYPE trkorr OPTIONAL
-      as_popup          TYPE abap_bool DEFAULT abap_false.
+      as_popup          TYPE abap_bool DEFAULT abap_false
+    RAISING
+      zcx_adu_check_transport.
 
   "! <p class="shorttext synchronized" lang="en">Display Online Import Summary check logs</p>
   "!
   "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
   "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
   "! @parameter as_popup | <p class="shorttext synchronized" lang="en">Display as a popup</p>
+  "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
   METHODS display_online_import_summary
     IMPORTING
       run_code          TYPE zadu_run_code
       transport_request TYPE trkorr OPTIONAL
-      as_popup          TYPE abap_bool DEFAULT abap_false.
+      as_popup          TYPE abap_bool DEFAULT abap_false
+    RAISING
+      zcx_adu_check_transport.
 
   "! <p class="shorttext synchronized" lang="en">Display Online Import check logs</p>
   "!
   "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
   "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
   "! @parameter as_popup | <p class="shorttext synchronized" lang="en">Display as a popup</p>
+  "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
   METHODS display_online_import
     IMPORTING
       run_code          TYPE zadu_run_code
       transport_request TYPE trkorr OPTIONAL
-      as_popup          TYPE abap_bool DEFAULT abap_false.
+      as_popup          TYPE abap_bool DEFAULT abap_false
+    RAISING
+      zcx_adu_check_transport.
 
 ENDINTERFACE.

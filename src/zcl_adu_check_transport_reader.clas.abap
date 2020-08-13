@@ -13,10 +13,13 @@ CLASS zcl_adu_check_transport_reader DEFINITION
     "!
     "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport request</p>
     "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
+    "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
     METHODS constructor
       IMPORTING
         transport_request TYPE trkorr
-        run_code          TYPE zadu_run_code OPTIONAL.
+        run_code          TYPE zadu_run_code OPTIONAL
+      RAISING
+        zcx_adu_check_transport.
 
   PROTECTED SECTION.
 
@@ -165,7 +168,9 @@ CLASS zcl_adu_check_transport_reader DEFINITION
 
     METHODS prepare_alv_log
       RETURNING
-        VALUE(salv_table) TYPE REF TO cl_salv_table.
+        VALUE(salv_table) TYPE REF TO cl_salv_table
+      RAISING
+        zcx_adu_check_transport.
 
     METHODS prepare_alv_log_columns
       IMPORTING
@@ -173,27 +178,39 @@ CLASS zcl_adu_check_transport_reader DEFINITION
 
     METHODS prepare_alv_cross_reference
       RETURNING
-        VALUE(salv_table) TYPE REF TO cl_salv_table.
+        VALUE(salv_table) TYPE REF TO cl_salv_table
+      RAISING
+        zcx_adu_check_transport.
 
     METHODS prepare_alv_sequence
       RETURNING
-        VALUE(salv_table) TYPE REF TO cl_salv_table.
+        VALUE(salv_table) TYPE REF TO cl_salv_table
+      RAISING
+        zcx_adu_check_transport.
 
     METHODS prepare_alv_cross_release
       RETURNING
-        VALUE(salv_table) TYPE REF TO cl_salv_table.
+        VALUE(salv_table) TYPE REF TO cl_salv_table
+      RAISING
+        zcx_adu_check_transport.
 
     METHODS prepare_alv_import_time
       RETURNING
-        VALUE(salv_table) TYPE REF TO cl_salv_table.
+        VALUE(salv_table) TYPE REF TO cl_salv_table
+      RAISING
+        zcx_adu_check_transport.
 
     METHODS prepare_alv_online_import_sum
       RETURNING
-        VALUE(salv_table) TYPE REF TO cl_salv_table.
+        VALUE(salv_table) TYPE REF TO cl_salv_table
+      RAISING
+        zcx_adu_check_transport.
 
     METHODS prepare_alv_online_import
       RETURNING
-        VALUE(salv_table) TYPE REF TO cl_salv_table.
+        VALUE(salv_table) TYPE REF TO cl_salv_table
+      RAISING
+        zcx_adu_check_transport.
 
     METHODS set_online_import_config.
 
@@ -224,7 +241,9 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
       WHERE run_code          IN @run_code_range
         AND transport_request IN @transport_request_range.
     IF sy-subrc <> 0.
-      RETURN.
+      RAISE EXCEPTION TYPE zcx_adu_check_transport
+        EXPORTING
+          textid = zcx_adu_check_transport=>no_logs_found.
     ENDIF.
 
     SELECT *
@@ -759,7 +778,9 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
         cl_salv_table=>factory( IMPORTING r_salv_table  = salv_table
                                 CHANGING  t_table       = salv_data->header ).
       CATCH cx_salv_msg INTO DATA(salv_msg_exception).
-        RETURN. " TODO: Pending raise exception
+        RAISE EXCEPTION TYPE zcx_adu_check_transport
+          EXPORTING
+            previous = salv_msg_exception.
     ENDTRY.
 
     salv_table->get_display_settings( )->set_list_header(
@@ -913,7 +934,9 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
         cl_salv_table=>factory( IMPORTING r_salv_table  = salv_table
                                 CHANGING  t_table       = salv_data->cross_reference ).
       CATCH cx_salv_msg INTO DATA(salv_msg_exception).
-        RETURN. " TODO: Pending raise exception
+        RAISE EXCEPTION TYPE zcx_adu_check_transport
+          EXPORTING
+            previous = salv_msg_exception.
     ENDTRY.
 
     salv_table->get_display_settings( )->set_list_header( 'Cross reference checks'(002) ).
@@ -976,7 +999,9 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
         cl_salv_table=>factory( IMPORTING r_salv_table  = salv_table
                                 CHANGING  t_table       = salv_data->sequence ).
       CATCH cx_salv_msg INTO DATA(salv_msg_exception).
-        RETURN. " TODO: Pending raise exception
+        RAISE EXCEPTION TYPE zcx_adu_check_transport
+          EXPORTING
+            previous = salv_msg_exception.
     ENDTRY.
 
     salv_table->get_display_settings( )->set_list_header( 'Sequence checks'(003) ).
@@ -1031,7 +1056,9 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
         cl_salv_table=>factory( IMPORTING r_salv_table  = salv_table
                                 CHANGING  t_table       = salv_data->cross_release ).
       CATCH cx_salv_msg INTO DATA(salv_msg_exception).
-        RETURN. " TODO: Pending raise exception
+        RAISE EXCEPTION TYPE zcx_adu_check_transport
+          EXPORTING
+            previous = salv_msg_exception.
     ENDTRY.
 
     salv_table->get_display_settings( )->set_list_header( 'Cross release checks'(004) ).
@@ -1078,7 +1105,9 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
         cl_salv_table=>factory( IMPORTING r_salv_table  = salv_table
                                 CHANGING  t_table       = salv_data->import_time ).
       CATCH cx_salv_msg INTO DATA(salv_msg_exception).
-        RETURN. " TODO: Pending raise exception
+        RAISE EXCEPTION TYPE zcx_adu_check_transport
+          EXPORTING
+            previous = salv_msg_exception.
     ENDTRY.
 
     salv_table->get_display_settings( )->set_list_header( 'Import time checks'(005) ).
@@ -1125,7 +1154,9 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
         cl_salv_table=>factory( IMPORTING r_salv_table = salv_table
                                 CHANGING  t_table      = salv_data->online_import_summary ).
       CATCH cx_salv_msg INTO DATA(salv_msg_exception).
-        RETURN. " TODO: Pending raise exception
+        RAISE EXCEPTION TYPE zcx_adu_check_transport
+          EXPORTING
+            previous = salv_msg_exception.
     ENDTRY.
 
     salv_table->get_display_settings( )->set_list_header( 'Online import summary checks'(036) ).
@@ -1230,7 +1261,9 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
         cl_salv_table=>factory( IMPORTING r_salv_table  = salv_table
                                 CHANGING  t_table       = salv_data->online_import ).
       CATCH cx_salv_msg INTO DATA(salv_msg_exception).
-        RETURN. " TODO: Pending raise exception
+        RAISE EXCEPTION TYPE zcx_adu_check_transport
+          EXPORTING
+            previous = salv_msg_exception.
     ENDTRY.
 
     salv_table->get_display_settings( )->set_list_header( 'Online import checks'(006) ).

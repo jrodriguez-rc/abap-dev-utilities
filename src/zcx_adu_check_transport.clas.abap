@@ -85,6 +85,17 @@ CLASS zcx_adu_check_transport DEFINITION
         attr4 TYPE scx_attrname VALUE 'TEXT4' ##NO_TEXT,
       END OF authority_check_failed.
 
+    CONSTANTS:
+      "! No logs found
+      BEGIN OF no_logs_found,
+        msgid TYPE symsgid VALUE 'ZADU_CHECK_TRANSPORT' ##NO_TEXT,
+        msgno TYPE symsgno VALUE '008' ##NO_TEXT,
+        attr1 TYPE scx_attrname VALUE 'TEXT1' ##NO_TEXT,
+        attr2 TYPE scx_attrname VALUE 'TEXT2' ##NO_TEXT,
+        attr3 TYPE scx_attrname VALUE 'TEXT3' ##NO_TEXT,
+        attr4 TYPE scx_attrname VALUE 'TEXT4' ##NO_TEXT,
+      END OF no_logs_found.
+
     DATA:
       text1 TYPE string READ-ONLY,
       text2 TYPE string READ-ONLY,

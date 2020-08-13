@@ -50,6 +50,12 @@
      <MSGNR>007</MSGNR>
      <TEXT>Authority check &amp;1 failed for &amp;2</TEXT>
     </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZADU_CHECK_TRANSPORT</ARBGB>
+     <MSGNR>008</MSGNR>
+     <TEXT>No logs found</TEXT>
+    </T100>
    </T100>
   </asx:values>
  </asx:abap>
