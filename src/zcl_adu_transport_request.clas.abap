@@ -59,9 +59,31 @@ CLASS zcl_adu_transport_request IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    DATA(e070) = CORRESPONDING e070( transport_request_header ).
+    DATA(header) = transport_request_header.
 
-    e070-tarsystem = target.
+    header-tarsystem = target.
+
+    CALL FUNCTION 'TR_REQ_CHECK_HEADER'
+      EXPORTING
+        is_request_header       = header
+        iv_check_for_release    = abap_false
+        iv_check_text           = abap_false
+        iv_check_client         = abap_false
+*      IMPORTING
+*       ev_client_check_impossible =
+*      CHANGING
+*       ct_messages             =                  " Generic Table for Error Messages
+      EXCEPTIONS
+        invalid_request         = 1
+        invalid_target          = 2
+        invalid_move_parameters = 3
+        wrong_call              = 4
+        OTHERS                  = 5.
+    IF sy-subrc <> 0.
+      zcx_adu_transport_request=>raise_system( ).
+    ENDIF.
+
+    DATA(e070) = CORRESPONDING e070( transport_request_header ).
 
     CALL FUNCTION 'TRINT_UPDATE_COMM_HEADER'
       EXPORTING
