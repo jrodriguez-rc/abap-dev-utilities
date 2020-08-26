@@ -38,9 +38,9 @@ CLASS zcl_adu_messages DEFINITION
         !message_var_2  TYPE any OPTIONAL
         !message_var_3  TYPE any OPTIONAL
         !message_var_4  TYPE any OPTIONAL
-        !parameter   TYPE bapiret2-parameter OPTIONAL
-        !row         TYPE bapiret2-row OPTIONAL
-        !field       TYPE bapiret2-field OPTIONAL.
+        !parameter      TYPE bapiret2-parameter OPTIONAL
+        !row            TYPE bapiret2-row OPTIONAL
+        !field          TYPE bapiret2-field OPTIONAL.
 
     "! <p class="shorttext synchronized" lang="en">Add messages</p>
     "!
@@ -75,9 +75,29 @@ CLASS zcl_adu_messages DEFINITION
     "! <p class="shorttext synchronized" lang="en">Initialize messages</p>
     METHODS initialize.
 
+    "! <p class="shorttext synchronized" lang="en">Raise Gateway Business Exception</p>
+    "!
+    "! @raising /iwbep/cx_mgw_busi_exception | <p class="shorttext synchronized" lang="en">Business exception</p>
+    METHODS raise_gateway_busi_exception
+      RAISING
+        /iwbep/cx_mgw_busi_exception.
+
+    "! <p class="shorttext synchronized" lang="en">Raise Gateway Technical Exception</p>
+    "!
+    "! @raising /iwbep/cx_mgw_tech_exception | <p class="shorttext synchronized" lang="en">Technical Exception</p>
+    METHODS raise_gateway_tech_exception
+      RAISING
+        /iwbep/cx_mgw_tech_exception.
+
   PRIVATE SECTION.
     DATA:
       collected_messages TYPE bapiret2_t.
+
+    METHODS create_gateway_exception
+      IMPORTING
+        !iv_tech TYPE abap_bool DEFAULT abap_false
+      RETURNING
+        VALUE(exception) TYPE REF TO /iwbep/cx_mgw_base_exception.
 
     METHODS get_t100_attr
       IMPORTING
@@ -315,6 +335,37 @@ CLASS zcl_adu_messages IMPLEMENTATION.
   ENDMETHOD.
 
 
+
+  METHOD raise_gateway_busi_exception.
+
+    RAISE EXCEPTION CAST /iwbep/cx_mgw_busi_exception( create_gateway_exception( ) ).
+
+  ENDMETHOD.
+
+
+  METHOD raise_gateway_tech_exception.
+
+    RAISE EXCEPTION CAST /iwbep/cx_mgw_tech_exception( create_gateway_exception( ) ).
+
+  ENDMETHOD.
+
+
+  METHOD create_gateway_exception.
+
+    DATA(lt_messages) = get_messages( ).
+
+    exception = COND #( WHEN iv_tech = abap_false THEN NEW /iwbep/cx_mgw_busi_exception( )
+                                                  ELSE NEW /iwbep/cx_mgw_tech_exception( ) ).
+
+    DATA(messages_container) = CAST /iwbep/if_message_container( exception->get_msg_container( ) ).
+
+    messages_container->add_messages_from_bapi(
+                        it_bapi_messages         = get_messages( )
+                        iv_determine_leading_msg = /iwbep/if_message_container=>gcs_leading_msg_search_option-first ).
+
+  ENDMETHOD.
+
+
   METHOD message_vars_prepare.
 
     message_var_formatted_1 = message_var_prepare( message_var_1 ).
@@ -339,4 +390,6 @@ CLASS zcl_adu_messages IMPLEMENTATION.
                                 ELSE |{ CONV string( message_var ) ALPHA = OUT }| ).
 
   ENDMETHOD.
+
+
 ENDCLASS.
