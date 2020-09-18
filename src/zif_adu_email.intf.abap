@@ -28,10 +28,13 @@ INTERFACE zif_adu_email
 
   METHODS send_email
     IMPORTING
-      text        TYPE soli_tab
-      subject     TYPE so_obj_des
-      recipient   TYPE ad_smtpadr
-      attachments TYPE zif_adu_email=>tt_attachment
+      text          TYPE soli_tab
+      subject       TYPE so_obj_des
+      recipient     TYPE ad_smtpadr
+      attachments   TYPE zif_adu_email=>tt_attachment
+      commit_work   TYPE abap_bool OPTIONAL
+    RETURNING
+      VALUE(result) TYPE abap_bool
     RAISING
       cx_send_req_bcs
       cx_address_bcs

@@ -24,10 +24,13 @@ CLASS zcl_adu_email DEFINITION
 
     METHODS send_email
       IMPORTING
-        text        TYPE soli_tab
-        subject     TYPE so_obj_des
-        recipient   TYPE ad_smtpadr
-        attachments TYPE zif_adu_email=>tt_attachment
+        text          TYPE soli_tab
+        subject       TYPE so_obj_des
+        recipient     TYPE ad_smtpadr
+        attachments   TYPE zif_adu_email=>tt_attachment
+        commit_work   TYPE abap_bool OPTIONAL
+      RETURNING
+        VALUE(result) TYPE abap_bool
       RAISING
         cx_send_req_bcs
         cx_address_bcs
@@ -62,10 +65,11 @@ CLASS zcl_adu_email IMPLEMENTATION.
 
   METHOD zif_adu_email~send_email.
 
-    send_email( text        = text
-                subject     = subject
-                recipient   = recipient
-                attachments = attachments ).
+    result = send_email( text        = text
+                         subject     = subject
+                         recipient   = recipient
+                         attachments = attachments
+                         commit_work = commit_work ).
 
   ENDMETHOD.
 
@@ -147,7 +151,9 @@ CLASS zcl_adu_email IMPLEMENTATION.
 
     lo_send_request->set_document( lo_document ).
 
-    IF lo_send_request->send( abap_true ).
+    result = lo_send_request->send( abap_true ).
+
+    IF result = abap_true AND commit_work = abap_true.
       COMMIT WORK.
     ENDIF.
 
