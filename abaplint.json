@@ -115,7 +115,7 @@
         "no_public_attributes": {
             "allowReadOnly": true
         },
-        "abapdoc": true,
+        "abapdoc": false,
         "local_class_naming": {
             "exception": "^LCL_.*$",
             "local": "^LCL_.*$",
