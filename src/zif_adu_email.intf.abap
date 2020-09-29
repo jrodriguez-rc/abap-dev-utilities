@@ -30,7 +30,7 @@ INTERFACE zif_adu_email
     IMPORTING
       text          TYPE soli_tab
       subject       TYPE so_obj_des
-      recipient     TYPE ad_smtpadr
+      recipients    TYPE bcsy_smtpa
       attachments   TYPE zif_adu_email=>tt_attachment
       commit_work   TYPE abap_bool OPTIONAL
     RETURNING

@@ -7,7 +7,7 @@ CLASS zcl_adu_email DEFINITION
   PUBLIC SECTION.
     INTERFACES zif_adu_email.
 
-    METHODS get_instance
+    CLASS-METHODS get_instance
       RETURNING
         VALUE(result) TYPE REF TO zif_adu_email.
 
@@ -26,7 +26,7 @@ CLASS zcl_adu_email DEFINITION
       IMPORTING
         text          TYPE soli_tab
         subject       TYPE so_obj_des
-        recipient     TYPE ad_smtpadr
+        recipients    TYPE bcsy_smtpa
         attachments   TYPE zif_adu_email=>tt_attachment
         commit_work   TYPE abap_bool OPTIONAL
       RETURNING
@@ -67,7 +67,7 @@ CLASS zcl_adu_email IMPLEMENTATION.
 
     result = send_email( text        = text
                          subject     = subject
-                         recipient   = recipient
+                         recipients  = recipients
                          attachments = attachments
                          commit_work = commit_work ).
 
@@ -133,10 +133,14 @@ CLASS zcl_adu_email IMPLEMENTATION.
 
     lo_send_request->set_sender( lo_sender ).
 
-    DATA(lo_recipient) = cl_cam_address_bcs=>create_internet_address( recipient ).
+    LOOP AT recipients REFERENCE INTO DATA(lr_recipement).
 
-    lo_send_request->add_recipient( i_recipient = lo_recipient
-                                    i_express   = abap_true ).
+      DATA(lo_recipient) = cl_cam_address_bcs=>create_internet_address( lr_recipement->* ).
+
+      lo_send_request->add_recipient( i_recipient = lo_recipient
+                                      i_express   = abap_true ).
+
+    ENDLOOP.
 
     DATA(lo_document) = cl_document_bcs=>create_document( i_type    = lc_doc_type_raw
                                                           i_text    = text
