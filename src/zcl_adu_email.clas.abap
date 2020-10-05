@@ -28,6 +28,7 @@ CLASS zcl_adu_email DEFINITION
         subject       TYPE so_obj_des
         recipients    TYPE bcsy_smtpa
         attachments   TYPE zif_adu_email=>tt_attachment
+        document_type TYPE so_obj_tp DEFAULT zif_adu_email=>document_type-raw
         commit_work   TYPE abap_bool OPTIONAL
       RETURNING
         VALUE(result) TYPE abap_bool
@@ -65,11 +66,12 @@ CLASS zcl_adu_email IMPLEMENTATION.
 
   METHOD zif_adu_email~send_email.
 
-    result = send_email( text        = text
-                         subject     = subject
-                         recipients  = recipients
-                         attachments = attachments
-                         commit_work = commit_work ).
+    result = send_email( text          = text
+                         subject       = subject
+                         recipients    = recipients
+                         attachments   = attachments
+                         document_type = document_type
+                         commit_work   = commit_work ).
 
   ENDMETHOD.
 
@@ -124,9 +126,6 @@ CLASS zcl_adu_email IMPLEMENTATION.
 
   METHOD send_email.
 
-    CONSTANTS:
-      lc_doc_type_raw TYPE so_obj_tp VALUE 'RAW' ##NO_TEXT.
-
     DATA(lo_send_request) = cl_bcs=>create_persistent( ).
 
     DATA(lo_sender) = cl_sapuser_bcs=>create( sy-uname ).
@@ -142,7 +141,7 @@ CLASS zcl_adu_email IMPLEMENTATION.
 
     ENDLOOP.
 
-    DATA(lo_document) = cl_document_bcs=>create_document( i_type    = lc_doc_type_raw
+    DATA(lo_document) = cl_document_bcs=>create_document( i_type    = document_type
                                                           i_text    = text
                                                           i_subject = subject ).
 

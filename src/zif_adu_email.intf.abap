@@ -2,6 +2,12 @@
 INTERFACE zif_adu_email
   PUBLIC.
 
+  CONSTANTS:
+    BEGIN OF document_type,
+      html TYPE so_obj_tp VALUE 'HTM' ##NO_TEXT,
+      raw  TYPE so_obj_tp VALUE 'RAW' ##NO_TEXT,
+    END OF document_type.
+
   TYPES:
     BEGIN OF ts_attachment,
       type        TYPE so_obj_tp,
@@ -32,6 +38,7 @@ INTERFACE zif_adu_email
       subject       TYPE so_obj_des
       recipients    TYPE bcsy_smtpa
       attachments   TYPE zif_adu_email=>tt_attachment OPTIONAL
+      document_type TYPE so_obj_tp DEFAULT zif_adu_email=>document_type-raw
       commit_work   TYPE abap_bool OPTIONAL
     RETURNING
       VALUE(result) TYPE abap_bool
