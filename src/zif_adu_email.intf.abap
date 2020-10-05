@@ -28,10 +28,10 @@ INTERFACE zif_adu_email
 
   METHODS send_email
     IMPORTING
-      text          TYPE soli_tab
+      text          TYPE soli_tab OPTIONAL
       subject       TYPE so_obj_des
       recipients    TYPE bcsy_smtpa
-      attachments   TYPE zif_adu_email=>tt_attachment
+      attachments   TYPE zif_adu_email=>tt_attachment OPTIONAL
       commit_work   TYPE abap_bool OPTIONAL
     RETURNING
       VALUE(result) TYPE abap_bool
