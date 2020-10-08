@@ -144,7 +144,7 @@
             ]
         },
         "start_at_tab": {},
-        "prefix_is_current_class": true,
+        "prefix_is_current_class": false,
         "keyword_case": {
            "style": "upper",
             "ignoreExceptions": true,
