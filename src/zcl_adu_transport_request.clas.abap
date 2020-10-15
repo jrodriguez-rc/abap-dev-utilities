@@ -46,13 +46,6 @@ CLASS zcl_adu_transport_request IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD zif_adu_transport_request~get_header.
-
-    request_header = transport_request_header.
-
-  ENDMETHOD.
-
-
   METHOD zif_adu_transport_request~change_target.
 
     IF transport_request_header-tarsystem = target.
@@ -94,6 +87,107 @@ CLASS zcl_adu_transport_request IMPLEMENTATION.
     IF sy-subrc <> 0.
       zcx_adu_transport_request=>raise_system( ).
     ENDIF.
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_transport_request~copy_to_current_client.
+
+    DATA:
+      return_code TYPE syst_subrc.
+
+    IF sy-mandt = '000' OR sy-mandt IS INITIAL.
+      RAISE EXCEPTION TYPE zcx_adu_transport_request
+        EXPORTING
+          textid = zcx_adu_transport_request=>client_000_protected.
+    ENDIF.
+
+    DATA(transport_request) = zif_adu_transport_request~get_header( ).
+
+    DATA(from_client) = COND #( WHEN source_client IS NOT INITIAL
+                                    THEN source_client
+                                    ELSE transport_request-client ).
+
+    IF from_client = sy-mandt.
+      RAISE EXCEPTION TYPE zcx_adu_transport_request
+        EXPORTING
+          textid = zcx_adu_transport_request=>source_client_same_logon.
+    ENDIF.
+
+    SELECT SINGLE *
+      INTO @DATA(client_data)
+      FROM t000
+      WHERE mandt = @from_client.
+    IF sy-subrc <> 0.
+      RAISE EXCEPTION TYPE zcx_adu_transport_request
+        EXPORTING
+          textid = zcx_adu_transport_request=>source_client_not_exists
+          text1  = CONV #( from_client ).
+    ENDIF.
+
+    IF client_data-cccopylock = 'L'.
+      RAISE EXCEPTION TYPE zcx_adu_transport_request
+        EXPORTING
+          textid = zcx_adu_transport_request=>client_copy_protected
+          text1  = CONV #( client_data-mandt ).
+    ENDIF.
+
+    CALL FUNCTION 'SCCR_PERFORM_SCC1'
+      EXPORTING
+        ccsupcopy    = test_run
+        cccomfile    = transport_request-trkorr
+        quellmandant = from_client
+        incl_task    = include_tasks
+      IMPORTING
+        rcod         = return_code.
+    IF return_code <> 0.
+      RAISE EXCEPTION TYPE zcx_adu_transport_request
+        EXPORTING
+          textid = zcx_adu_transport_request=>program_ended_with_error
+          text1  = CONV #( return_code ).
+    ENDIF.
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_transport_request~get_copy_client_log.
+
+    DATA:
+      source_range    TYPE RANGE OF mandt,
+      target_range    TYPE RANGE OF cczmand,
+      test_mode_range TYPE RANGE OF cctestmode.
+
+    IF source IS SUPPLIED.
+      source_range = VALUE #( ( sign = 'I' option = 'EQ' low = source ) ).
+    ENDIF.
+
+    IF target IS SUPPLIED.
+      target_range = VALUE #( ( sign = 'I' option = 'EQ' low = target ) ).
+    ENDIF.
+
+    IF include_test = abap_true.
+      test_mode_range = VALUE #( ( sign = 'I' option = 'EQ' low = include_test ) ).
+    ENDIF.
+
+    DATA(transport_request) = zif_adu_transport_request~get_header( ).
+
+    SELECT *
+      INTO TABLE @result
+      FROM cccflow
+      WHERE trkorr      = @transport_request-trkorr
+        AND mandt      IN @source_range
+        AND sourcemand IN @target_range
+        AND test_mode  IN @test_mode_range.
+    IF sy-subrc <> 0.
+      CLEAR: result.
+    ENDIF.
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_transport_request~get_header.
+
+    request_header = transport_request_header.
 
   ENDMETHOD.
 

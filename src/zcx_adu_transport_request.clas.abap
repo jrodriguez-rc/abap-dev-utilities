@@ -19,6 +19,61 @@ CLASS zcx_adu_transport_request DEFINITION
         attr4 TYPE scx_attrname VALUE 'TEXT4' ##NO_TEXT,
       END OF not_exists.
 
+    CONSTANTS:
+      "! Source client does not exist: &
+      BEGIN OF source_client_not_exists,
+        msgid TYPE symsgid VALUE 'TA' ##NO_TEXT,
+        msgno TYPE symsgno VALUE '008' ##NO_TEXT,
+        attr1 TYPE scx_attrname VALUE 'TEXT1' ##NO_TEXT,
+        attr2 TYPE scx_attrname VALUE 'TEXT2' ##NO_TEXT,
+        attr3 TYPE scx_attrname VALUE 'TEXT3' ##NO_TEXT,
+        attr4 TYPE scx_attrname VALUE 'TEXT4' ##NO_TEXT,
+      END OF source_client_not_exists.
+
+    CONSTANTS:
+      "! Source client & is protected against data export by client copy
+      BEGIN OF client_copy_protected,
+        msgid TYPE symsgid VALUE 'TA' ##NO_TEXT,
+        msgno TYPE symsgno VALUE '260' ##NO_TEXT,
+        attr1 TYPE scx_attrname VALUE 'TEXT1' ##NO_TEXT,
+        attr2 TYPE scx_attrname VALUE 'TEXT2' ##NO_TEXT,
+        attr3 TYPE scx_attrname VALUE 'TEXT3' ##NO_TEXT,
+        attr4 TYPE scx_attrname VALUE 'TEXT4' ##NO_TEXT,
+      END OF client_copy_protected.
+
+    CONSTANTS:
+      "! Client 000 is protected and may not be overwritten
+      BEGIN OF client_000_protected,
+        msgid TYPE symsgid VALUE 'TA' ##NO_TEXT,
+        msgno TYPE symsgno VALUE '011' ##NO_TEXT,
+        attr1 TYPE scx_attrname VALUE 'TEXT1' ##NO_TEXT,
+        attr2 TYPE scx_attrname VALUE 'TEXT2' ##NO_TEXT,
+        attr3 TYPE scx_attrname VALUE 'TEXT3' ##NO_TEXT,
+        attr4 TYPE scx_attrname VALUE 'TEXT4' ##NO_TEXT,
+      END OF client_000_protected.
+
+    CONSTANTS:
+      "! Source client is same as logon client
+      BEGIN OF source_client_same_logon,
+        msgid TYPE symsgid VALUE 'TA' ##NO_TEXT,
+        msgno TYPE symsgno VALUE '009' ##NO_TEXT,
+        attr1 TYPE scx_attrname VALUE 'TEXT1' ##NO_TEXT,
+        attr2 TYPE scx_attrname VALUE 'TEXT2' ##NO_TEXT,
+        attr3 TYPE scx_attrname VALUE 'TEXT3' ##NO_TEXT,
+        attr4 TYPE scx_attrname VALUE 'TEXT4' ##NO_TEXT,
+      END OF source_client_same_logon.
+
+    CONSTANTS:
+      "! Program ended with error or warning, return code: &
+      BEGIN OF program_ended_with_error,
+        msgid TYPE symsgid VALUE 'TA' ##NO_TEXT,
+        msgno TYPE symsgno VALUE '146' ##NO_TEXT,
+        attr1 TYPE scx_attrname VALUE 'TEXT1' ##NO_TEXT,
+        attr2 TYPE scx_attrname VALUE 'TEXT2' ##NO_TEXT,
+        attr3 TYPE scx_attrname VALUE 'TEXT3' ##NO_TEXT,
+        attr4 TYPE scx_attrname VALUE 'TEXT4' ##NO_TEXT,
+      END OF program_ended_with_error.
+
     DATA:
       text1 TYPE string READ-ONLY,
       text2 TYPE string READ-ONLY,
