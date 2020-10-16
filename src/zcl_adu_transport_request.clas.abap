@@ -174,7 +174,7 @@ CLASS zcl_adu_transport_request IMPLEMENTATION.
     SELECT *
       INTO TABLE @result
       FROM cccflow
-      WHERE trkorr      = @transport_request-trkorr
+      WHERE comfile     = @transport_request-trkorr
         AND mandt      IN @source_range
         AND sourcemand IN @target_range
         AND test_mode  IN @test_mode_range.
