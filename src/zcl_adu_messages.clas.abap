@@ -5,6 +5,9 @@ CLASS zcl_adu_messages DEFINITION
   CREATE PUBLIC .
 
   PUBLIC SECTION.
+    TYPES:
+      tt_message_types TYPE STANDARD TABLE OF syst_msgty WITH DEFAULT KEY.
+
     CONSTANTS:
       "! <p class="shorttext synchronized" lang="en">Error severity codes</p>
       BEGIN OF severity,
@@ -16,6 +19,11 @@ CLASS zcl_adu_messages DEFINITION
       END OF severity,
       "! <p class="shorttext synchronized" lang="en">Error message types</p>
       error_types TYPE string VALUE 'AEX'.
+
+    CLASS-DATA:
+      message_error_types TYPE tt_message_types READ-ONLY.
+
+    CLASS-METHODS class_constructor.
 
     "! <p class="shorttext synchronized" lang="en">Add message</p>
     "!
@@ -75,6 +83,10 @@ CLASS zcl_adu_messages DEFINITION
     "! <p class="shorttext synchronized" lang="en">Initialize messages</p>
     METHODS initialize.
 
+    METHODS is_error
+      RETURNING
+        VALUE(result) TYPE abap_bool.
+
     "! <p class="shorttext synchronized" lang="en">Raise Gateway Business Exception</p>
     "!
     "! @raising /iwbep/cx_mgw_busi_exception | <p class="shorttext synchronized" lang="en">Business exception</p>
@@ -95,7 +107,7 @@ CLASS zcl_adu_messages DEFINITION
 
     METHODS create_gateway_exception
       IMPORTING
-        !iv_tech TYPE abap_bool DEFAULT abap_false
+        !iv_tech         TYPE abap_bool DEFAULT abap_false
       RETURNING
         VALUE(exception) TYPE REF TO /iwbep/cx_mgw_base_exception.
 
@@ -144,6 +156,13 @@ ENDCLASS.
 
 
 CLASS zcl_adu_messages IMPLEMENTATION.
+
+
+  METHOD class_constructor.
+
+    message_error_types = VALUE #( ( |A| ) ( |E| ) ( |X| ) ).
+
+  ENDMETHOD.
 
 
   METHOD add_exception.
@@ -334,6 +353,12 @@ CLASS zcl_adu_messages IMPLEMENTATION.
     CLEAR: collected_messages.
   ENDMETHOD.
 
+
+  METHOD is_error.
+
+
+
+  ENDMETHOD.
 
 
   METHOD raise_gateway_busi_exception.
