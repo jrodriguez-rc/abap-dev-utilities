@@ -6,7 +6,9 @@ CLASS zcl_adu_messages DEFINITION
 
   PUBLIC SECTION.
     TYPES:
-      tt_message_types TYPE STANDARD TABLE OF syst_msgty WITH DEFAULT KEY.
+      tt_message_types TYPE STANDARD TABLE OF syst_msgty WITH DEFAULT KEY,
+      tt_messages      TYPE STANDARD TABLE OF bapiret2 WITH DEFAULT KEY
+                                                       WITH NON-UNIQUE SORTED KEY type COMPONENTS type.
 
     CONSTANTS:
       "! <p class="shorttext synchronized" lang="en">Error severity codes</p>
@@ -55,7 +57,7 @@ CLASS zcl_adu_messages DEFINITION
     "! @parameter messages | <p class="shorttext synchronized" lang="en">Messages table</p>
     METHODS add_messages
       IMPORTING
-        !messages TYPE bapirettab.
+        !messages TYPE bapiret2_t.
 
     "! <p class="shorttext synchronized" lang="en">Add exception</p>
     "!
@@ -76,7 +78,7 @@ CLASS zcl_adu_messages DEFINITION
     "! @parameter messages | <p class="shorttext synchronized" lang="en">Messages</p>
     METHODS get_messages
       RETURNING
-        VALUE(messages) TYPE bapiret2_t.
+        VALUE(messages) TYPE tt_messages.
 
     "! <p class="shorttext synchronized" lang="en">Initialize messages</p>
     "!
@@ -103,7 +105,7 @@ CLASS zcl_adu_messages DEFINITION
 
   PRIVATE SECTION.
     DATA:
-      collected_messages TYPE bapiret2_t.
+      collected_messages TYPE tt_messages.
 
     METHODS create_gateway_exception
       IMPORTING
@@ -356,7 +358,11 @@ CLASS zcl_adu_messages IMPLEMENTATION.
 
   METHOD is_error.
 
+    DATA(messages) = get_messages( ).
 
+    result =
+        xsdbool(
+            FILTER #( messages USING KEY type IN message_error_types WHERE type = table_line ) IS NOT INITIAL ).
 
   ENDMETHOD.
 
@@ -385,7 +391,7 @@ CLASS zcl_adu_messages IMPLEMENTATION.
     DATA(messages_container) = CAST /iwbep/if_message_container( exception->get_msg_container( ) ).
 
     messages_container->add_messages_from_bapi(
-                        it_bapi_messages         = get_messages( )
+                        it_bapi_messages         = CORRESPONDING #( get_messages( ) )
                         iv_determine_leading_msg = /iwbep/if_message_container=>gcs_leading_msg_search_option-first ).
 
   ENDMETHOD.
