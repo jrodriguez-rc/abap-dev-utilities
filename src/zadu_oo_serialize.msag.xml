@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_MSAG" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <T100A>
+    <ARBGB>ZADU_OO_SERIALIZE</ARBGB>
+    <MASTERLANG>E</MASTERLANG>
+    <STEXT>Serialization objects</STEXT>
+   </T100A>
+   <T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZADU_OO_SERIALIZE</ARBGB>
+     <MSGNR>001</MSGNR>
+     <TEXT>Type is empty</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZADU_OO_SERIALIZE</ARBGB>
+     <MSGNR>002</MSGNR>
+     <TEXT>Code is empty</TEXT>
+    </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZADU_OO_SERIALIZE</ARBGB>
+     <MSGNR>003</MSGNR>
+     <TEXT>Error saving data</TEXT>
+    </T100>
+   </T100>
+  </asx:values>
+ </asx:abap>
+</abapGit>

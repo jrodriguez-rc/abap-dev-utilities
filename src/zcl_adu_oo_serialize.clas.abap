@@ -22,14 +22,18 @@ CLASS zcl_adu_oo_serialize DEFINITION
         type                TYPE zadu_oo_serializ-type
         code                TYPE zadu_oo_serializ-code
         serializable_object TYPE REF TO if_serializable_object
-        timestamp           TYPE timestampl OPTIONAL.
+        timestamp           TYPE timestampl OPTIONAL
+      RAISING
+        zcx_adu_oo_serialize.
 
     METHODS save_serialized_object
       IMPORTING
         type      TYPE zadu_oo_serializ-type
         code      TYPE zadu_oo_serializ-code
         object    TYPE string
-        timestamp TYPE timestampl OPTIONAL.
+        timestamp TYPE timestampl OPTIONAL
+      RAISING
+        zcx_adu_oo_serialize.
 
   PROTECTED SECTION.
 
@@ -70,6 +74,18 @@ CLASS zcl_adu_oo_serialize IMPLEMENTATION.
 
 
   METHOD save_serialized_object.
+
+    IF type IS INITIAL.
+      RAISE EXCEPTION TYPE zcx_adu_oo_serialize
+        EXPORTING
+          textid = zcx_adu_oo_serialize=>type_is_empty.
+    ENDIF.
+
+    IF code IS INITIAL.
+      RAISE EXCEPTION TYPE zcx_adu_oo_serialize
+        EXPORTING
+          textid = zcx_adu_oo_serialize=>code_is_empty.
+    ENDIF.
 
     DATA(serialization) = VALUE zadu_oo_serializ( client = sy-mandt
                                                   type   = type
