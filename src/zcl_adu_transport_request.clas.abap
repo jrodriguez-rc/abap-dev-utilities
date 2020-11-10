@@ -8,10 +8,14 @@ CLASS zcl_adu_transport_request DEFINITION
     INTERFACES:
       zif_adu_transport_request.
 
-    "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
-    "!
-    "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport request</p>
-    "! @raising zcx_adu_transport_request | <p class="shorttext synchronized" lang="en">Exception</p>
+    CLASS-METHODS create
+      IMPORTING
+        transport_request TYPE trkorr
+      RETURNING
+        VALUE(ri_result)  TYPE REF TO zif_adu_transport_request
+      RAISING
+        zcx_adu_transport_request.
+
     METHODS constructor
       IMPORTING
         transport_request TYPE trkorr
@@ -37,6 +41,13 @@ ENDCLASS.
 
 
 CLASS zcl_adu_transport_request IMPLEMENTATION.
+
+
+  METHOD create.
+
+    ri_result = NEW zcl_adu_transport_request( transport_request ).
+
+  ENDMETHOD.
 
 
   METHOD constructor.
