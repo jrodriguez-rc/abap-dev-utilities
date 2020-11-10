@@ -37,12 +37,6 @@ CLASS zcl_adu_email DEFINITION
         cx_address_bcs
         cx_document_bcs.
 
-    METHODS text_string_to_tab
-      IMPORTING
-        text          TYPE string
-      RETURNING
-        VALUE(result) TYPE soli_tab.
-
 ENDCLASS.
 
 
@@ -78,7 +72,7 @@ CLASS zcl_adu_email IMPLEMENTATION.
 
   METHOD zif_adu_email~text_string_to_tab.
 
-    result = text_string_to_tab( text ).
+    result = NEW zcl_adu_general( )->text_string_to_tab( text ).
 
   ENDMETHOD.
 
@@ -116,7 +110,6 @@ CLASS zcl_adu_email IMPLEMENTATION.
     CALL FUNCTION 'CONVERT_ITF_TO_STREAM_TEXT'
       EXPORTING
         language    = language
-        lf          = cl_abap_char_utilities=>newline
       TABLES
         itf_text    = lt_tlines
         text_stream = result.
@@ -159,17 +152,6 @@ CLASS zcl_adu_email IMPLEMENTATION.
     IF result = abap_true AND commit_work = abap_true.
       COMMIT WORK.
     ENDIF.
-
-  ENDMETHOD.
-
-
-  METHOD text_string_to_tab.
-
-    CALL FUNCTION 'SCMS_STRING_TO_FTEXT'
-      EXPORTING
-        text      = text
-      TABLES
-        ftext_tab = result.
 
   ENDMETHOD.
 

@@ -18,6 +18,12 @@ CLASS zcl_adu_general DEFINITION
       RETURNING
         VALUE(result)         TYPE cl_abap_structdescr=>component_table.
 
+  METHODS text_string_to_tab
+    IMPORTING
+      text          TYPE string
+    RETURNING
+      VALUE(result) TYPE soli_tab.
+
   PROTECTED SECTION.
 
   PRIVATE SECTION.
@@ -67,6 +73,17 @@ CLASS zcl_adu_general IMPLEMENTATION.
                                             ) INTO TABLE result.
       ENDIF.
     ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD text_string_to_tab.
+
+    CALL FUNCTION 'SCMS_STRING_TO_FTEXT'
+      EXPORTING
+        text      = text
+      TABLES
+        ftext_tab = result.
 
   ENDMETHOD.
 
