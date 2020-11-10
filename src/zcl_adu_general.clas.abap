@@ -18,11 +18,11 @@ CLASS zcl_adu_general DEFINITION
       RETURNING
         VALUE(result)         TYPE cl_abap_structdescr=>component_table.
 
-  METHODS text_string_to_tab
-    IMPORTING
-      text          TYPE string
-    RETURNING
-      VALUE(result) TYPE soli_tab.
+    METHODS text_string_to_tab
+      IMPORTING
+        text          TYPE string
+      RETURNING
+        VALUE(result) TYPE soli_tab.
 
   PROTECTED SECTION.
 
