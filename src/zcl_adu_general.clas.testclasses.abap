@@ -34,7 +34,7 @@ CLASS ltcl_structure_test IMPLEMENTATION.
     DATA:
       BEGIN OF ls_complex_struc.
         INCLUDE TYPE bapiret2.
-      DATA:
+    DATA:
         structure  TYPE bapiret2,
         field_test TYPE string,
       END OF ls_complex_struc.
