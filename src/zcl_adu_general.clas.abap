@@ -4,26 +4,23 @@ CLASS zcl_adu_general DEFINITION
   CREATE PUBLIC .
 
   PUBLIC SECTION.
+
     CLASS-METHODS get_instance
       RETURNING
-        VALUE(result) TYPE REF TO zcl_adu_general.
-
-    METHODS constructor.
-
+        VALUE(result) TYPE REF TO zcl_adu_general .
+    METHODS constructor .
     METHODS get_structure_fields
       IMPORTING
-        structure_name        TYPE csequence OPTIONAL
-        structure_description TYPE REF TO cl_abap_datadescr OPTIONAL
-        recursive             TYPE abap_bool DEFAULT abap_true
+        !structure_name        TYPE csequence OPTIONAL
+        !structure_description TYPE REF TO cl_abap_datadescr OPTIONAL
+        !recursive             TYPE abap_bool DEFAULT abap_true
       RETURNING
-        VALUE(result)         TYPE cl_abap_structdescr=>component_table.
-
+        VALUE(result)          TYPE cl_abap_structdescr=>component_table .
     METHODS text_string_to_tab
       IMPORTING
-        text          TYPE string
+        !text         TYPE string
       RETURNING
-        VALUE(result) TYPE soli_tab.
-
+        VALUE(result) TYPE soli_tab .
   PROTECTED SECTION.
 
   PRIVATE SECTION.
@@ -65,14 +62,20 @@ CLASS zcl_adu_general IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    LOOP AT structure->get_components( ) REFERENCE INTO DATA(component).
-      IF component->as_include = abap_false.
-        INSERT component->* INTO TABLE result.
-      ELSEIF recursive = abap_true.
-        INSERT LINES OF get_structure_fields( structure_description = component->type recursive = abap_true
-                                            ) INTO TABLE result.
-      ENDIF.
-    ENDLOOP.
+    result =
+        REDUCE #( INIT all_components TYPE cl_abap_structdescr=>component_table
+            FOR component IN structure->get_components( )
+                NEXT all_components =
+                    COND #(
+                        WHEN component-as_include = abap_false
+                            THEN VALUE #( BASE all_components ( component ) )
+                        WHEN recursive = abap_true
+                            THEN VALUE #(
+                                BASE all_components
+                                     FOR field IN get_structure_fields( structure_description = component-type
+                                                                        recursive             = abap_true
+                                            ) ( field ) )
+                            ELSE all_components ) ).
 
   ENDMETHOD.
 
