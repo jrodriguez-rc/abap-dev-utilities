@@ -7,7 +7,7 @@
         "applyUnspecifiedRules": false
     },
     "syntax": {
-        "version": "v740sp8",
+        "version": "v740sp08",
         "errorNamespace": "^Z",
         "globalConstants": [],
         "globalMacros": []
