@@ -3,8 +3,7 @@
         "files": "/src/**/*.*",
         "skipGeneratedGatewayClasses": true,
         "skipGeneratedPersistentClasses": true,
-        "skipGeneratedFunctionGroups": true,
-        "applyUnspecifiedRules": false
+        "skipGeneratedFunctionGroups": true
     },
     "syntax": {
         "version": "v740sp08",
@@ -26,15 +25,17 @@
             "execSQL": true,
             "kernelCall": true,
             "communication": true,
-            "statics": true
+            "statics": true,
+            "systemCall": true,
+            "defaultKey": false,
+            "break": true,
+            "describeLines": false
         },
-        "breakpoint": true,
-        "constructor_visibility_public": {
-            "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#if-your-global-class-is-create-private-leave-the-constructor-public"
-        },
+        "constructor_visibility_public": true,
         "description_empty": false,
         "empty_statement": true,
         "empty_structure": {
+            "try": true,
             "loop": true,
             "if": true,
             "while": true,
@@ -43,9 +44,7 @@
             "do": true,
             "at": true
         },
-        "exporting": {
-            "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#omit-the-optional-keyword-exporting"
-        },
+        "exporting": true,
         "functional_writing": {
             "ignoreExceptions": true
         },
@@ -53,26 +52,21 @@
         "identical_form_names": true,
         "inline_data_old_versions": true,
         "line_length": {
-            "length": 120,
-            "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#stick-to-a-reasonable-line-length"
+            "length": 120
         },
         "message_exists": true,
         "method_length": {
             "statements": 100,
             "ignoreTestClasses": false,
             "errorWhenEmpty": true,
-            "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#keep-methods-small",
             "exclude":[
                 ".*WRITE*.DOC*"
             ]
         },
-        "mix_returning": {
-            "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#use-either-returning-or-exporting-or-changing-but-not-a-combination"
-        },
+        "mix_returning": true,
         "msag_consistency": true,
         "nesting": {
-            "depth": 5,
-            "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#keep-the-nesting-depth-low"
+            "depth": 5
         },
         "obsolete_statement": {
             "refresh": true,
@@ -83,7 +77,12 @@
             "move": true,
             "divide": true,
             "requested": true,
-            "occurs": true
+            "occurs": true,
+            "setExtended": true,
+            "withHeaderLine": true,
+            "fieldSymbolStructure": true,
+            "typePools": true,
+            "load": true
         },
         "parser_error": true,
         "short_case": {
@@ -110,7 +109,6 @@
         "empty_line_in_statement": {
             "allowChained": true
         },
-        "form_no_dash": true,
         "check_abstract": true,
         "no_public_attributes": {
             "allowReadOnly": true
@@ -136,7 +134,10 @@
             "auth": "^Z",
             "pinf": "^ZADU",
             "idoc": "^ZADU",
-            "xslt": "^ZADU"
+            "xslt": "^ZADU",
+            "ssfo": "^ZADU",
+            "ssst": "^ZADU",
+            "shlp": "^ZADU"
         },
         "space_before_colon": {
             "exclude":[
@@ -152,19 +153,19 @@
             "ignoreGlobalClassDefinition": false,
             "ignoreGlobalInterface": false,
             "ignoreFunctionModuleName": false,
+            "ignoreGlobalClassBoundaries": false,
+            "ignoreKeywords": [],
             "exclude":[
                 ".*WRITE*.DOC*",
                 "^ZF.*CD.*$"
             ]
         },
         "if_in_if": {
-            "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#keep-the-nesting-depth-low",
             "exclude":[
                 ".*WRITE*.DOC*"
             ]
         },
         "max_one_statement": {
-            "reason": "https://github.com/SAP/styleguides/blob/master/clean-abap/CleanABAP.md#no-more-than-one-statement-per-line",
             "exclude":[
                 ".*WRITE*.DOC*"
             ]
@@ -202,7 +203,5 @@
             ]
         },
         "commented_code": true
-    },
-    "rules_disabled": {
     }
 }
