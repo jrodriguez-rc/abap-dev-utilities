@@ -16,6 +16,7 @@ CLASS zcl_adu_messages DEFINITION
         error       TYPE symsgty VALUE 'E',
         warning     TYPE symsgty VALUE 'W',
         information TYPE symsgty VALUE 'I',
+        success     TYPE symsgty VALUE 'S',
         exception   TYPE symsgty VALUE 'X',
         abort       TYPE symsgty VALUE 'A',
       END OF severity,
