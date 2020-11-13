@@ -290,8 +290,10 @@ CLASS zcl_adu_messages IMPLEMENTATION.
     ENDLOOP.
 
     CALL FUNCTION 'MESSAGES_SHOW'
+      EXPORTING
+        send_if_one = abap_true
       EXCEPTIONS
-        OTHERS = 0.
+        OTHERS      = 0.
 
     IF initialize_after_display = abap_true.
       initialize( ).
