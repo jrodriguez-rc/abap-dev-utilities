@@ -8,7 +8,7 @@ INTERFACE zif_adu_check_transport_reader
   TYPES:
     BEGIN OF ts_cross_reference.
       INCLUDE TYPE zadu_chktr_crref.
-    TYPES:
+  TYPES:
       status_description TYPE string,
       exception          TYPE c LENGTH 1,
       color              TYPE lvc_t_scol,
@@ -19,7 +19,7 @@ INTERFACE zif_adu_check_transport_reader
   TYPES:
     BEGIN OF ts_sequence.
       INCLUDE TYPE zadu_chktr_seq.
-    TYPES:
+  TYPES:
       exception TYPE c LENGTH 1,
       color     TYPE lvc_t_scol,
     END OF ts_sequence,
@@ -29,7 +29,7 @@ INTERFACE zif_adu_check_transport_reader
   TYPES:
     BEGIN OF ts_cross_release.
       INCLUDE TYPE zadu_chktr_crrel.
-    TYPES:
+  TYPES:
       exception TYPE c LENGTH 1,
       color     TYPE lvc_t_scol,
     END OF ts_cross_release,
@@ -39,7 +39,7 @@ INTERFACE zif_adu_check_transport_reader
   TYPES:
     BEGIN OF ts_import_time.
       INCLUDE TYPE zadu_chktr_imtim.
-    TYPES:
+  TYPES:
       exception TYPE c LENGTH 1,
       color     TYPE lvc_t_scol,
     END OF ts_import_time,
@@ -49,7 +49,7 @@ INTERFACE zif_adu_check_transport_reader
   TYPES:
     BEGIN OF ts_online_import_summary.
       INCLUDE TYPE zadu_chktr_oisum.
-    TYPES:
+  TYPES:
       details_icon TYPE c LENGTH 50,
       exception    TYPE c LENGTH 1,
       color        TYPE lvc_t_scol,
@@ -60,7 +60,7 @@ INTERFACE zif_adu_check_transport_reader
   TYPES:
     BEGIN OF ts_online_import.
       INCLUDE TYPE zadu_chktr_onlim.
-    TYPES:
+  TYPES:
       exception TYPE c LENGTH 1,
       color     TYPE lvc_t_scol,
     END OF ts_online_import,
@@ -70,7 +70,7 @@ INTERFACE zif_adu_check_transport_reader
   TYPES:
     BEGIN OF ts_header.
       INCLUDE TYPE zadu_chktr_head.
-    TYPES:
+  TYPES:
       date                     TYPE d,
       time                     TYPE t,
       cross_reference_messages TYPE i,
@@ -82,7 +82,7 @@ INTERFACE zif_adu_check_transport_reader
       color                    TYPE lvc_t_scol,
     END OF ts_header,
     tt_header TYPE SORTED TABLE OF zif_adu_check_transport_reader=>ts_header
-        WITH UNIQUE KEY run_code
+        WITH UNIQUE KEY run_code transport_request
         WITH NON-UNIQUE SORTED KEY req COMPONENTS transport_request.
 
   "! <p class="shorttext synchronized" lang="en">Display logs</p>
@@ -187,14 +187,14 @@ INTERFACE zif_adu_check_transport_reader
   "!
   "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
   "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
-  "! @parameter logs | <p class="shorttext synchronized" lang="en">All logs</p>
+  "! @parameter result | <p class="shorttext synchronized" lang="en">All logs</p>
   "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
   METHODS get_header
     IMPORTING
       run_code          TYPE zadu_run_code OPTIONAL
       transport_request TYPE trkorr OPTIONAL
     RETURNING
-      VALUE(logs)   TYPE zif_adu_check_transport_reader=>tt_header
+      VALUE(result)     TYPE zif_adu_check_transport_reader=>tt_header
     RAISING
       zcx_adu_check_transport.
 
@@ -202,14 +202,14 @@ INTERFACE zif_adu_check_transport_reader
   "!
   "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
   "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
-  "! @parameter logs | <p class="shorttext synchronized" lang="en">Logs</p>
+  "! @parameter result | <p class="shorttext synchronized" lang="en">Logs</p>
   "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
   METHODS get_cross_reference
     IMPORTING
       run_code          TYPE zadu_run_code
       transport_request TYPE trkorr OPTIONAL
     RETURNING
-      VALUE(logs)   TYPE zif_adu_check_transport_reader=>tt_cross_reference
+      VALUE(result)     TYPE zif_adu_check_transport_reader=>tt_cross_reference
     RAISING
       zcx_adu_check_transport.
 
@@ -217,14 +217,14 @@ INTERFACE zif_adu_check_transport_reader
   "!
   "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
   "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
-  "! @parameter logs | <p class="shorttext synchronized" lang="en">Logs</p>
+  "! @parameter result | <p class="shorttext synchronized" lang="en">Logs</p>
   "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
   METHODS get_sequence
     IMPORTING
       run_code          TYPE zadu_run_code
       transport_request TYPE trkorr OPTIONAL
     RETURNING
-      VALUE(logs)   TYPE zif_adu_check_transport_reader=>tt_sequence
+      VALUE(result)     TYPE zif_adu_check_transport_reader=>tt_sequence
     RAISING
       zcx_adu_check_transport.
 
@@ -232,14 +232,14 @@ INTERFACE zif_adu_check_transport_reader
   "!
   "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
   "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
-  "! @parameter logs | <p class="shorttext synchronized" lang="en">Logs</p>
+  "! @parameter result | <p class="shorttext synchronized" lang="en">Logs</p>
   "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
   METHODS get_cross_release
     IMPORTING
       run_code          TYPE zadu_run_code
       transport_request TYPE trkorr OPTIONAL
     RETURNING
-      VALUE(logs)   TYPE zif_adu_check_transport_reader=>tt_cross_release
+      VALUE(result)     TYPE zif_adu_check_transport_reader=>tt_cross_release
     RAISING
       zcx_adu_check_transport.
 
@@ -247,14 +247,14 @@ INTERFACE zif_adu_check_transport_reader
   "!
   "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
   "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
-  "! @parameter logs | <p class="shorttext synchronized" lang="en">Logs</p>
+  "! @parameter result | <p class="shorttext synchronized" lang="en">Logs</p>
   "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
   METHODS get_import_time
     IMPORTING
       run_code          TYPE zadu_run_code
       transport_request TYPE trkorr OPTIONAL
     RETURNING
-      VALUE(logs)   TYPE zif_adu_check_transport_reader=>tt_import_time
+      VALUE(result)     TYPE zif_adu_check_transport_reader=>tt_import_time
     RAISING
       zcx_adu_check_transport.
 
@@ -262,14 +262,14 @@ INTERFACE zif_adu_check_transport_reader
   "!
   "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
   "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
-  "! @parameter logs | <p class="shorttext synchronized" lang="en">Logs</p>
+  "! @parameter result | <p class="shorttext synchronized" lang="en">Logs</p>
   "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
   METHODS get_online_import_summary
     IMPORTING
       run_code          TYPE zadu_run_code
       transport_request TYPE trkorr OPTIONAL
     RETURNING
-      VALUE(logs)   TYPE zif_adu_check_transport_reader=>tt_online_import_summary
+      VALUE(result)     TYPE zif_adu_check_transport_reader=>tt_online_import_summary
     RAISING
       zcx_adu_check_transport.
 
@@ -277,14 +277,14 @@ INTERFACE zif_adu_check_transport_reader
   "!
   "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
   "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
-  "! @parameter logs | <p class="shorttext synchronized" lang="en">Logs</p>
+  "! @parameter result | <p class="shorttext synchronized" lang="en">Logs</p>
   "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
   METHODS get_online_import
     IMPORTING
       run_code          TYPE zadu_run_code
       transport_request TYPE trkorr OPTIONAL
     RETURNING
-      VALUE(logs)   TYPE zif_adu_check_transport_reader=>tt_online_import
+      VALUE(result)     TYPE zif_adu_check_transport_reader=>tt_online_import
     RAISING
       zcx_adu_check_transport.
 

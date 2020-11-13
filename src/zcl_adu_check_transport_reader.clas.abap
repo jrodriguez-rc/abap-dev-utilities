@@ -502,7 +502,7 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
                                        transport_request = transport_request ).
 
     LOOP AT filtered_logs REFERENCE INTO DATA(log).
-      INSERT log->header INTO TABLE logs.
+      INSERT log->header INTO TABLE result.
     ENDLOOP.
 
   ENDMETHOD.
@@ -514,7 +514,7 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
                                        transport_request = transport_request ).
 
     LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
-      INSERT LINES OF filtered_log->cross_reference INTO TABLE logs.
+      INSERT LINES OF filtered_log->cross_reference INTO TABLE result.
     ENDLOOP.
 
   ENDMETHOD.
@@ -526,7 +526,7 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
                                        transport_request = transport_request ).
 
     LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
-      INSERT LINES OF filtered_log->sequence INTO TABLE logs.
+      INSERT LINES OF filtered_log->sequence INTO TABLE result.
     ENDLOOP.
 
   ENDMETHOD.
@@ -538,7 +538,7 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
                                        transport_request = transport_request ).
 
     LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
-      INSERT LINES OF filtered_log->cross_release INTO TABLE logs.
+      INSERT LINES OF filtered_log->cross_release INTO TABLE result.
     ENDLOOP.
 
   ENDMETHOD.
@@ -550,7 +550,7 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
                                        transport_request = transport_request ).
 
     LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
-      INSERT LINES OF filtered_log->import_time INTO TABLE logs.
+      INSERT LINES OF filtered_log->import_time INTO TABLE result.
     ENDLOOP.
 
   ENDMETHOD.
@@ -562,7 +562,7 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
                                        transport_request = transport_request ).
 
     LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
-      INSERT LINES OF filtered_log->online_import INTO TABLE logs.
+      INSERT LINES OF filtered_log->online_import INTO TABLE result.
     ENDLOOP.
 
   ENDMETHOD.
@@ -574,7 +574,7 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
                                        transport_request = transport_request ).
 
     LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
-      INSERT LINES OF filtered_log->online_import_summary INTO TABLE logs.
+      INSERT LINES OF filtered_log->online_import_summary INTO TABLE result.
     ENDLOOP.
 
   ENDMETHOD.
