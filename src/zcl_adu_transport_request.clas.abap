@@ -178,10 +178,10 @@ CLASS zcl_adu_transport_request IMPLEMENTATION.
             WHEN target IS SUPPLIED
                 THEN VALUE #( ( sign = 'I' option = 'EQ' low = target ) ) ).
 
-      test_mode_range =
-        COND #(
-            WHEN include_test IS SUPPLIED
-                THEN VALUE #( ( sign = 'I' option = 'EQ' low = include_test ) ) ).
+    test_mode_range =
+      COND #(
+          WHEN include_test IS SUPPLIED
+              THEN VALUE #( ( sign = 'I' option = 'EQ' low = include_test ) ) ).
 
     DATA(transport_request) = zif_adu_transport_request~get_header( ).
 

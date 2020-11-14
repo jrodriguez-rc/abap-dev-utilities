@@ -894,7 +894,8 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
                           OR data_result-accnt > online_import_config-tabreads_y
                           OR data_result-execnt > online_import_config-repexe_y
                           OR data_result-execnt_dd > online_import_config-repexedd_y OR
-                             ( data_result-action IS NOT INITIAL AND data_result-occtb > online_import_config-tabsize_y ) )
+                             ( data_result-action IS NOT INITIAL AND
+                               data_result-occtb > online_import_config-tabsize_y ) )
                         THEN zif_adu_constants=>severity-warning
                     WHEN severity IS INITIAL
                         THEN zif_adu_constants=>severity-info
