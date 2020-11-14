@@ -13,7 +13,7 @@ CLASS zcl_adu_check_transport DEFINITION
     "! @parameter transport_requests | <p class="shorttext synchronized" lang="en">Transport requests</p>
     "! @parameter rfc_source | <p class="shorttext synchronized" lang="en">Source RFC</p>
     "! @parameter rfc_target | <p class="shorttext synchronized" lang="en">Target RFC</p>
-    "! @parameter checker | <p class="shorttext synchronized" lang="en">Checker</p>
+    "! @parameter result | <p class="shorttext synchronized" lang="en">Checker</p>
     "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check exception</p>
     CLASS-METHODS create
       IMPORTING
@@ -21,7 +21,7 @@ CLASS zcl_adu_check_transport DEFINITION
         rfc_source         TYPE rfcdest DEFAULT 'NONE'
         rfc_target         TYPE rfcdest
       RETURNING
-        VALUE(checker)     TYPE REF TO zif_adu_check_transport
+        VALUE(result)      TYPE REF TO zif_adu_check_transport
       RAISING
         zcx_adu_check_transport.
 
@@ -55,6 +55,7 @@ CLASS zcl_adu_check_transport DEFINITION
         checked_import_time     TYPE abap_bool,
         checked_online_import   TYPE abap_bool,
       END OF ts_run_data.
+
     DATA:
       run_data                TYPE ts_run_data,
       transport_requests      TYPE trkorrs,
@@ -83,9 +84,9 @@ CLASS zcl_adu_check_transport DEFINITION
 
     METHODS get_system_info
       IMPORTING
-        rfcdest            TYPE rfcdest
+        rfcdest       TYPE rfcdest
       RETURNING
-        VALUE(system_name) TYPE sysname
+        VALUE(result) TYPE sysname
       RAISING
         zcx_adu_check_transport.
 
@@ -98,9 +99,11 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
 
   METHOD create.
 
-    checker = NEW zcl_adu_check_transport( transport_requests = transport_requests
-                                           rfc_source         = rfc_source
-                                           rfc_target         = rfc_target ).
+    result =
+        NEW zcl_adu_check_transport(
+            transport_requests = transport_requests
+            rfc_source         = rfc_source
+            rfc_target         = rfc_target ).
 
   ENDMETHOD.
 
@@ -122,13 +125,13 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
 
     fill_empty_run_code( ).
 
-    results-run_code = run_data-run_code.
+    result-run_code = run_data-run_code.
 
-    results-results_cross_reference = zif_adu_check_transport~check_cross_reference( ).
-    results-results_sequence        = zif_adu_check_transport~check_sequence( ).
-    results-results_cross_release   = zif_adu_check_transport~check_cross_release( ).
-    results-results_import_time     = zif_adu_check_transport~check_import_time( ).
-    results-results_online_import   = zif_adu_check_transport~check_online_import( ).
+    result-results_cross_reference = zif_adu_check_transport~check_cross_reference( ).
+    result-results_sequence        = zif_adu_check_transport~check_sequence( ).
+    result-results_cross_release   = zif_adu_check_transport~check_cross_release( ).
+    result-results_import_time     = zif_adu_check_transport~check_import_time( ).
+    result-results_online_import   = zif_adu_check_transport~check_online_import( ).
 
   ENDMETHOD.
 
@@ -151,9 +154,10 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     check_authorization( rfcdest = run_data-rfc_source      authority_object = lc_authorization-source ).
     check_authorization( rfcdest = run_data-rfc_destination authority_object = lc_authorization-destionation ).
 
-    LOOP AT transport_requests REFERENCE INTO DATA(transport_request).
-      INSERT VALUE #( trkorr = transport_request->* ) INTO TABLE requests.
-    ENDLOOP.
+    requests =
+        VALUE #(
+            FOR transport_request IN transport_requests
+                ( trkorr = transport_request ) ).
 
     CALL FUNCTION '/SDF/TEAP_ENVI_ANA'
       EXPORTING
@@ -180,7 +184,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     ENDIF.
 
     results_cross_reference = results_cross_reference.
-    results = results_cross_reference.
+    result = results_cross_reference.
 
   ENDMETHOD.
 
@@ -195,7 +199,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
 
     DATA:
       alog      TYPE tmstpalogs,
-      conflicts LIKE results.
+      conflicts LIKE result.
 
     fill_empty_run_code( ).
 
@@ -204,11 +208,12 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     check_authorization( rfcdest = run_data-rfc_source      authority_object = lc_authorization-source ).
     check_authorization( rfcdest = run_data-rfc_destination authority_object = lc_authorization-destionation ).
 
-    LOOP AT transport_requests REFERENCE INTO DATA(transport_request).
-      INSERT VALUE #( listname = '/SDF/CMO_TR_CHECK'
-                      trkorr   = transport_request->*
-                      trtime   = CONV #( |{ sy-datum }{ sy-uzeit }| ) ) INTO TABLE alog.
-    ENDLOOP.
+    alog =
+        VALUE #(
+            FOR transport_request IN transport_requests
+                ( listname = '/SDF/CMO_TR_CHECK'
+                  trkorr   = transport_request
+                  trtime   = CONV #( |{ sy-datum }{ sy-uzeit }| ) ) ).
 
     SELECT SINGLE param_value_i
       FROM /sdf/cmo_tr_conf
@@ -218,7 +223,11 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
       period = 0.
     ENDIF.
 
-    DATA(start_date) = COND d( WHEN period IS INITIAL THEN sy-datum - 90 ELSE sy-datum - period ).
+    DATA(start_date) =
+        COND d(
+            WHEN period IS INITIAL
+                THEN sy-datum - 90
+                ELSE sy-datum - period ).
 
     CALL FUNCTION '/SDF/TEAP_DOWNGRADE_PROTECT'
       EXPORTING
@@ -249,7 +258,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     ENDIF.
 
     results_sequence = conflicts.
-    results = conflicts.
+    result = conflicts.
 
   ENDMETHOD.
 
@@ -264,7 +273,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
 
     DATA:
       alog          TYPE tmstpalogs,
-      cross_release LIKE results.
+      cross_release LIKE result.
 
     fill_empty_run_code( ).
 
@@ -273,11 +282,12 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     check_authorization( rfcdest = run_data-rfc_source      authority_object = lc_authorization-source ).
     check_authorization( rfcdest = run_data-rfc_destination authority_object = lc_authorization-destionation ).
 
-    LOOP AT transport_requests REFERENCE INTO DATA(transport_request).
-      INSERT VALUE #( listname = '/SDF/CMO_TR_CHECK'
-                      trkorr   = transport_request->*
-                      trtime   = CONV #( |{ sy-datum }{ sy-uzeit }| ) ) INTO TABLE alog.
-    ENDLOOP.
+    alog =
+        VALUE #(
+            FOR transport_request IN transport_requests
+                ( listname = '/SDF/CMO_TR_CHECK'
+                  trkorr   = transport_request
+                  trtime   = CONV #( |{ sy-datum }{ sy-uzeit }| ) ) ).
 
     CALL FUNCTION '/SDF/TEAP_SCV_CHECK'
       EXPORTING
@@ -306,7 +316,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     ENDIF.
 
     results_cross_release = cross_release.
-    results = cross_release.
+    result = cross_release.
 
   ENDMETHOD.
 
@@ -320,7 +330,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
 
     DATA:
       alog        TYPE tmstpalogs,
-      import_time LIKE results.
+      import_time LIKE result.
 
     fill_empty_run_code( ).
 
@@ -328,11 +338,12 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
 
     check_authorization( rfcdest = run_data-rfc_source authority_object = lc_authorization-source ).
 
-    LOOP AT transport_requests REFERENCE INTO DATA(transport_request).
-      INSERT VALUE #( listname = '/SDF/CMO_TR_CHECK'
-                      trkorr   = transport_request->*
-                      trtime   = CONV #( |{ sy-datum }{ sy-uzeit }| ) ) INTO TABLE alog.
-    ENDLOOP.
+    alog =
+        VALUE #(
+            FOR transport_request IN transport_requests
+                ( listname = '/SDF/CMO_TR_CHECK'
+                  trkorr   = transport_request
+                  trtime   = CONV #( |{ sy-datum }{ sy-uzeit }| ) ) ).
 
     CALL FUNCTION '/SDF/TEAP_IMPORT_TIME'
       DESTINATION run_data-source_system_name
@@ -354,7 +365,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     ENDIF.
 
     results_import_time = import_time.
-    results = import_time.
+    result = import_time.
 
   ENDMETHOD.
 
@@ -369,8 +380,8 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
 
     DATA:
       requests      TYPE STANDARD TABLE OF e070 WITH DEFAULT KEY,
-      summary       LIKE results-summary,
-      online_import LIKE results-all.
+      summary       LIKE result-summary,
+      online_import LIKE result-all.
 
     fill_empty_run_code( ).
 
@@ -379,9 +390,10 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     check_authorization( rfcdest = run_data-rfc_source      authority_object = lc_authorization-source ).
     check_authorization( rfcdest = run_data-rfc_destination authority_object = lc_authorization-destionation ).
 
-    LOOP AT transport_requests REFERENCE INTO DATA(transport_request).
-      INSERT VALUE #( trkorr = transport_request->* ) INTO TABLE requests.
-    ENDLOOP.
+    requests =
+        VALUE #(
+            FOR transport_request IN transport_requests
+                ( trkorr = transport_request ) ).
 
     CALL FUNCTION '/SDF/OI_CHECK'
       EXPORTING
@@ -410,8 +422,8 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
     results_online_import-summary = summary.
     results_online_import-all     = online_import.
 
-    results-summary = summary.
-    results-all     = online_import.
+    result-summary = summary.
+    result-all     = online_import.
 
   ENDMETHOD.
 
@@ -642,8 +654,8 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
       rfc_password TYPE rfcauth,
       rfcsi_export TYPE rfcsi.
 
-    IF rfcdest CS 'None'.
-      system_name = sy-sysid.
+    IF to_upper( rfcdest ) CS 'NONE'.
+      result = sy-sysid.
       RETURN.
     ENDIF.
 
@@ -701,7 +713,7 @@ CLASS zcl_adu_check_transport IMPLEMENTATION.
           text1  = CONV #( rfcdest ).
     ENDIF.
 
-    system_name = rfcsi_export-rfcsysid.
+    result = rfcsi_export-rfcsysid.
 
   ENDMETHOD.
 

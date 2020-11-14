@@ -76,10 +76,10 @@ CLASS zcl_adu_messages DEFINITION
 
     "! <p class="shorttext synchronized" lang="en">Returns collected messages</p>
     "!
-    "! @parameter messages | <p class="shorttext synchronized" lang="en">Messages</p>
+    "! @parameter result | <p class="shorttext synchronized" lang="en">Messages</p>
     METHODS get_messages
       RETURNING
-        VALUE(messages) TYPE tt_messages.
+        VALUE(result) TYPE tt_messages.
 
     "! <p class="shorttext synchronized" lang="en">Initialize messages</p>
     "!
@@ -110,16 +110,16 @@ CLASS zcl_adu_messages DEFINITION
 
     METHODS create_gateway_exception
       IMPORTING
-        !iv_tech         TYPE abap_bool DEFAULT abap_false
+        !iv_tech      TYPE abap_bool DEFAULT abap_false
       RETURNING
-        VALUE(exception) TYPE REF TO /iwbep/cx_mgw_base_exception.
+        VALUE(result) TYPE REF TO /iwbep/cx_mgw_base_exception.
 
     METHODS get_t100_attr
       IMPORTING
-        !attribute         TYPE scx_attrname
-        !exception         TYPE REF TO cx_root
+        !attribute    TYPE scx_attrname
+        !exception    TYPE REF TO cx_root
       RETURNING
-        VALUE(message_var) TYPE symsgv.
+        VALUE(result) TYPE symsgv.
 
     METHODS message_vars_prepare
       IMPORTING
@@ -135,9 +135,9 @@ CLASS zcl_adu_messages DEFINITION
 
     METHODS message_var_prepare
       IMPORTING
-        !message_var                 TYPE any OPTIONAL
+        !message_var  TYPE any OPTIONAL
       RETURNING
-        VALUE(message_var_formatted) TYPE syst_msgv.
+        VALUE(result) TYPE syst_msgv.
 
     METHODS fill_return_param
       IMPORTING
@@ -152,7 +152,7 @@ CLASS zcl_adu_messages DEFINITION
         !row            TYPE bapiret2-row OPTIONAL
         !field          TYPE bapiret2-field OPTIONAL
       RETURNING
-        VALUE(message)  TYPE bapiret2.
+        VALUE(result)   TYPE bapiret2.
 
 ENDCLASS.
 
@@ -163,7 +163,9 @@ CLASS zcl_adu_messages IMPLEMENTATION.
 
   METHOD class_constructor.
 
-    message_error_types = VALUE #( ( |A| ) ( |E| ) ( |X| ) ).
+    message_error_types = VALUE #( ( severity-abort )
+                                   ( severity-error )
+                                   ( severity-exception ) ).
 
   ENDMETHOD.
 
@@ -205,7 +207,7 @@ CLASS zcl_adu_messages IMPLEMENTATION.
         DATA(text_message_var_2) = text_message+50(50).
 
         exception->get_source_position( IMPORTING include_name = DATA(lv_include)
-                                                     source_line  = DATA(lv_line) ).
+                                                  source_line  = DATA(lv_line) ).
 
         IF text_message IS NOT  INITIAL.
           add_message( message_id     = zcx_adu_messages=>text_exception_message-msgid
@@ -317,7 +319,7 @@ CLASS zcl_adu_messages IMPLEMENTATION.
         row       = row
         field     = field
       IMPORTING
-        return    = message
+        return    = result
       EXCEPTIONS
         OTHERS    = 0.
 
@@ -326,7 +328,7 @@ CLASS zcl_adu_messages IMPLEMENTATION.
 
   METHOD get_messages.
 
-    messages = collected_messages.
+    result = collected_messages.
 
   ENDMETHOD.
 
@@ -342,14 +344,14 @@ CLASS zcl_adu_messages IMPLEMENTATION.
     TRY.
         ASSIGN exception->(attribute) TO <simple>.
         IF <simple> IS ASSIGNED.
-          message_var = <simple>.
+          result = <simple>.
           RETURN.
         ENDIF.
       CATCH cx_root.
-        CLEAR message_var.
+        CLEAR result.
     ENDTRY.
 
-    message_var = attribute.
+    result = attribute.
 
   ENDMETHOD.
 
@@ -393,10 +395,10 @@ CLASS zcl_adu_messages IMPLEMENTATION.
 
     DATA(lt_messages) = get_messages( ).
 
-    exception = COND #( WHEN iv_tech = abap_false THEN NEW /iwbep/cx_mgw_busi_exception( )
+    result = COND #( WHEN iv_tech = abap_false THEN NEW /iwbep/cx_mgw_busi_exception( )
                                                   ELSE NEW /iwbep/cx_mgw_tech_exception( ) ).
 
-    DATA(messages_container) = CAST /iwbep/if_message_container( exception->get_msg_container( ) ).
+    DATA(messages_container) = CAST /iwbep/if_message_container( result->get_msg_container( ) ).
 
     messages_container->add_messages_from_bapi(
                         it_bapi_messages         = CORRESPONDING #( get_messages( ) )
@@ -419,7 +421,7 @@ CLASS zcl_adu_messages IMPLEMENTATION.
 
     DESCRIBE FIELD message_var TYPE DATA(lv_field_type).
 
-    message_var_formatted = SWITCH #( lv_field_type
+    result = SWITCH #( lv_field_type
                             WHEN 'D'
                                 THEN |{ CONV d( message_var ) DATE = USER }|
                             WHEN 'T'

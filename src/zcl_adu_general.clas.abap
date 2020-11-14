@@ -7,20 +7,24 @@ CLASS zcl_adu_general DEFINITION
 
     CLASS-METHODS get_instance
       RETURNING
-        VALUE(result) TYPE REF TO zcl_adu_general .
-    METHODS constructor .
+        VALUE(result) TYPE REF TO zcl_adu_general.
+
+    METHODS constructor.
+
     METHODS get_structure_fields
       IMPORTING
         !structure_name        TYPE csequence OPTIONAL
         !structure_description TYPE REF TO cl_abap_datadescr OPTIONAL
         !recursive             TYPE abap_bool DEFAULT abap_true
       RETURNING
-        VALUE(result)          TYPE cl_abap_structdescr=>component_table .
+        VALUE(result)          TYPE cl_abap_structdescr=>component_table.
+
     METHODS text_string_to_tab
       IMPORTING
         !text         TYPE string
       RETURNING
-        VALUE(result) TYPE soli_tab .
+        VALUE(result) TYPE soli_tab.
+
   PROTECTED SECTION.
 
   PRIVATE SECTION.

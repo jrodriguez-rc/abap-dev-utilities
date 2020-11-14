@@ -28,61 +28,61 @@ INTERFACE zif_adu_check_transport
 
   "! <p class="shorttext synchronized" lang="en">Execute cross reference checks</p>
   "!
-  "! @parameter results | <p class="shorttext synchronized" lang="en">Results</p>
+  "! @parameter result | <p class="shorttext synchronized" lang="en">Results</p>
   "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check exception</p>
   METHODS check_cross_reference
     RETURNING
-      VALUE(results) TYPE zif_adu_check_transport=>tt_result_cross_reference
+      VALUE(result) TYPE zif_adu_check_transport=>tt_result_cross_reference
     RAISING
       zcx_adu_check_transport.
 
   "! <p class="shorttext synchronized" lang="en">Execute sequence checks</p>
   "!
-  "! @parameter results | <p class="shorttext synchronized" lang="en">Results</p>
+  "! @parameter result | <p class="shorttext synchronized" lang="en">Results</p>
   "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check exception</p>
   METHODS check_sequence
     RETURNING
-      VALUE(results) TYPE zif_adu_check_transport=>tt_result_sequence
+      VALUE(result) TYPE zif_adu_check_transport=>tt_result_sequence
     RAISING
       zcx_adu_check_transport.
 
   "! <p class="shorttext synchronized" lang="en">Execute cross release checks</p>
   "!
-  "! @parameter results | <p class="shorttext synchronized" lang="en">Results</p>
+  "! @parameter result | <p class="shorttext synchronized" lang="en">Results</p>
   "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check exception</p>
   METHODS check_cross_release
     RETURNING
-      VALUE(results) TYPE zif_adu_check_transport=>tt_result_cross_release
+      VALUE(result) TYPE zif_adu_check_transport=>tt_result_cross_release
     RAISING
       zcx_adu_check_transport.
 
   "! <p class="shorttext synchronized" lang="en">Execute import time checks</p>
   "!
-  "! @parameter results | <p class="shorttext synchronized" lang="en">Results</p>
+  "! @parameter result | <p class="shorttext synchronized" lang="en">Results</p>
   "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check exception</p>
   METHODS check_import_time
     RETURNING
-      VALUE(results) TYPE zif_adu_check_transport=>tt_result_import_time
+      VALUE(result) TYPE zif_adu_check_transport=>tt_result_import_time
     RAISING
       zcx_adu_check_transport.
 
   "! <p class="shorttext synchronized" lang="en">Execute online import checks</p>
   "!
-  "! @parameter results | <p class="shorttext synchronized" lang="en">Results</p>
+  "! @parameter result | <p class="shorttext synchronized" lang="en">Results</p>
   "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check exception</p>
   METHODS check_online_import
     RETURNING
-      VALUE(results) TYPE zif_adu_check_transport=>ts_result_online_import
+      VALUE(result) TYPE zif_adu_check_transport=>ts_result_online_import
     RAISING
       zcx_adu_check_transport.
 
   "! <p class="shorttext synchronized" lang="en">Execute all checks</p>
   "!
-  "! @parameter results | <p class="shorttext synchronized" lang="en">Results</p>
+  "! @parameter result | <p class="shorttext synchronized" lang="en">Results</p>
   "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check exception</p>
   METHODS check_all
     RETURNING
-      VALUE(results) TYPE zif_adu_check_transport=>ts_result_all
+      VALUE(result) TYPE zif_adu_check_transport=>ts_result_all
     RAISING
       zcx_adu_check_transport.
 

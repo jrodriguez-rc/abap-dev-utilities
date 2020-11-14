@@ -12,7 +12,7 @@ CLASS zcl_adu_transport_request DEFINITION
       IMPORTING
         transport_request TYPE trkorr
       RETURNING
-        VALUE(ri_result)  TYPE REF TO zif_adu_transport_request
+        VALUE(result)     TYPE REF TO zif_adu_transport_request
       RAISING
         zcx_adu_transport_request.
 
@@ -30,9 +30,9 @@ CLASS zcl_adu_transport_request DEFINITION
 
     METHODS read_transport_request_header
       IMPORTING
-        transport_request     TYPE trkorr
+        transport_request TYPE trkorr
       RETURNING
-        VALUE(request_header) TYPE trwbo_request_header
+        VALUE(result)     TYPE trwbo_request_header
       RAISING
         zcx_adu_transport_request.
 
@@ -45,7 +45,7 @@ CLASS zcl_adu_transport_request IMPLEMENTATION.
 
   METHOD create.
 
-    ri_result = NEW zcl_adu_transport_request( transport_request ).
+    result = NEW zcl_adu_transport_request( transport_request ).
 
   ENDMETHOD.
 
@@ -168,17 +168,20 @@ CLASS zcl_adu_transport_request IMPLEMENTATION.
       target_range    TYPE RANGE OF cczmand,
       test_mode_range TYPE RANGE OF cctestmode.
 
-    IF source IS SUPPLIED.
-      source_range = VALUE #( ( sign = 'I' option = 'EQ' low = source ) ).
-    ENDIF.
+    source_range =
+        COND #(
+            WHEN source IS SUPPLIED
+                THEN VALUE #( ( sign = 'I' option = 'EQ' low = source ) ) ).
 
-    IF target IS SUPPLIED.
-      target_range = VALUE #( ( sign = 'I' option = 'EQ' low = target ) ).
-    ENDIF.
+    target_range =
+        COND #(
+            WHEN target IS SUPPLIED
+                THEN VALUE #( ( sign = 'I' option = 'EQ' low = target ) ) ).
 
-    IF include_test = abap_true.
-      test_mode_range = VALUE #( ( sign = 'I' option = 'EQ' low = include_test ) ).
-    ENDIF.
+      test_mode_range =
+        COND #(
+            WHEN include_test IS SUPPLIED
+                THEN VALUE #( ( sign = 'I' option = 'EQ' low = include_test ) ) ).
 
     DATA(transport_request) = zif_adu_transport_request~get_header( ).
 
@@ -198,14 +201,14 @@ CLASS zcl_adu_transport_request IMPLEMENTATION.
 
   METHOD zif_adu_transport_request~get_header.
 
-    request_header = transport_request_header.
+    result = transport_request_header.
 
   ENDMETHOD.
 
 
   METHOD read_transport_request_header.
 
-    request_header = VALUE #( trkorr = transport_request ).
+    result = VALUE #( trkorr = transport_request ).
 
     CALL FUNCTION 'TRINT_READ_REQUEST_HEADER'
       EXPORTING
@@ -214,7 +217,7 @@ CLASS zcl_adu_transport_request IMPLEMENTATION.
         iv_read_e070c  = abap_true
         iv_read_e070m  = abap_true
       CHANGING
-        cs_request     = request_header
+        cs_request     = result
       EXCEPTIONS
         empty_trkorr   = 1
         not_exist_e070 = 2

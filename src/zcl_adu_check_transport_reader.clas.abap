@@ -91,84 +91,84 @@ CLASS zcl_adu_check_transport_reader DEFINITION
         online_import_summary TYPE tt_online_import_summary_db OPTIONAL
         online_import         TYPE tt_online_import_db OPTIONAL
       RETURNING
-        VALUE(filled)         TYPE zif_adu_check_transport_reader=>ts_header.
+        VALUE(result)         TYPE zif_adu_check_transport_reader=>ts_header.
 
     METHODS fill_cross_reference
       IMPORTING
         data          TYPE zadu_chktr_crref
       RETURNING
-        VALUE(filled) TYPE zif_adu_check_transport_reader=>ts_cross_reference.
+        VALUE(result) TYPE zif_adu_check_transport_reader=>ts_cross_reference.
 
     METHODS fill_sequence
       IMPORTING
         data          TYPE zadu_chktr_seq
       RETURNING
-        VALUE(filled) TYPE zif_adu_check_transport_reader=>ts_sequence.
+        VALUE(result) TYPE zif_adu_check_transport_reader=>ts_sequence.
 
     METHODS fill_cross_release
       IMPORTING
         data          TYPE zadu_chktr_crrel
       RETURNING
-        VALUE(filled) TYPE zif_adu_check_transport_reader=>ts_cross_release.
+        VALUE(result) TYPE zif_adu_check_transport_reader=>ts_cross_release.
 
     METHODS fill_import_time
       IMPORTING
         data          TYPE zadu_chktr_imtim
       RETURNING
-        VALUE(filled) TYPE zif_adu_check_transport_reader=>ts_import_time.
+        VALUE(result) TYPE zif_adu_check_transport_reader=>ts_import_time.
 
     METHODS fill_online_import_summary
       IMPORTING
         data          TYPE zadu_chktr_oisum
       RETURNING
-        VALUE(filled) TYPE zif_adu_check_transport_reader=>ts_online_import_summary.
+        VALUE(result) TYPE zif_adu_check_transport_reader=>ts_online_import_summary.
 
     METHODS fill_online_import
       IMPORTING
         data          TYPE zadu_chktr_onlim
       RETURNING
-        VALUE(filled) TYPE zif_adu_check_transport_reader=>ts_online_import.
+        VALUE(result) TYPE zif_adu_check_transport_reader=>ts_online_import.
 
     METHODS filter_logs
       IMPORTING
-        run_code             TYPE zadu_run_code
-        transport_request    TYPE trkorr OPTIONAL
+        run_code          TYPE zadu_run_code
+        transport_request TYPE trkorr OPTIONAL
       RETURNING
-        VALUE(filtered_logs) TYPE tt_logs.
+        VALUE(result)     TYPE tt_logs.
 
     METHODS severity_for_cross_reference
       IMPORTING
-        data            TYPE tt_cross_reference_db
+        data          TYPE tt_cross_reference_db
       RETURNING
-        VALUE(severity) TYPE zif_adu_check_transport_reader=>ty_severity.
+        VALUE(result) TYPE zif_adu_check_transport_reader=>ty_severity.
 
     METHODS severity_for_sequence
       IMPORTING
-        data            TYPE tt_sequence_db
+        data          TYPE tt_sequence_db
       RETURNING
-        VALUE(severity) TYPE zif_adu_check_transport_reader=>ty_severity.
+        VALUE(result) TYPE zif_adu_check_transport_reader=>ty_severity.
 
     METHODS severity_for_cross_release
       IMPORTING
-        data            TYPE tt_cross_release_db
+        data          TYPE tt_cross_release_db
       RETURNING
-        VALUE(severity) TYPE zif_adu_check_transport_reader=>ty_severity.
+        VALUE(result) TYPE zif_adu_check_transport_reader=>ty_severity.
 
     METHODS severity_for_import_time
       IMPORTING
-        data            TYPE tt_import_time_db
+        data          TYPE tt_import_time_db
       RETURNING
-        VALUE(severity) TYPE zif_adu_check_transport_reader=>ty_severity.
+        VALUE(result) TYPE zif_adu_check_transport_reader=>ty_severity.
 
     METHODS severity_for_online_import
       IMPORTING
-        data            TYPE tt_online_import_db
+        data          TYPE tt_online_import_db
       RETURNING
-        VALUE(severity) TYPE zif_adu_check_transport_reader=>ty_severity.
+        VALUE(result) TYPE zif_adu_check_transport_reader=>ty_severity.
 
     METHODS prepare_alv_log
       RETURNING
-        VALUE(salv_table) TYPE REF TO cl_salv_table
+        VALUE(result) TYPE REF TO cl_salv_table
       RAISING
         zcx_adu_check_transport.
 
@@ -178,37 +178,37 @@ CLASS zcl_adu_check_transport_reader DEFINITION
 
     METHODS prepare_alv_cross_reference
       RETURNING
-        VALUE(salv_table) TYPE REF TO cl_salv_table
+        VALUE(result) TYPE REF TO cl_salv_table
       RAISING
         zcx_adu_check_transport.
 
     METHODS prepare_alv_sequence
       RETURNING
-        VALUE(salv_table) TYPE REF TO cl_salv_table
+        VALUE(result) TYPE REF TO cl_salv_table
       RAISING
         zcx_adu_check_transport.
 
     METHODS prepare_alv_cross_release
       RETURNING
-        VALUE(salv_table) TYPE REF TO cl_salv_table
+        VALUE(result) TYPE REF TO cl_salv_table
       RAISING
         zcx_adu_check_transport.
 
     METHODS prepare_alv_import_time
       RETURNING
-        VALUE(salv_table) TYPE REF TO cl_salv_table
+        VALUE(result) TYPE REF TO cl_salv_table
       RAISING
         zcx_adu_check_transport.
 
     METHODS prepare_alv_online_import_sum
       RETURNING
-        VALUE(salv_table) TYPE REF TO cl_salv_table
+        VALUE(result) TYPE REF TO cl_salv_table
       RAISING
         zcx_adu_check_transport.
 
     METHODS prepare_alv_online_import
       RETURNING
-        VALUE(salv_table) TYPE REF TO cl_salv_table
+        VALUE(result) TYPE REF TO cl_salv_table
       RAISING
         zcx_adu_check_transport.
 
@@ -249,6 +249,9 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     SELECT *
       INTO TABLE @report_configuration
       FROM /sdf/cmo_tr_conf.
+    IF sy-subrc <> 0.
+      CLEAR: report_configuration.
+    ENDIF.
 
     set_online_import_config( ).
 
@@ -307,9 +310,13 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     DATA(filtered_logs) = filter_logs( run_code          = run_code
                                        transport_request = transport_request ).
 
-    LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
-      INSERT LINES OF filtered_log->sequence INTO TABLE salv_data->sequence.
-    ENDLOOP.
+    salv_data->sequence =
+        REDUCE #(
+            INIT logs_sequence TYPE zif_adu_check_transport_reader=>tt_sequence
+            FOR filtered_log IN filtered_logs
+            NEXT logs_sequence =
+                VALUE #(
+                    BASE logs_sequence ( LINES OF filtered_log-sequence ) ) ).
 
     DATA(salv_table) = prepare_alv_sequence( ).
 
@@ -332,9 +339,13 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     DATA(filtered_logs) = filter_logs( run_code          = run_code
                                        transport_request = transport_request ).
 
-    LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
-      INSERT LINES OF filtered_log->cross_release INTO TABLE salv_data->cross_release.
-    ENDLOOP.
+    salv_data->cross_release =
+        REDUCE #(
+            INIT logs_sequence TYPE zif_adu_check_transport_reader=>tt_cross_release
+            FOR filtered_log IN filtered_logs
+            NEXT logs_sequence =
+                VALUE #(
+                    BASE logs_sequence ( LINES OF filtered_log-cross_release ) ) ).
 
     DATA(salv_table) = prepare_alv_cross_release( ).
 
@@ -357,9 +368,13 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     DATA(filtered_logs) = filter_logs( run_code          = run_code
                                        transport_request = transport_request ).
 
-    LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
-      INSERT LINES OF filtered_log->import_time INTO TABLE salv_data->import_time.
-    ENDLOOP.
+    salv_data->import_time =
+        REDUCE #(
+            INIT logs_sequence TYPE zif_adu_check_transport_reader=>tt_import_time
+            FOR filtered_log IN filtered_logs
+            NEXT logs_sequence =
+                VALUE #(
+                    BASE logs_sequence ( LINES OF filtered_log-import_time ) ) ).
 
     DATA(salv_table) = prepare_alv_import_time( ).
 
@@ -382,9 +397,13 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     DATA(filtered_logs) = filter_logs( run_code          = run_code
                                        transport_request = transport_request ).
 
-    LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
-      INSERT LINES OF filtered_log->online_import_summary INTO TABLE salv_data->online_import_summary.
-    ENDLOOP.
+    salv_data->online_import_summary =
+        REDUCE #(
+            INIT logs_sequence TYPE zif_adu_check_transport_reader=>tt_online_import_summary
+            FOR filtered_log IN filtered_logs
+            NEXT logs_sequence =
+                VALUE #(
+                    BASE logs_sequence ( LINES OF filtered_log-online_import_summary ) ) ).
 
     DATA(salv_table) = prepare_alv_online_import_sum( ).
 
@@ -407,9 +426,13 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     DATA(filtered_logs) = filter_logs( run_code          = run_code
                                        transport_request = transport_request ).
 
-    LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
-      INSERT LINES OF filtered_log->online_import INTO TABLE salv_data->online_import.
-    ENDLOOP.
+    salv_data->online_import =
+        REDUCE #(
+            INIT logs_sequence TYPE zif_adu_check_transport_reader=>tt_online_import
+            FOR filtered_log IN filtered_logs
+            NEXT logs_sequence =
+                VALUE #(
+                    BASE logs_sequence ( LINES OF filtered_log-online_import ) ) ).
 
     DATA(salv_table) = prepare_alv_online_import( ).
 
@@ -436,54 +459,72 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
       FROM zadu_chktr_crref
       WHERE run_code          = @header_log-run_code
         AND transport_request = @header_log-transport_request.
-    LOOP AT cross_references REFERENCE INTO DATA(cross_reference).
-      INSERT fill_cross_reference( cross_reference->* ) INTO TABLE log->cross_reference.
-    ENDLOOP.
+    log->cross_reference =
+        COND #(
+            WHEN sy-subrc = 0
+                THEN VALUE #(
+                    FOR cross_reference IN cross_references
+                    ( fill_cross_reference( cross_reference ) ) ) ).
 
     SELECT *
       INTO TABLE @DATA(sequences)
       FROM zadu_chktr_seq
       WHERE run_code          = @header_log-run_code
         AND transport_request = @header_log-transport_request.
-    LOOP AT sequences REFERENCE INTO DATA(sequence).
-      INSERT fill_sequence( sequence->* ) INTO TABLE log->sequence.
-    ENDLOOP.
+    log->sequence =
+        COND #(
+            WHEN sy-subrc = 0
+                THEN VALUE #(
+                    FOR sequence IN sequences
+                    ( fill_sequence( sequence ) ) ) ).
 
     SELECT *
       INTO TABLE @DATA(cross_releases)
       FROM zadu_chktr_crrel
       WHERE run_code          = @header_log-run_code
         AND transport_request = @header_log-transport_request.
-    LOOP AT cross_releases REFERENCE INTO DATA(cross_release).
-      INSERT fill_cross_release( cross_release->* ) INTO TABLE log->cross_release.
-    ENDLOOP.
+    log->cross_release =
+        COND #(
+            WHEN sy-subrc = 0
+                THEN VALUE #(
+                    FOR cross_release IN cross_releases
+                    ( fill_cross_release( cross_release ) ) ) ).
 
     SELECT *
       INTO TABLE @DATA(import_times)
       FROM zadu_chktr_imtim
       WHERE run_code          = @header_log-run_code
         AND transport_request = @header_log-transport_request.
-    LOOP AT import_times REFERENCE INTO DATA(import_time).
-      INSERT fill_import_time( import_time->* ) INTO TABLE log->import_time.
-    ENDLOOP.
+    log->import_time =
+        COND #(
+            WHEN sy-subrc = 0
+                THEN VALUE #(
+                    FOR import_time IN import_times
+                    ( fill_import_time( import_time ) ) ) ).
 
     SELECT *
       INTO TABLE @DATA(online_imports)
       FROM zadu_chktr_onlim
       WHERE run_code          = @header_log-run_code
         AND transport_request = @header_log-transport_request.
-    LOOP AT online_imports REFERENCE INTO DATA(online_import).
-      INSERT fill_online_import( online_import->* ) INTO TABLE log->online_import.
-    ENDLOOP.
+    log->online_import =
+        COND #(
+            WHEN sy-subrc = 0
+                THEN VALUE #(
+                    FOR online_import IN online_imports
+                    ( fill_online_import( online_import ) ) ) ).
 
     SELECT *
       INTO TABLE @DATA(online_import_summaries)
       FROM zadu_chktr_oisum
       WHERE run_code          = @header_log-run_code
         AND transport_request = @header_log-transport_request.
-    LOOP AT online_import_summaries REFERENCE INTO DATA(online_import_summary).
-      INSERT fill_online_import_summary( online_import_summary->* ) INTO TABLE log->online_import_summary.
-    ENDLOOP.
+    log->online_import_summary =
+        COND #(
+            WHEN sy-subrc = 0
+                THEN VALUE #(
+                    FOR online_import_summary IN online_import_summaries
+                    ( fill_online_import_summary( online_import_summary ) ) ) ).
 
     log->header = fill_header( data                  = header_log
                                cross_reference       = CONV #( cross_references )
@@ -501,9 +542,10 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     DATA(filtered_logs) = filter_logs( run_code          = run_code
                                        transport_request = transport_request ).
 
-    LOOP AT filtered_logs REFERENCE INTO DATA(log).
-      INSERT log->header INTO TABLE result.
-    ENDLOOP.
+    result =
+        VALUE #(
+            FOR log IN filtered_logs
+            ( log-header ) ).
 
   ENDMETHOD.
 
@@ -513,9 +555,11 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     DATA(filtered_logs) = filter_logs( run_code          = run_code
                                        transport_request = transport_request ).
 
-    LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
-      INSERT LINES OF filtered_log->cross_reference INTO TABLE result.
-    ENDLOOP.
+    result =
+        REDUCE #(
+            INIT result_logs = result
+            FOR log IN filtered_logs
+            NEXT result_logs = VALUE #( BASE result_logs ( LINES OF log-cross_reference ) ) ).
 
   ENDMETHOD.
 
@@ -525,9 +569,11 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     DATA(filtered_logs) = filter_logs( run_code          = run_code
                                        transport_request = transport_request ).
 
-    LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
-      INSERT LINES OF filtered_log->sequence INTO TABLE result.
-    ENDLOOP.
+    result =
+        REDUCE #(
+            INIT result_logs = result
+            FOR log IN filtered_logs
+            NEXT result_logs = VALUE #( BASE result_logs ( LINES OF log-sequence ) ) ).
 
   ENDMETHOD.
 
@@ -537,9 +583,11 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     DATA(filtered_logs) = filter_logs( run_code          = run_code
                                        transport_request = transport_request ).
 
-    LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
-      INSERT LINES OF filtered_log->cross_release INTO TABLE result.
-    ENDLOOP.
+    result =
+        REDUCE #(
+            INIT result_logs = result
+            FOR log IN filtered_logs
+            NEXT result_logs = VALUE #( BASE result_logs ( LINES OF log-cross_release ) ) ).
 
   ENDMETHOD.
 
@@ -549,9 +597,11 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     DATA(filtered_logs) = filter_logs( run_code          = run_code
                                        transport_request = transport_request ).
 
-    LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
-      INSERT LINES OF filtered_log->import_time INTO TABLE result.
-    ENDLOOP.
+    result =
+        REDUCE #(
+            INIT result_logs = result
+            FOR log IN filtered_logs
+            NEXT result_logs = VALUE #( BASE result_logs ( LINES OF log-import_time ) ) ).
 
   ENDMETHOD.
 
@@ -561,9 +611,11 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     DATA(filtered_logs) = filter_logs( run_code          = run_code
                                        transport_request = transport_request ).
 
-    LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
-      INSERT LINES OF filtered_log->online_import INTO TABLE result.
-    ENDLOOP.
+    result =
+        REDUCE #(
+            INIT result_logs = result
+            FOR log IN filtered_logs
+            NEXT result_logs = VALUE #( BASE result_logs ( LINES OF log-online_import ) ) ).
 
   ENDMETHOD.
 
@@ -573,9 +625,11 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     DATA(filtered_logs) = filter_logs( run_code          = run_code
                                        transport_request = transport_request ).
 
-    LOOP AT filtered_logs REFERENCE INTO DATA(filtered_log).
-      INSERT LINES OF filtered_log->online_import_summary INTO TABLE result.
-    ENDLOOP.
+    result =
+        REDUCE #(
+            INIT result_logs = result
+            FOR log IN filtered_logs
+            NEXT result_logs = VALUE #( BASE result_logs ( LINES OF log-online_import_summary ) ) ).
 
   ENDMETHOD.
 
@@ -585,7 +639,7 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
     DATA:
       timezone TYPE timezone.
 
-    filled = CORRESPONDING #( data ).
+    result = CORRESPONDING #( data ).
 
     CALL FUNCTION 'GET_SYSTEM_TIMEZONE'
       IMPORTING
@@ -597,13 +651,13 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
       timezone = 'UTC'.
     ENDIF.
 
-    CONVERT TIME STAMP data-timestamp TIME ZONE timezone INTO DATE filled-date TIME filled-time.
+    CONVERT TIME STAMP data-timestamp TIME ZONE timezone INTO DATE result-date TIME result-time.
 
-    filled-cross_reference_messages = lines( cross_reference ).
-    filled-sequence_messages        = lines( sequence ).
-    filled-cross_release_messages   = lines( cross_release ).
-    filled-import_time_messages     = lines( import_time ).
-    filled-online_import_messages   = lines( online_import_summary ).
+    result-cross_reference_messages = lines( cross_reference ).
+    result-sequence_messages        = lines( sequence ).
+    result-cross_release_messages   = lines( cross_release ).
+    result-import_time_messages     = lines( import_time ).
+    result-online_import_messages   = lines( online_import_summary ).
 
     DATA(severity) = severity_for_cross_reference( cross_reference ).
 
@@ -625,16 +679,16 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
     CASE severity.
       WHEN zif_adu_constants=>severity-error.
-        filled-exception = '1'.
-        filled-color     = VALUE #( ( color-col = col_negative ) ).
+        result-exception = '1'.
+        result-color     = VALUE #( ( color-col = col_negative ) ).
 
       WHEN zif_adu_constants=>severity-warning.
-        filled-exception = '2'.
-        filled-color     = VALUE #( ( color-col = col_key ) ).
+        result-exception = '2'.
+        result-color     = VALUE #( ( color-col = col_key ) ).
 
       WHEN zif_adu_constants=>severity-info.
-        filled-exception = '3'.
-        filled-color     = VALUE #( ( color-col = col_normal ) ).
+        result-exception = '3'.
+        result-color     = VALUE #( ( color-col = col_normal ) ).
 
     ENDCASE.
 
@@ -643,22 +697,22 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
   METHOD fill_cross_reference.
 
-    filled = CORRESPONDING #( data ).
+    result = CORRESPONDING #( data ).
 
-    filled-status_description = cl_proxy_utils=>get_domain_text_for_value( filled-status ).
+    result-status_description = cl_proxy_utils=>get_domain_text_for_value( result-status ).
 
     CASE severity_for_cross_reference( VALUE #( ( data ) ) ).
       WHEN zif_adu_constants=>severity-error.
-        filled-exception = '1'.
-        filled-color     = VALUE #( ( color-col = col_negative ) ).
+        result-exception = '1'.
+        result-color     = VALUE #( ( color-col = col_negative ) ).
 
       WHEN zif_adu_constants=>severity-warning.
-        filled-exception = '2'.
-        filled-color     = VALUE #( ( color-col = col_key ) ).
+        result-exception = '2'.
+        result-color     = VALUE #( ( color-col = col_key ) ).
 
       WHEN OTHERS.
-        filled-exception = '3'.
-        filled-color     = VALUE #( ( color-col = col_normal ) ).
+        result-exception = '3'.
+        result-color     = VALUE #( ( color-col = col_normal ) ).
 
     ENDCASE.
 
@@ -667,20 +721,20 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
   METHOD fill_sequence.
 
-    filled = CORRESPONDING #( data ).
+    result = CORRESPONDING #( data ).
 
     CASE severity_for_sequence( VALUE #( ( data ) ) ).
       WHEN zif_adu_constants=>severity-error.
-        filled-exception = '1'.
-        filled-color     = VALUE #( ( color-col = col_negative ) ).
+        result-exception = '1'.
+        result-color     = VALUE #( ( color-col = col_negative ) ).
 
       WHEN zif_adu_constants=>severity-warning.
-        filled-exception = '2'.
-        filled-color     = VALUE #( ( color-col = col_key ) ).
+        result-exception = '2'.
+        result-color     = VALUE #( ( color-col = col_key ) ).
 
       WHEN OTHERS.
-        filled-exception = '3'.
-        filled-color     = VALUE #( ( color-col = col_normal ) ).
+        result-exception = '3'.
+        result-color     = VALUE #( ( color-col = col_normal ) ).
 
     ENDCASE.
 
@@ -689,50 +743,50 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
   METHOD fill_cross_release.
 
-    filled = CORRESPONDING #( data ).
+    result = CORRESPONDING #( data ).
 
   ENDMETHOD.
 
 
   METHOD fill_import_time.
 
-    filled = CORRESPONDING #( data ).
+    result = CORRESPONDING #( data ).
 
   ENDMETHOD.
 
 
   METHOD fill_online_import_summary.
 
-    filled = CORRESPONDING #( data ).
+    result = CORRESPONDING #( data ).
 
     CALL FUNCTION 'ICON_CREATE'
       EXPORTING
         name                  = icon_doc_item_detail
         info                  = 'Display details'
       IMPORTING
-        result                = filled-details_icon
+        result                = result-details_icon
       EXCEPTIONS
         icon_not_found        = 1
         outputfield_too_short = 2
         OTHERS                = 3.
     IF sy-subrc <> 0.
-      CLEAR: filled-details_icon.
+      CLEAR: result-details_icon.
     ENDIF.
 
     CASE severity_for_online_import(
                             CORRESPONDING #( logs[ run_code          = data-run_code
                                                    transport_request = data-transport_request ]-online_import ) ).
       WHEN zif_adu_constants=>severity-error.
-        filled-exception = '1'.
-        filled-color     = VALUE #( ( color-col = col_negative ) ).
+        result-exception = '1'.
+        result-color     = VALUE #( ( color-col = col_negative ) ).
 
       WHEN zif_adu_constants=>severity-warning.
-        filled-exception = '2'.
-        filled-color     = VALUE #( ( color-col = col_key ) ).
+        result-exception = '2'.
+        result-color     = VALUE #( ( color-col = col_key ) ).
 
       WHEN OTHERS.
-        filled-exception = '3'.
-        filled-color     = VALUE #( ( color-col = col_positive ) ).
+        result-exception = '3'.
+        result-color     = VALUE #( ( color-col = col_positive ) ).
 
     ENDCASE.
 
@@ -741,20 +795,20 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
   METHOD fill_online_import.
 
-    filled = CORRESPONDING #( data ).
+    result = CORRESPONDING #( data ).
 
     CASE severity_for_online_import( VALUE #( ( data ) ) ).
       WHEN zif_adu_constants=>severity-error.
-        filled-exception = '1'.
-        filled-color     = VALUE #( ( color-col = col_negative ) ).
+        result-exception = '1'.
+        result-color     = VALUE #( ( color-col = col_negative ) ).
 
       WHEN zif_adu_constants=>severity-warning.
-        filled-exception = '2'.
-        filled-color     = VALUE #( ( color-col = col_key ) ).
+        result-exception = '2'.
+        result-color     = VALUE #( ( color-col = col_key ) ).
 
       WHEN OTHERS.
-        filled-exception = '3'.
-        filled-color     = VALUE #( ( color-col = col_positive ) ).
+        result-exception = '3'.
+        result-color     = VALUE #( ( color-col = col_positive ) ).
 
     ENDCASE.
 
@@ -763,15 +817,15 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
   METHOD filter_logs.
 
-    filtered_logs =
+    result =
         COND #( WHEN transport_request IS NOT INITIAL
                      THEN FILTER #( logs USING KEY req WHERE transport_request = transport_request )
                      ELSE logs ).
 
-    filtered_logs =
+    result =
         COND #( WHEN run_code IS NOT INITIAL
                      THEN FILTER #( logs USING KEY run WHERE run_code = run_code )
-                     ELSE filtered_logs ).
+                     ELSE result ).
 
   ENDMETHOD.
 
@@ -782,7 +836,7 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    severity =
+    result =
         COND #(
             WHEN line_exists( data[ status = zif_adu_constants=>check_cross_reference_status-only_in_source ] )
               OR line_exists( data[ status = zif_adu_constants=>check_cross_reference_status-only_in_target ] )
@@ -796,55 +850,55 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
   METHOD severity_for_sequence.
 
-    severity = COND #( WHEN data IS NOT INITIAL THEN zif_adu_constants=>severity-warning ).
+    result = COND #( WHEN data IS NOT INITIAL THEN zif_adu_constants=>severity-warning ).
 
   ENDMETHOD.
 
 
   METHOD severity_for_cross_release.
 
-    severity = COND #( WHEN data IS NOT INITIAL THEN zif_adu_constants=>severity-warning ).
+    result = COND #( WHEN data IS NOT INITIAL THEN zif_adu_constants=>severity-warning ).
 
   ENDMETHOD.
 
 
   METHOD severity_for_import_time.
 
-    severity = COND #( WHEN data IS NOT INITIAL THEN zif_adu_constants=>severity-info ).
+    result = COND #( WHEN data IS NOT INITIAL THEN zif_adu_constants=>severity-info ).
 
   ENDMETHOD.
 
 
   METHOD severity_for_online_import.
 
-    LOOP AT data INTO DATA(result).
-
-      severity =
-        COND #(
-            WHEN result-chcnt > online_import_config-tabwrite_r
-              OR result-accnt > online_import_config-tabreads_r
-              OR ( result-action IS NOT INITIAL AND
-                   result-occtb > online_import_config-tabsize_r )
-              OR ( result-action IS NOT INITIAL AND
-                   result-occtb > online_import_config-tabsize_y AND
-                   ( result-chcnt > online_import_config-tabwrite_y OR
-                     result-accnt > online_import_config-tabreads_y ) )
-              OR result-execnt > online_import_config-repexe_r
-              OR result-execnt_dd > online_import_config-repexedd_r
-              OR result-criobj = abap_true
-                THEN zif_adu_constants=>severity-error
-            WHEN severity <> zif_adu_constants=>severity-error
-             AND ( result-chcnt > online_import_config-tabwrite_y
-                  OR result-accnt > online_import_config-tabreads_y
-                  OR result-execnt > online_import_config-repexe_y
-                  OR result-execnt_dd > online_import_config-repexedd_y OR
-                     ( result-action IS NOT INITIAL AND result-occtb > online_import_config-tabsize_y ) )
-                THEN zif_adu_constants=>severity-warning
-            WHEN severity IS INITIAL
-                THEN zif_adu_constants=>severity-info
-                ELSE severity ).
-
-    ENDLOOP.
+    result =
+        REDUCE #(
+            INIT severity = result
+            FOR data_result IN data
+            NEXT severity =
+                COND #(
+                    WHEN data_result-chcnt > online_import_config-tabwrite_r
+                      OR data_result-accnt > online_import_config-tabreads_r
+                      OR ( data_result-action IS NOT INITIAL AND
+                           data_result-occtb > online_import_config-tabsize_r )
+                      OR ( data_result-action IS NOT INITIAL AND
+                           data_result-occtb > online_import_config-tabsize_y AND
+                           ( data_result-chcnt > online_import_config-tabwrite_y OR
+                             data_result-accnt > online_import_config-tabreads_y ) )
+                      OR data_result-execnt > online_import_config-repexe_r
+                      OR data_result-execnt_dd > online_import_config-repexedd_r
+                      OR data_result-criobj = abap_true
+                        THEN zif_adu_constants=>severity-error
+                    WHEN severity <> zif_adu_constants=>severity-error
+                     AND ( data_result-chcnt > online_import_config-tabwrite_y
+                          OR data_result-accnt > online_import_config-tabreads_y
+                          OR data_result-execnt > online_import_config-repexe_y
+                          OR data_result-execnt_dd > online_import_config-repexedd_y OR
+                             ( data_result-action IS NOT INITIAL AND data_result-occtb > online_import_config-tabsize_y ) )
+                        THEN zif_adu_constants=>severity-warning
+                    WHEN severity IS INITIAL
+                        THEN zif_adu_constants=>severity-info
+                        ELSE severity ) ).
 
   ENDMETHOD.
 
@@ -852,7 +906,7 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
   METHOD prepare_alv_log.
 
     TRY.
-        cl_salv_table=>factory( IMPORTING r_salv_table  = salv_table
+        cl_salv_table=>factory( IMPORTING r_salv_table  = result
                                 CHANGING  t_table       = salv_data->header ).
       CATCH cx_salv_msg INTO DATA(salv_msg_exception).
         RAISE EXCEPTION TYPE zcx_adu_check_transport
@@ -860,15 +914,15 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
             previous = salv_msg_exception.
     ENDTRY.
 
-    salv_table->get_display_settings( )->set_list_header(
+    result->get_display_settings( )->set_list_header(
                 COND #( LET text = |{ 'Transport Check Logs'(001) }|
                         IN WHEN transport_request IS INITIAL
                                THEN text
                                ELSE |{ text }: { transport_request }| ) ).
 
-    salv_table->get_functions( )->set_all( ).
+    result->get_functions( )->set_all( ).
 
-    DATA(salv_sorts) = salv_table->get_sorts( ).
+    DATA(salv_sorts) = result->get_sorts( ).
 
     TRY.
         salv_sorts->add_sort( columnname = 'DATE' position = 1 sequence = if_salv_c_sort=>sort_down ).
@@ -876,12 +930,12 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
       CATCH cx_salv_not_found cx_salv_existing cx_salv_data_error.
     ENDTRY.
 
-    prepare_alv_log_columns( salv_table->get_columns( ) ).
+    prepare_alv_log_columns( result->get_columns( ) ).
 
-    DATA(salv_events) = salv_table->get_event( ).
+    DATA(salv_events) = result->get_event( ).
 
     DATA(event_handler) = NEW lcl_event_handler( reader     = me
-                                                 salv_table = salv_table ).
+                                                 salv_table = result ).
 
     SET HANDLER event_handler->header_link_click FOR salv_events ACTIVATION abap_true.
 
@@ -1008,7 +1062,7 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
   METHOD prepare_alv_cross_reference.
 
     TRY.
-        cl_salv_table=>factory( IMPORTING r_salv_table  = salv_table
+        cl_salv_table=>factory( IMPORTING r_salv_table  = result
                                 CHANGING  t_table       = salv_data->cross_reference ).
       CATCH cx_salv_msg INTO DATA(salv_msg_exception).
         RAISE EXCEPTION TYPE zcx_adu_check_transport
@@ -1016,11 +1070,11 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
             previous = salv_msg_exception.
     ENDTRY.
 
-    salv_table->get_display_settings( )->set_list_header( 'Cross reference checks'(002) ).
+    result->get_display_settings( )->set_list_header( 'Cross reference checks'(002) ).
 
-    salv_table->get_functions( )->set_all( ).
+    result->get_functions( )->set_all( ).
 
-    DATA(salv_columns) = salv_table->get_columns( ).
+    DATA(salv_columns) = result->get_columns( ).
 
     TRY.
         salv_columns->set_color_column( 'COLOR' ).
@@ -1073,7 +1127,7 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
   METHOD prepare_alv_sequence.
 
     TRY.
-        cl_salv_table=>factory( IMPORTING r_salv_table  = salv_table
+        cl_salv_table=>factory( IMPORTING r_salv_table  = result
                                 CHANGING  t_table       = salv_data->sequence ).
       CATCH cx_salv_msg INTO DATA(salv_msg_exception).
         RAISE EXCEPTION TYPE zcx_adu_check_transport
@@ -1081,11 +1135,11 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
             previous = salv_msg_exception.
     ENDTRY.
 
-    salv_table->get_display_settings( )->set_list_header( 'Sequence checks'(003) ).
+    result->get_display_settings( )->set_list_header( 'Sequence checks'(003) ).
 
-    salv_table->get_functions( )->set_all( ).
+    result->get_functions( )->set_all( ).
 
-    DATA(salv_columns) = salv_table->get_columns( ).
+    DATA(salv_columns) = result->get_columns( ).
 
     TRY.
         salv_columns->set_color_column( 'COLOR' ).
@@ -1130,7 +1184,7 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
   METHOD prepare_alv_cross_release.
 
     TRY.
-        cl_salv_table=>factory( IMPORTING r_salv_table  = salv_table
+        cl_salv_table=>factory( IMPORTING r_salv_table  = result
                                 CHANGING  t_table       = salv_data->cross_release ).
       CATCH cx_salv_msg INTO DATA(salv_msg_exception).
         RAISE EXCEPTION TYPE zcx_adu_check_transport
@@ -1138,11 +1192,11 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
             previous = salv_msg_exception.
     ENDTRY.
 
-    salv_table->get_display_settings( )->set_list_header( 'Cross release checks'(004) ).
+    result->get_display_settings( )->set_list_header( 'Cross release checks'(004) ).
 
-    salv_table->get_functions( )->set_all( ).
+    result->get_functions( )->set_all( ).
 
-    DATA(salv_columns) = salv_table->get_columns( ).
+    DATA(salv_columns) = result->get_columns( ).
 
     TRY.
         salv_columns->set_color_column( 'COLOR' ).
@@ -1179,7 +1233,7 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
   METHOD prepare_alv_import_time.
 
     TRY.
-        cl_salv_table=>factory( IMPORTING r_salv_table  = salv_table
+        cl_salv_table=>factory( IMPORTING r_salv_table  = result
                                 CHANGING  t_table       = salv_data->import_time ).
       CATCH cx_salv_msg INTO DATA(salv_msg_exception).
         RAISE EXCEPTION TYPE zcx_adu_check_transport
@@ -1187,11 +1241,11 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
             previous = salv_msg_exception.
     ENDTRY.
 
-    salv_table->get_display_settings( )->set_list_header( 'Import time checks'(005) ).
+    result->get_display_settings( )->set_list_header( 'Import time checks'(005) ).
 
-    salv_table->get_functions( )->set_all( ).
+    result->get_functions( )->set_all( ).
 
-    DATA(salv_columns) = salv_table->get_columns( ).
+    DATA(salv_columns) = result->get_columns( ).
 
     TRY.
         salv_columns->set_color_column( 'COLOR' ).
@@ -1228,7 +1282,7 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
   METHOD prepare_alv_online_import_sum.
 
     TRY.
-        cl_salv_table=>factory( IMPORTING r_salv_table = salv_table
+        cl_salv_table=>factory( IMPORTING r_salv_table = result
                                 CHANGING  t_table      = salv_data->online_import_summary ).
       CATCH cx_salv_msg INTO DATA(salv_msg_exception).
         RAISE EXCEPTION TYPE zcx_adu_check_transport
@@ -1236,18 +1290,18 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
             previous = salv_msg_exception.
     ENDTRY.
 
-    salv_table->get_display_settings( )->set_list_header( 'Online import summary checks'(036) ).
+    result->get_display_settings( )->set_list_header( 'Online import summary checks'(036) ).
 
-    salv_table->get_functions( )->set_all( ).
+    result->get_functions( )->set_all( ).
 
-    DATA(salv_sorts) = salv_table->get_sorts( ).
+    DATA(salv_sorts) = result->get_sorts( ).
 
     TRY.
         salv_sorts->add_sort( columnname = 'EXCEPTION' position = 1 sequence = if_salv_c_sort=>sort_up ).
       CATCH cx_salv_not_found cx_salv_existing cx_salv_data_error.
     ENDTRY.
 
-    DATA(salv_columns) = salv_table->get_columns( ).
+    DATA(salv_columns) = result->get_columns( ).
 
     TRY.
         salv_columns->set_color_column( 'COLOR' ).
@@ -1322,10 +1376,10 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
 
     ENDLOOP.
 
-    DATA(salv_events) = salv_table->get_event( ).
+    DATA(salv_events) = result->get_event( ).
 
     DATA(event_handler) = NEW lcl_event_handler( reader     = me
-                                                 salv_table = salv_table ).
+                                                 salv_table = result ).
 
     SET HANDLER event_handler->oi_summary_link_click FOR salv_events ACTIVATION abap_true.
 
@@ -1335,7 +1389,7 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
   METHOD prepare_alv_online_import.
 
     TRY.
-        cl_salv_table=>factory( IMPORTING r_salv_table  = salv_table
+        cl_salv_table=>factory( IMPORTING r_salv_table  = result
                                 CHANGING  t_table       = salv_data->online_import ).
       CATCH cx_salv_msg INTO DATA(salv_msg_exception).
         RAISE EXCEPTION TYPE zcx_adu_check_transport
@@ -1343,18 +1397,18 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
             previous = salv_msg_exception.
     ENDTRY.
 
-    salv_table->get_display_settings( )->set_list_header( 'Online import checks'(006) ).
+    result->get_display_settings( )->set_list_header( 'Online import checks'(006) ).
 
-    salv_table->get_functions( )->set_all( ).
+    result->get_functions( )->set_all( ).
 
-    DATA(salv_sorts) = salv_table->get_sorts( ).
+    DATA(salv_sorts) = result->get_sorts( ).
 
     TRY.
         salv_sorts->add_sort( columnname = 'EXCEPTION' position = 1 sequence = if_salv_c_sort=>sort_up ).
       CATCH cx_salv_not_found cx_salv_existing cx_salv_data_error.
     ENDTRY.
 
-    DATA(salv_columns) = salv_table->get_columns( ).
+    DATA(salv_columns) = result->get_columns( ).
 
     TRY.
         salv_columns->set_color_column( 'COLOR' ).

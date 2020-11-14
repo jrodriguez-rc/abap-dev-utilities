@@ -10,12 +10,12 @@ CLASS zcl_adu_run_atc DEFINITION
     "! <p class="shorttext synchronized" lang="en">Generate instantiation</p>
     "!
     "! @parameter profile_name | <p class="shorttext synchronized" lang="en">SCI Profile Name</p>
-    "! @parameter atc | <p class="shorttext synchronized" lang="en">ABAP Test Cockpit Utility</p>
+    "! @parameter result | <p class="shorttext synchronized" lang="en">ABAP Test Cockpit Utility</p>
     CLASS-METHODS create
       IMPORTING
-        profile_name TYPE csequence
+        profile_name  TYPE csequence
       RETURNING
-        VALUE(atc)   TYPE REF TO zif_adu_run_atc.
+        VALUE(result) TYPE REF TO zif_adu_run_atc.
 
     "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
     "!
@@ -32,19 +32,19 @@ CLASS zcl_adu_run_atc DEFINITION
 
     METHODS get_default_variant
       RETURNING
-        VALUE(variant) TYPE satc_ci_chk_variant.
+        VALUE(result) TYPE satc_ci_chk_variant.
 
     METHODS build_project
       IMPORTING
-        object_keys        TYPE satc_t_r3tr_keys
+        object_keys   TYPE satc_t_r3tr_keys
       RETURNING
-        VALUE(atc_project) TYPE REF TO if_satc_md_project.
+        VALUE(result) TYPE REF TO if_satc_md_project.
 
     METHODS execute_atc_project
       IMPORTING
-        atc_project         TYPE REF TO if_satc_md_project
+        atc_project   TYPE REF TO if_satc_md_project
       RETURNING
-        VALUE(execution_id) TYPE satc_d_id.
+        VALUE(result) TYPE satc_d_id.
 
     METHODS retrieve_findings
       IMPORTING
@@ -73,18 +73,18 @@ CLASS zcl_adu_run_atc IMPLEMENTATION.
 
   METHOD create.
 
-    atc = NEW zcl_adu_run_atc( profile_name ).
+    result = NEW zcl_adu_run_atc( profile_name ).
 
   ENDMETHOD.
 
 
   METHOD constructor.
 
-    IF profile_name IS NOT INITIAL.
-      profile_name_of_checks = profile_name.
-    ELSE.
-      profile_name_of_checks = get_default_variant( ).
-    ENDIF.
+    profile_name_of_checks =
+        COND #(
+            WHEN profile_name IS NOT INITIAL
+                THEN profile_name
+                ELSE get_default_variant( ) ).
 
   ENDMETHOD.
 
@@ -104,13 +104,13 @@ CLASS zcl_adu_run_atc IMPLEMENTATION.
 
     TRY.
         DATA(atc_config) = CAST if_satc_ac_config_ci( cl_satc_ac_config_factory=>get_read_access( ) ).
-        atc_config->get_ci_check_variant( IMPORTING e_name = variant ).
+        atc_config->get_ci_check_variant( IMPORTING e_name = result ).
       CATCH cx_satc_root cx_sy_move_cast_error.
-        CLEAR: variant.
+        CLEAR: result.
     ENDTRY.
 
-    IF variant IS INITIAL.
-      variant = 'DEFAULT'.
+    IF result IS INITIAL.
+      result = 'DEFAULT'.
     ENDIF.
 
   ENDMETHOD.
@@ -132,28 +132,30 @@ CLASS zcl_adu_run_atc IMPLEMENTATION.
     project_parameters->set_evaluate_runtime_error( abap_true ).
     project_parameters->set_object_key_iterator( key_iterator ).
 
-    atc_project = cl_satc_ac_project_builder=>create_builder( )->create_project( project_parameters ).
+    result = cl_satc_ac_project_builder=>create_builder( )->create_project( project_parameters ).
 
   ENDMETHOD.
 
 
   METHOD execute_atc_project.
 
-    DATA success TYPE abap_bool.
+    DATA:
+      success TYPE abap_bool.
+
     TRY.
         CALL FUNCTION 'SATC_EXECUTE_PROJECT'
           EXPORTING
             i_project = atc_project
           IMPORTING
-            e_exec_id = execution_id
+            e_exec_id = result
             e_success = success.
 
         IF success IS INITIAL.
-          CLEAR execution_id.
+          CLEAR result.
         ENDIF.
 
       CATCH cx_satc_root.
-        CLEAR execution_id.
+        CLEAR result.
     ENDTRY.
 
   ENDMETHOD.
@@ -192,9 +194,10 @@ CLASS zcl_adu_run_atc IMPLEMENTATION.
 
     DELETE checks WHERE dvlpr_scope = if_satc_ac_check_attributes=>scope-never. "#EC CI_SORTSEQ
 
-    LOOP AT checks REFERENCE INTO DATA(check).
-      INSERT check->atc_id INTO TABLE check_ids.
-    ENDLOOP.
+    check_ids =
+        VALUE #(
+            FOR check IN checks
+            ( check-atc_id ) ).
 
   ENDMETHOD.
 
@@ -210,16 +213,21 @@ CLASS zcl_adu_run_atc IMPLEMENTATION.
 
     SORT r3tr_keys BY obj_name.
 
-    LOOP AT r3tr_keys INTO DATA(r3tr_key).
+    DATA(title_result) =
+        REDUCE #(
+            INIT title TYPE string
+            FOR r3tr_key IN r3tr_keys
+            NEXT title =
+                COND #(
+                    WHEN title IS INITIAL
+                        THEN r3tr_key-obj_name
+                        ELSE |{ title }, { r3tr_key-obj_name }| ) ).
 
-      result = COND #( WHEN result IS INITIAL THEN result
-                                              ELSE |{ result }, { r3tr_key-obj_name }...| ).
-
-      IF sy-tabix > 1.
-        EXIT.
-      ENDIF.
-
-    ENDLOOP.
+    result =
+        COND #(
+            WHEN strlen( title_result ) <= 128
+                THEN title_result
+                ELSE |{ title_result(125) }...| ).
 
   ENDMETHOD.
 

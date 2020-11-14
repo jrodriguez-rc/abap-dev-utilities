@@ -44,9 +44,9 @@ INTERFACE zif_adu_transport_request
 
   "! <p class="shorttext synchronized" lang="en">Get transport request header</p>
   "!
-  "! @parameter request_header | <p class="shorttext synchronized" lang="en">Header</p>
+  "! @parameter result | <p class="shorttext synchronized" lang="en">Header</p>
   METHODS get_header
     RETURNING
-      VALUE(request_header) TYPE trwbo_request_header.
+      VALUE(result) TYPE trwbo_request_header.
 
 ENDINTERFACE.
