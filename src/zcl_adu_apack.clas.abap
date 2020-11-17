@@ -7,7 +7,7 @@ CLASS zcl_adu_apack DEFINITION
   PUBLIC SECTION.
     INTERFACES if_apack_manifest.
 
-    CONSTANTS gc_version     TYPE string VALUE '1.0.0' ##NO_TEXT.
+    CONSTANTS gc_version     TYPE string VALUE '1.1.0' ##NO_TEXT.
     CONSTANTS gc_group       TYPE string VALUE 'github.com/jrodriguez-rc' ##NO_TEXT.
     CONSTANTS gc_artifact_id TYPE string VALUE 'abap-dev-utilities' ##NO_TEXT.
     CONSTANTS gc_repository  TYPE string VALUE 'https://github.com/jrodriguez-rc/abap-dev-utilities.git' ##NO_TEXT.

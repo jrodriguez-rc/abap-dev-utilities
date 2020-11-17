@@ -14,14 +14,6 @@ CLASS zcl_adu_email DEFINITION
   PROTECTED SECTION.
 
   PRIVATE SECTION.
-    METHODS read_text_body
-      IMPORTING
-        text          TYPE tdobname
-        language      TYPE sy-langu DEFAULT sy-langu
-        tag_replace   TYPE zif_adu_email=>tt_tag_replace OPTIONAL
-      RETURNING
-        VALUE(result) TYPE soli_tab.
-
     METHODS send_email
       IMPORTING
         text          TYPE soli_tab
@@ -49,15 +41,6 @@ CLASS zcl_adu_email IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD zif_adu_email~read_text_body.
-
-    result = read_text_body( text        = text
-                             language    = language
-                             tag_replace = tag_replace ).
-
-  ENDMETHOD.
-
-
   METHOD zif_adu_email~send_email.
 
     result = send_email( text          = text
@@ -66,53 +49,6 @@ CLASS zcl_adu_email IMPLEMENTATION.
                          attachments   = attachments
                          document_type = document_type
                          commit_work   = commit_work ).
-
-  ENDMETHOD.
-
-
-  METHOD zif_adu_email~text_string_to_tab.
-
-    result = NEW zcl_adu_general( )->text_string_to_tab( text ).
-
-  ENDMETHOD.
-
-
-  METHOD read_text_body.
-
-    DATA:
-      lt_tlines TYPE tline_tab.
-
-    CALL FUNCTION 'READ_TEXT'
-      EXPORTING
-        id                      = 'ST'
-        language                = language
-        name                    = text
-        object                  = 'TEXT'
-      TABLES
-        lines                   = lt_tlines
-      EXCEPTIONS
-        id                      = 1
-        language                = 2
-        name                    = 3
-        not_found               = 4
-        object                  = 5
-        reference_check         = 6
-        wrong_access_to_archive = 7
-        OTHERS                  = 9.
-    IF sy-subrc <> 0.
-      RETURN. " TODO: Raise Exception
-    ENDIF.
-
-    LOOP AT tag_replace REFERENCE INTO DATA(lr_tag_replace).
-      REPLACE ALL OCCURRENCES OF lr_tag_replace->tag IN TABLE lt_tlines WITH lr_tag_replace->text.
-    ENDLOOP.
-
-    CALL FUNCTION 'CONVERT_ITF_TO_STREAM_TEXT'
-      EXPORTING
-        language    = language
-      TABLES
-        itf_text    = lt_tlines
-        text_stream = result.
 
   ENDMETHOD.
 
