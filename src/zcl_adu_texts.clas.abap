@@ -98,4 +98,27 @@ CLASS zcl_adu_texts IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD zif_adu_texts~read_textpool.
+
+    READ TEXTPOOL program INTO result LANGUAGE language.
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_texts~read_textpool_single.
+
+    DATA(textpool) =
+        zif_adu_texts~read_textpool(
+            program  = program
+            language = language ).
+
+    TRY.
+        result = textpool[ id = id key = key ]-entry.
+      CATCH cx_sy_itab_line_not_found.
+        CLEAR: result.
+    ENDTRY.
+
+  ENDMETHOD.
+
+
 ENDCLASS.

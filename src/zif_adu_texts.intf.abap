@@ -29,4 +29,20 @@ INTERFACE zif_adu_texts
     RETURNING
       VALUE(result) TYPE soli_tab.
 
+  METHODS read_textpool
+    IMPORTING
+      program       TYPE program
+      language      TYPE langu DEFAULT sy-langu
+    RETURNING
+      VALUE(result) TYPE textpool_table.
+
+  METHODS read_textpool_single
+    IMPORTING
+      program       TYPE program
+      id            TYPE textpoolid
+      key           TYPE textpoolky
+      language      TYPE langu DEFAULT sy-langu
+    RETURNING
+      VALUE(result) TYPE textpooltx.
+
 ENDINTERFACE.
