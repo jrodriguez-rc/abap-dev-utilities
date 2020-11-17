@@ -11,7 +11,6 @@ CLASS zcl_adu_messages DEFINITION
                                                        WITH NON-UNIQUE SORTED KEY type COMPONENTS type.
 
     CONSTANTS:
-      "! <p class="shorttext synchronized" lang="en">Error severity codes</p>
       BEGIN OF severity,
         error       TYPE symsgty VALUE 'E',
         warning     TYPE symsgty VALUE 'W',
@@ -20,7 +19,6 @@ CLASS zcl_adu_messages DEFINITION
         exception   TYPE symsgty VALUE 'X',
         abort       TYPE symsgty VALUE 'A',
       END OF severity,
-      "! <p class="shorttext synchronized" lang="en">Error message types</p>
       error_types TYPE string VALUE 'AEX'.
 
     CLASS-DATA:
@@ -28,18 +26,6 @@ CLASS zcl_adu_messages DEFINITION
 
     CLASS-METHODS class_constructor.
 
-    "! <p class="shorttext synchronized" lang="en">Add message</p>
-    "!
-    "! @parameter message_type | <p class="shorttext synchronized" lang="en">Message Type</p>
-    "! @parameter message_id | <p class="shorttext synchronized" lang="en">Message Class</p>
-    "! @parameter message_number | <p class="shorttext synchronized" lang="en">Message Number</p>
-    "! @parameter message_var_1 | <p class="shorttext synchronized" lang="en">Message Text 1</p>
-    "! @parameter message_var_2 | <p class="shorttext synchronized" lang="en">Message Text 2</p>
-    "! @parameter message_var_3 | <p class="shorttext synchronized" lang="en">Message Text 3</p>
-    "! @parameter message_var_4 | <p class="shorttext synchronized" lang="en">Message Text 4</p>
-    "! @parameter parameter | <p class="shorttext synchronized" lang="en">Parameter</p>
-    "! @parameter row | <p class="shorttext synchronized" lang="en">Row</p>
-    "! @parameter field | <p class="shorttext synchronized" lang="en">Field</p>
     METHODS add_message
       IMPORTING
         !message_type   TYPE sy-msgty DEFAULT severity-error
@@ -53,56 +39,38 @@ CLASS zcl_adu_messages DEFINITION
         !row            TYPE bapiret2-row OPTIONAL
         !field          TYPE bapiret2-field OPTIONAL.
 
-    "! <p class="shorttext synchronized" lang="en">Add messages</p>
-    "!
-    "! @parameter messages | <p class="shorttext synchronized" lang="en">Messages table</p>
     METHODS add_messages
       IMPORTING
         !messages TYPE bapiret2_t.
 
-    "! <p class="shorttext synchronized" lang="en">Add exception</p>
-    "!
-    "! @parameter exception | <p class="shorttext synchronized" lang="en">Exception</p>
     METHODS add_exception
       IMPORTING
         exception TYPE REF TO cx_root.
 
-    "! <p class="shorttext synchronized" lang="en">Display collected messages</p>
-    "!
-    "! @parameter initialize_after_display | <p class="shorttext synchronized" lang="en">Initialize after display</p>
     METHODS display_messages
       IMPORTING
-        initialize_after_display TYPE abap_bool DEFAULT abap_true.
+        initialize_after_display TYPE abap_bool DEFAULT abap_true
+        send_if_one              TYPE abap_bool DEFAULT abap_true.
 
-    "! <p class="shorttext synchronized" lang="en">Returns collected messages</p>
-    "!
-    "! @parameter result | <p class="shorttext synchronized" lang="en">Messages</p>
     METHODS get_messages
       RETURNING
         VALUE(result) TYPE tt_messages.
 
-    "! <p class="shorttext synchronized" lang="en">Initialize messages</p>
-    "!
-    "! <p class="shorttext synchronized" lang="en">Initialize messages</p>
     METHODS initialize.
 
     METHODS is_error
       RETURNING
         VALUE(result) TYPE abap_bool.
 
-    "! <p class="shorttext synchronized" lang="en">Raise Gateway Business Exception</p>
-    "!
-    "! @raising /iwbep/cx_mgw_busi_exception | <p class="shorttext synchronized" lang="en">Business exception</p>
     METHODS raise_gateway_busi_exception
       RAISING
         /iwbep/cx_mgw_busi_exception.
 
-    "! <p class="shorttext synchronized" lang="en">Raise Gateway Technical Exception</p>
-    "!
-    "! @raising /iwbep/cx_mgw_tech_exception | <p class="shorttext synchronized" lang="en">Technical Exception</p>
     METHODS raise_gateway_tech_exception
       RAISING
         /iwbep/cx_mgw_tech_exception.
+
+  PROTECTED SECTION.
 
   PRIVATE SECTION.
     DATA:
@@ -159,15 +127,6 @@ ENDCLASS.
 
 
 CLASS zcl_adu_messages IMPLEMENTATION.
-
-
-  METHOD class_constructor.
-
-    message_error_types = VALUE #( ( severity-abort )
-                                   ( severity-error )
-                                   ( severity-exception ) ).
-
-  ENDMETHOD.
 
 
   METHOD add_exception.
@@ -269,6 +228,31 @@ CLASS zcl_adu_messages IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD class_constructor.
+
+    message_error_types = VALUE #( ( severity-abort )
+                                   ( severity-error )
+                                   ( severity-exception ) ).
+
+  ENDMETHOD.
+
+
+  METHOD create_gateway_exception.
+
+    DATA(lt_messages) = get_messages( ).
+
+    result = COND #( WHEN iv_tech = abap_false THEN NEW /iwbep/cx_mgw_busi_exception( )
+                                                  ELSE NEW /iwbep/cx_mgw_tech_exception( ) ).
+
+    DATA(messages_container) = CAST /iwbep/if_message_container( result->get_msg_container( ) ).
+
+    messages_container->add_messages_from_bapi(
+                        it_bapi_messages         = CORRESPONDING #( get_messages( ) )
+                        iv_determine_leading_msg = /iwbep/if_message_container=>gcs_leading_msg_search_option-first ).
+
+  ENDMETHOD.
+
+
   METHOD display_messages.
 
     CALL FUNCTION 'MESSAGES_INITIALIZE'
@@ -293,7 +277,7 @@ CLASS zcl_adu_messages IMPLEMENTATION.
 
     CALL FUNCTION 'MESSAGES_SHOW'
       EXPORTING
-        send_if_one = abap_true
+        send_if_one = send_if_one
       EXCEPTIONS
         OTHERS      = 0.
 
@@ -373,40 +357,6 @@ CLASS zcl_adu_messages IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD raise_gateway_busi_exception.
-
-    DATA(exception) = CAST /iwbep/cx_mgw_busi_exception( create_gateway_exception( ) ).
-
-    RAISE EXCEPTION exception.
-
-  ENDMETHOD.
-
-
-  METHOD raise_gateway_tech_exception.
-
-    DATA(exception) = CAST /iwbep/cx_mgw_tech_exception( create_gateway_exception( ) ).
-
-    RAISE EXCEPTION exception.
-
-  ENDMETHOD.
-
-
-  METHOD create_gateway_exception.
-
-    DATA(lt_messages) = get_messages( ).
-
-    result = COND #( WHEN iv_tech = abap_false THEN NEW /iwbep/cx_mgw_busi_exception( )
-                                                  ELSE NEW /iwbep/cx_mgw_tech_exception( ) ).
-
-    DATA(messages_container) = CAST /iwbep/if_message_container( result->get_msg_container( ) ).
-
-    messages_container->add_messages_from_bapi(
-                        it_bapi_messages         = CORRESPONDING #( get_messages( ) )
-                        iv_determine_leading_msg = /iwbep/if_message_container=>gcs_leading_msg_search_option-first ).
-
-  ENDMETHOD.
-
-
   METHOD message_vars_prepare.
 
     message_var_formatted_1 = message_var_prepare( message_var_1 ).
@@ -433,4 +383,20 @@ CLASS zcl_adu_messages IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD raise_gateway_busi_exception.
+
+    DATA(exception) = CAST /iwbep/cx_mgw_busi_exception( create_gateway_exception( ) ).
+
+    RAISE EXCEPTION exception.
+
+  ENDMETHOD.
+
+
+  METHOD raise_gateway_tech_exception.
+
+    DATA(exception) = CAST /iwbep/cx_mgw_tech_exception( create_gateway_exception( ) ).
+
+    RAISE EXCEPTION exception.
+
+  ENDMETHOD.
 ENDCLASS.

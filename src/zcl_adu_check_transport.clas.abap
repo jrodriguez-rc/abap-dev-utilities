@@ -8,13 +8,6 @@ CLASS zcl_adu_check_transport DEFINITION
       zif_adu_check_transport,
       if_serializable_object.
 
-    "! <p class="shorttext synchronized" lang="en">Generate instantiation</p>
-    "!
-    "! @parameter transport_requests | <p class="shorttext synchronized" lang="en">Transport requests</p>
-    "! @parameter rfc_source | <p class="shorttext synchronized" lang="en">Source RFC</p>
-    "! @parameter rfc_target | <p class="shorttext synchronized" lang="en">Target RFC</p>
-    "! @parameter result | <p class="shorttext synchronized" lang="en">Checker</p>
-    "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check exception</p>
     CLASS-METHODS create
       IMPORTING
         transport_requests TYPE trkorrs
@@ -25,12 +18,6 @@ CLASS zcl_adu_check_transport DEFINITION
       RAISING
         zcx_adu_check_transport.
 
-    "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
-    "!
-    "! @parameter transport_requests | <p class="shorttext synchronized" lang="en">Transport requests</p>
-    "! @parameter rfc_source | <p class="shorttext synchronized" lang="en">Source RFC</p>
-    "! @parameter rfc_target | <p class="shorttext synchronized" lang="en">Target RFC</p>
-    "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check exception</p>
     METHODS constructor
       IMPORTING
         transport_requests TYPE trkorrs

@@ -7,19 +7,12 @@ CLASS zcl_adu_run_atc DEFINITION
   PUBLIC SECTION.
     INTERFACES zif_adu_run_atc.
 
-    "! <p class="shorttext synchronized" lang="en">Generate instantiation</p>
-    "!
-    "! @parameter profile_name | <p class="shorttext synchronized" lang="en">SCI Profile Name</p>
-    "! @parameter result | <p class="shorttext synchronized" lang="en">ABAP Test Cockpit Utility</p>
     CLASS-METHODS create
       IMPORTING
         profile_name  TYPE csequence
       RETURNING
         VALUE(result) TYPE REF TO zif_adu_run_atc.
 
-    "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
-    "!
-    "! @parameter profile_name | <p class="shorttext synchronized" lang="en">Variant profile name</p>
     METHODS constructor
       IMPORTING
         profile_name TYPE csequence OPTIONAL.

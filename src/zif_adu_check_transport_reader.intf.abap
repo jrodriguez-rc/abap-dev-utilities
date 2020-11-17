@@ -85,12 +85,6 @@ INTERFACE zif_adu_check_transport_reader
         WITH UNIQUE KEY run_code transport_request
         WITH NON-UNIQUE SORTED KEY req COMPONENTS transport_request.
 
-  "! <p class="shorttext synchronized" lang="en">Display logs</p>
-  "!
-  "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
-  "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
-  "! @parameter as_popup | <p class="shorttext synchronized" lang="en">Display as a popup</p>
-  "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
   METHODS display
     IMPORTING
       run_code          TYPE zadu_run_code OPTIONAL
@@ -99,12 +93,6 @@ INTERFACE zif_adu_check_transport_reader
     RAISING
       zcx_adu_check_transport.
 
-  "! <p class="shorttext synchronized" lang="en">Display Cross Reference check logs</p>
-  "!
-  "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
-  "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
-  "! @parameter as_popup | <p class="shorttext synchronized" lang="en">Display as a popup</p>
-  "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
   METHODS display_cross_reference
     IMPORTING
       run_code          TYPE zadu_run_code
@@ -113,12 +101,6 @@ INTERFACE zif_adu_check_transport_reader
     RAISING
       zcx_adu_check_transport.
 
-  "! <p class="shorttext synchronized" lang="en">Display Sequence check logs</p>
-  "!
-  "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
-  "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
-  "! @parameter as_popup | <p class="shorttext synchronized" lang="en">Display as a popup</p>
-  "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
   METHODS display_sequence
     IMPORTING
       run_code          TYPE zadu_run_code
@@ -127,12 +109,6 @@ INTERFACE zif_adu_check_transport_reader
     RAISING
       zcx_adu_check_transport.
 
-  "! <p class="shorttext synchronized" lang="en">Display Cross Release check logs</p>
-  "!
-  "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
-  "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
-  "! @parameter as_popup | <p class="shorttext synchronized" lang="en">Display as a popup</p>
-  "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
   METHODS display_cross_release
     IMPORTING
       run_code          TYPE zadu_run_code
@@ -141,12 +117,6 @@ INTERFACE zif_adu_check_transport_reader
     RAISING
       zcx_adu_check_transport.
 
-  "! <p class="shorttext synchronized" lang="en">Display Import Time check logs</p>
-  "!
-  "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
-  "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
-  "! @parameter as_popup | <p class="shorttext synchronized" lang="en">Display as a popup</p>
-  "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
   METHODS display_import_time
     IMPORTING
       run_code          TYPE zadu_run_code
@@ -155,12 +125,6 @@ INTERFACE zif_adu_check_transport_reader
     RAISING
       zcx_adu_check_transport.
 
-  "! <p class="shorttext synchronized" lang="en">Display Online Import Summary check logs</p>
-  "!
-  "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
-  "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
-  "! @parameter as_popup | <p class="shorttext synchronized" lang="en">Display as a popup</p>
-  "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
   METHODS display_online_import_summary
     IMPORTING
       run_code          TYPE zadu_run_code
@@ -169,12 +133,6 @@ INTERFACE zif_adu_check_transport_reader
     RAISING
       zcx_adu_check_transport.
 
-  "! <p class="shorttext synchronized" lang="en">Display Online Import check logs</p>
-  "!
-  "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
-  "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
-  "! @parameter as_popup | <p class="shorttext synchronized" lang="en">Display as a popup</p>
-  "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
   METHODS display_online_import
     IMPORTING
       run_code          TYPE zadu_run_code
@@ -183,12 +141,6 @@ INTERFACE zif_adu_check_transport_reader
     RAISING
       zcx_adu_check_transport.
 
-  "! <p class="shorttext synchronized" lang="en">Get header logs</p>
-  "!
-  "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
-  "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
-  "! @parameter result | <p class="shorttext synchronized" lang="en">All logs</p>
-  "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
   METHODS get_header
     IMPORTING
       run_code          TYPE zadu_run_code OPTIONAL
@@ -198,12 +150,6 @@ INTERFACE zif_adu_check_transport_reader
     RAISING
       zcx_adu_check_transport.
 
-  "! <p class="shorttext synchronized" lang="en">Get Cross Reference check logs</p>
-  "!
-  "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
-  "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
-  "! @parameter result | <p class="shorttext synchronized" lang="en">Logs</p>
-  "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
   METHODS get_cross_reference
     IMPORTING
       run_code          TYPE zadu_run_code
@@ -213,12 +159,6 @@ INTERFACE zif_adu_check_transport_reader
     RAISING
       zcx_adu_check_transport.
 
-  "! <p class="shorttext synchronized" lang="en">Get Sequence check logs</p>
-  "!
-  "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
-  "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
-  "! @parameter result | <p class="shorttext synchronized" lang="en">Logs</p>
-  "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
   METHODS get_sequence
     IMPORTING
       run_code          TYPE zadu_run_code
@@ -228,12 +168,6 @@ INTERFACE zif_adu_check_transport_reader
     RAISING
       zcx_adu_check_transport.
 
-  "! <p class="shorttext synchronized" lang="en">Get Cross Release check logs</p>
-  "!
-  "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
-  "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
-  "! @parameter result | <p class="shorttext synchronized" lang="en">Logs</p>
-  "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
   METHODS get_cross_release
     IMPORTING
       run_code          TYPE zadu_run_code
@@ -243,12 +177,6 @@ INTERFACE zif_adu_check_transport_reader
     RAISING
       zcx_adu_check_transport.
 
-  "! <p class="shorttext synchronized" lang="en">Get Import Time check logs</p>
-  "!
-  "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
-  "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
-  "! @parameter result | <p class="shorttext synchronized" lang="en">Logs</p>
-  "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
   METHODS get_import_time
     IMPORTING
       run_code          TYPE zadu_run_code
@@ -258,12 +186,6 @@ INTERFACE zif_adu_check_transport_reader
     RAISING
       zcx_adu_check_transport.
 
-  "! <p class="shorttext synchronized" lang="en">Get Online Import Summary check logs</p>
-  "!
-  "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
-  "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
-  "! @parameter result | <p class="shorttext synchronized" lang="en">Logs</p>
-  "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
   METHODS get_online_import_summary
     IMPORTING
       run_code          TYPE zadu_run_code
@@ -273,12 +195,6 @@ INTERFACE zif_adu_check_transport_reader
     RAISING
       zcx_adu_check_transport.
 
-  "! <p class="shorttext synchronized" lang="en">Get Online Import check logs</p>
-  "!
-  "! @parameter run_code | <p class="shorttext synchronized" lang="en">Run code</p>
-  "! @parameter transport_request | <p class="shorttext synchronized" lang="en">Transport Request</p>
-  "! @parameter result | <p class="shorttext synchronized" lang="en">Logs</p>
-  "! @raising zcx_adu_check_transport | <p class="shorttext synchronized" lang="en">Check transport exception</p>
   METHODS get_online_import
     IMPORTING
       run_code          TYPE zadu_run_code
