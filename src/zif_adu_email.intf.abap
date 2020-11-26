@@ -32,4 +32,37 @@ INTERFACE zif_adu_email
       cx_address_bcs
       cx_document_bcs.
 
+  METHODS send_from_user
+    IMPORTING
+      username      TYPE uname
+      text          TYPE soli_tab OPTIONAL
+      subject       TYPE so_obj_des
+      recipients    TYPE bcsy_smtpa
+      attachments   TYPE zif_adu_email=>tt_attachment OPTIONAL
+      document_type TYPE so_obj_tp DEFAULT zif_adu_email=>document_type-raw
+      commit_work   TYPE abap_bool OPTIONAL
+    RETURNING
+      VALUE(result) TYPE abap_bool
+    RAISING
+      cx_send_req_bcs
+      cx_address_bcs
+      cx_document_bcs.
+
+  METHODS send_from_smtp_address
+    IMPORTING
+      sender        TYPE ad_smtpadr
+      sender_name   TYPE ad_smtpadr OPTIONAL
+      text          TYPE soli_tab OPTIONAL
+      subject       TYPE so_obj_des
+      recipients    TYPE bcsy_smtpa
+      attachments   TYPE zif_adu_email=>tt_attachment OPTIONAL
+      document_type TYPE so_obj_tp DEFAULT zif_adu_email=>document_type-raw
+      commit_work   TYPE abap_bool OPTIONAL
+    RETURNING
+      VALUE(result) TYPE abap_bool
+    RAISING
+      cx_send_req_bcs
+      cx_address_bcs
+      cx_document_bcs.
+
 ENDINTERFACE.

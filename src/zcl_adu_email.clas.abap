@@ -16,6 +16,23 @@ CLASS zcl_adu_email DEFINITION
   PRIVATE SECTION.
     METHODS send_email
       IMPORTING
+        sender        TYPE REF TO if_sender_bcs
+        text          TYPE soli_tab
+        subject       TYPE so_obj_des
+        recipients    TYPE bcsy_smtpa
+        attachments   TYPE zif_adu_email=>tt_attachment
+        document_type TYPE so_obj_tp DEFAULT zif_adu_email=>document_type-raw
+        commit_work   TYPE abap_bool OPTIONAL
+      RETURNING
+        VALUE(result) TYPE abap_bool
+      RAISING
+        cx_send_req_bcs
+        cx_address_bcs
+        cx_document_bcs.
+
+    METHODS send_from_user
+      IMPORTING
+        username      TYPE uname DEFAULT sy-uname
         text          TYPE soli_tab
         subject       TYPE so_obj_des
         recipients    TYPE bcsy_smtpa
@@ -43,12 +60,64 @@ CLASS zcl_adu_email IMPLEMENTATION.
 
   METHOD zif_adu_email~send_email.
 
-    result = send_email( text          = text
-                         subject       = subject
-                         recipients    = recipients
-                         attachments   = attachments
-                         document_type = document_type
-                         commit_work   = commit_work ).
+    result =
+        send_from_user(
+            text          = text
+            subject       = subject
+            recipients    = recipients
+            attachments   = attachments
+            document_type = document_type
+            commit_work   = commit_work ).
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_email~send_from_user.
+
+    result =
+        send_from_user(
+            username      = username
+            text          = text
+            subject       = subject
+            recipients    = recipients
+            attachments   = attachments
+            document_type = document_type
+            commit_work   = commit_work ).
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_email~send_from_smtp_address.
+
+    result =
+        send_email(
+            sender        = cl_cam_address_bcs=>create_internet_address(
+                                i_address_string = sender
+                                i_address_name   = COND #(
+                                                       WHEN sender_name IS INITIAL
+                                                           THEN sender
+                                                           ELSE sender_name ) )
+            text          = text
+            subject       = subject
+            recipients    = recipients
+            attachments   = attachments
+            document_type = document_type
+            commit_work   = commit_work ).
+
+  ENDMETHOD.
+
+
+  METHOD send_from_user.
+
+    result =
+        send_email(
+            sender        = cl_sapuser_bcs=>create( sy-uname )
+            text          = text
+            subject       = subject
+            recipients    = recipients
+            attachments   = attachments
+            document_type = document_type
+            commit_work   = commit_work ).
 
   ENDMETHOD.
 
@@ -57,9 +126,7 @@ CLASS zcl_adu_email IMPLEMENTATION.
 
     DATA(lo_send_request) = cl_bcs=>create_persistent( ).
 
-    DATA(lo_sender) = cl_sapuser_bcs=>create( sy-uname ).
-
-    lo_send_request->set_sender( lo_sender ).
+    lo_send_request->set_sender( sender ).
 
     LOOP AT recipients REFERENCE INTO DATA(lr_recipement).
 
