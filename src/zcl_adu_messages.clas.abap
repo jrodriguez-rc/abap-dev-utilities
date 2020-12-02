@@ -47,6 +47,10 @@ CLASS zcl_adu_messages DEFINITION
       IMPORTING
         exception TYPE REF TO cx_root.
 
+    METHODS add_t100_message
+      IMPORTING
+        message TYPE REF TO if_t100_message.
+
     METHODS display_messages
       IMPORTING
         initialize_after_display TYPE abap_bool DEFAULT abap_true
@@ -85,7 +89,7 @@ CLASS zcl_adu_messages DEFINITION
     METHODS get_t100_attr
       IMPORTING
         !attribute    TYPE scx_attrname
-        !exception    TYPE REF TO cx_root
+        !exception    TYPE REF TO object
       RETURNING
         VALUE(result) TYPE symsgv.
 
@@ -181,6 +185,30 @@ CLASS zcl_adu_messages IMPLEMENTATION.
         ENDIF.
 
     ENDTRY.
+
+  ENDMETHOD.
+
+
+  METHOD add_t100_message.
+
+    TRY.
+        DATA(dyn_info) = CAST zif_adu_exception_dyn_info( message ).
+        DATA(parameter) = dyn_info->parameter.
+        DATA(row)       = dyn_info->row.
+        DATA(field)     = dyn_info->field.
+      CATCH cx_sy_move_cast_error.
+    ENDTRY.
+
+    add_message(
+            message_id     = message->t100key-msgid
+            message_number = message->t100key-msgno
+            message_var_1  = get_t100_attr( exception = message attribute = message->t100key-attr1 )
+            message_var_2  = get_t100_attr( exception = message attribute = message->t100key-attr2 )
+            message_var_3  = get_t100_attr( exception = message attribute = message->t100key-attr3 )
+            message_var_4  = get_t100_attr( exception = message attribute = message->t100key-attr4 )
+            parameter      = parameter
+            row            = row
+            field          = field ).
 
   ENDMETHOD.
 
