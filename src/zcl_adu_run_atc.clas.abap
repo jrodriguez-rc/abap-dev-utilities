@@ -9,7 +9,7 @@ CLASS zcl_adu_run_atc DEFINITION
 
     CLASS-METHODS create
       IMPORTING
-        profile_name  TYPE csequence
+        profile_name  TYPE csequence OPTIONAL
       RETURNING
         VALUE(result) TYPE REF TO zif_adu_run_atc.
 
