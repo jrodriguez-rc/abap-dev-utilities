@@ -43,7 +43,7 @@ CLASS zcl_adu_run_atc DEFINITION
       IMPORTING
         execution_id  TYPE satc_d_id
       RETURNING
-        VALUE(result) TYPE if_satc_ci_rslt_upload_handler=>ty_result
+        VALUE(result) TYPE zif_adu_run_atc=>ts_result
       RAISING
         cx_adt_rest.
 
@@ -142,7 +142,6 @@ CLASS zcl_adu_run_atc IMPLEMENTATION.
           IMPORTING
             e_exec_id = result
             e_success = success.
-
         IF success IS INITIAL.
           CLEAR result.
         ENDIF.
@@ -156,13 +155,16 @@ CLASS zcl_adu_run_atc IMPLEMENTATION.
 
   METHOD retrieve_findings.
 
-    DATA(access) = cl_satc_ci_result_provider=>create_instance( ).
+    DATA(access) = cl_satc_adt_result_read_access=>create( cl_satc_adt_result_reader=>create( ) ).
 
-    access->get_result(
-        EXPORTING
-            i_display_id = execution_id
-        IMPORTING
-            e_result     = DATA(satc_result) ).
+    access->read_display_id_4_execution_id( EXPORTING i_execution_id = execution_id
+                                            IMPORTING e_display_id   = DATA(display_id) ).
+
+    access->read_findings( EXPORTING i_display_id = display_id
+                           IMPORTING e_findings   = result-findings ).
+
+    access->read_metrics_4_id( EXPORTING i_display_id          = display_id
+                               IMPORTING e_has_caused_abortion = result-has_caused_abortion ).
 
   ENDMETHOD.
 
