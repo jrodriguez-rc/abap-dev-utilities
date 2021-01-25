@@ -66,6 +66,10 @@ CLASS zcl_adu_messages DEFINITION
       RETURNING
         VALUE(result) TYPE abap_bool.
 
+    METHODS raise_gateway
+      RAISING
+        /iwbep/cx_gateway.
+
     METHODS raise_gateway_busi_exception
       RAISING
         /iwbep/cx_mgw_busi_exception.
@@ -130,7 +134,7 @@ ENDCLASS.
 
 
 
-CLASS zcl_adu_messages IMPLEMENTATION.
+CLASS ZCL_ADU_MESSAGES IMPLEMENTATION.
 
 
   METHOD add_exception.
@@ -189,30 +193,6 @@ CLASS zcl_adu_messages IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD add_t100_message.
-
-    TRY.
-        DATA(dyn_info) = CAST zif_adu_exception_dyn_info( message ).
-        DATA(parameter) = dyn_info->parameter.
-        DATA(row)       = dyn_info->row.
-        DATA(field)     = dyn_info->field.
-      CATCH cx_sy_move_cast_error.
-    ENDTRY.
-
-    add_message(
-            message_id     = message->t100key-msgid
-            message_number = message->t100key-msgno
-            message_var_1  = get_t100_attr( exception = message attribute = message->t100key-attr1 )
-            message_var_2  = get_t100_attr( exception = message attribute = message->t100key-attr2 )
-            message_var_3  = get_t100_attr( exception = message attribute = message->t100key-attr3 )
-            message_var_4  = get_t100_attr( exception = message attribute = message->t100key-attr4 )
-            parameter      = parameter
-            row            = row
-            field          = field ).
-
-  ENDMETHOD.
-
-
   METHOD add_message.
 
     message_vars_prepare( EXPORTING message_var_1           = message_var_1
@@ -252,6 +232,30 @@ CLASS zcl_adu_messages IMPLEMENTATION.
                    row            = ls_message-row
                    field          = ls_message-field ).
     ENDLOOP.
+
+  ENDMETHOD.
+
+
+  METHOD add_t100_message.
+
+    TRY.
+        DATA(dyn_info) = CAST zif_adu_exception_dyn_info( message ).
+        DATA(parameter) = dyn_info->parameter.
+        DATA(row)       = dyn_info->row.
+        DATA(field)     = dyn_info->field.
+      CATCH cx_sy_move_cast_error.
+    ENDTRY.
+
+    add_message(
+            message_id     = message->t100key-msgid
+            message_number = message->t100key-msgno
+            message_var_1  = get_t100_attr( exception = message attribute = message->t100key-attr1 )
+            message_var_2  = get_t100_attr( exception = message attribute = message->t100key-attr2 )
+            message_var_3  = get_t100_attr( exception = message attribute = message->t100key-attr3 )
+            message_var_4  = get_t100_attr( exception = message attribute = message->t100key-attr4 )
+            parameter      = parameter
+            row            = row
+            field          = field ).
 
   ENDMETHOD.
 
@@ -407,6 +411,33 @@ CLASS zcl_adu_messages IMPLEMENTATION.
                             WHEN 'P' OR 'I'
                                 THEN |{ CONV string( message_var ) ALIGN = LEFT }|
                                 ELSE |{ CONV string( message_var ) ALPHA = OUT }| ).
+
+  ENDMETHOD.
+
+
+  METHOD raise_gateway.
+
+    DATA(lt_messages) = get_messages( ).
+
+    DATA(exception) = NEW  /iwbep/cx_gateway( ).
+
+    DATA(messages_container) = exception->get_message_container( ).
+
+    LOOP AT get_messages( ) INTO DATA(message).
+
+      messages_container->add_t100(
+          iv_msg_type                 = message-type
+          iv_msg_id                   = message-id
+          iv_msg_number               = message-number
+          iv_msg_v1                   = message-message_v1
+          iv_msg_v2                   = message-message_v2
+          iv_msg_v3                   = message-message_v3
+          iv_msg_v4                   = message-message_v4
+          iv_leading_message_for_user = xsdbool( sy-tabix = 1 ) ).
+
+    ENDLOOP.
+
+    RAISE EXCEPTION exception.
 
   ENDMETHOD.
 
