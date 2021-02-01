@@ -7,8 +7,8 @@ INTERFACE zif_adu_check_transport
     tt_result_sequence          TYPE STANDARD TABLE OF /sdf/teap_dgp_conflict WITH DEFAULT KEY,
     tt_result_cross_release     TYPE STANDARD TABLE OF /sdf/teap_scv_crit_obj WITH DEFAULT KEY,
     tt_result_import_time       TYPE STANDARD TABLE OF /sdf/teap_tr_imp_time WITH DEFAULT KEY,
-    tt_result_online_import_sum TYPE STANDARD TABLE OF /sdf/oi_results WITH DEFAULT KEY,
-    tt_result_online_import_all TYPE STANDARD TABLE OF /sdf/oi_result WITH DEFAULT KEY.
+    tt_result_online_import_sum TYPE STANDARD TABLE OF zadu_s_oi_results WITH DEFAULT KEY,
+    tt_result_online_import_all TYPE STANDARD TABLE OF zadu_s_oi_result WITH DEFAULT KEY.
 
   TYPES:
     BEGIN OF ts_result_online_import,
