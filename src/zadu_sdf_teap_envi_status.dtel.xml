@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<abapGit version="v1.0.0" serializer="LCL_OBJECT_DTEL" serializer_version="v1.0.0">
+ <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+  <asx:values>
+   <DD04V>
+    <ROLLNAME>ZADU_SDF_TEAP_ENVI_STATUS</ROLLNAME>
+    <DDLANGUAGE>E</DDLANGUAGE>
+    <DOMNAME>ZADU_SDF_TEAP_ENVI_STATUS</DOMNAME>
+    <HEADLEN>25</HEADLEN>
+    <SCRLEN1>10</SCRLEN1>
+    <SCRLEN2>15</SCRLEN2>
+    <SCRLEN3>20</SCRLEN3>
+    <DDTEXT> CDMC: CTS Comparison Status of the Object</DDTEXT>
+    <REPTEXT>Comparison Status</REPTEXT>
+    <SCRTEXT_S>Status</SCRTEXT_S>
+    <SCRTEXT_M>Comp Status</SCRTEXT_M>
+    <SCRTEXT_L>Comparision Status</SCRTEXT_L>
+    <DTELMASTER>E</DTELMASTER>
+    <REFKIND>D</REFKIND>
+   </DD04V>
+   <I18N_LANGS>
+    <LANGU>D</LANGU>
+    <LANGU>S</LANGU>
+   </I18N_LANGS>
+   <DD04_TEXTS>
+    <item>
+     <DDLANGUAGE>D</DDLANGUAGE>
+     <DDTEXT> CDMC: CTS-Vergleichsstatus des Objekts</DDTEXT>
+     <REPTEXT>Vergleichsstatus</REPTEXT>
+     <SCRTEXT_S>Status</SCRTEXT_S>
+     <SCRTEXT_M>Vergl.-Status</SCRTEXT_M>
+     <SCRTEXT_L>Vergleichsstatus</SCRTEXT_L>
+    </item>
+    <item>
+     <DDLANGUAGE>S</DDLANGUAGE>
+     <DDTEXT> CDMC: Estado de comparación CTS de objeto</DDTEXT>
+     <REPTEXT>Estado de comparación</REPTEXT>
+     <SCRTEXT_S>Estado</SCRTEXT_S>
+     <SCRTEXT_M>Estado compar.</SCRTEXT_M>
+     <SCRTEXT_L>Estado comparación</SCRTEXT_L>
+    </item>
+   </DD04_TEXTS>
+  </asx:values>
+ </asx:abap>
+</abapGit>
