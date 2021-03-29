@@ -6,9 +6,11 @@ CLASS zcl_adu_messages DEFINITION
 
   PUBLIC SECTION.
     TYPES:
-      tt_message_types TYPE STANDARD TABLE OF syst_msgty WITH DEFAULT KEY,
-      tt_messages      TYPE STANDARD TABLE OF bapiret2 WITH DEFAULT KEY
-                                                       WITH NON-UNIQUE SORTED KEY type COMPONENTS type.
+      tt_message_types TYPE STANDARD TABLE OF syst_msgty
+        WITH DEFAULT KEY,
+      tt_messages      TYPE STANDARD TABLE OF bapiret2
+        WITH DEFAULT KEY
+        WITH NON-UNIQUE SORTED KEY type COMPONENTS type.
 
     CONSTANTS:
       BEGIN OF severity,
@@ -50,6 +52,16 @@ CLASS zcl_adu_messages DEFINITION
     METHODS add_t100_message
       IMPORTING
         message TYPE REF TO if_t100_message.
+
+    METHODS add_text_message
+      IMPORTING
+        message_type   TYPE sy-msgty DEFAULT severity-error
+        message_id     TYPE sy-msgid
+        message_number TYPE sy-msgno
+        text           TYPE string
+        parameter      TYPE bapiret2-parameter OPTIONAL
+        row            TYPE bapiret2-row OPTIONAL
+        field          TYPE bapiret2-field OPTIONAL.
 
     METHODS display_messages
       IMPORTING
@@ -134,7 +146,7 @@ ENDCLASS.
 
 
 
-CLASS ZCL_ADU_MESSAGES IMPLEMENTATION.
+CLASS zcl_adu_messages IMPLEMENTATION.
 
 
   METHOD add_exception.
@@ -256,6 +268,33 @@ CLASS ZCL_ADU_MESSAGES IMPLEMENTATION.
             parameter      = parameter
             row            = row
             field          = field ).
+
+  ENDMETHOD.
+
+
+  METHOD add_text_message.
+
+    DATA:
+      BEGIN OF message_variables,
+        var1 TYPE symsgv,
+        var2 TYPE symsgv,
+        var3 TYPE symsgv,
+        var4 TYPE symsgv,
+      END OF message_variables.
+
+    message_variables = text.
+
+    add_message(
+        message_type   = message_type
+        message_id     = message_id
+        message_number = message_number
+        message_var_1  = message_variables-var1
+        message_var_2  = message_variables-var2
+        message_var_3  = message_variables-var3
+        message_var_4  = message_variables-var4
+        parameter      = parameter
+        row            = row
+        field          = field ).
 
   ENDMETHOD.
 
@@ -458,4 +497,6 @@ CLASS ZCL_ADU_MESSAGES IMPLEMENTATION.
     RAISE EXCEPTION exception.
 
   ENDMETHOD.
+
+
 ENDCLASS.
