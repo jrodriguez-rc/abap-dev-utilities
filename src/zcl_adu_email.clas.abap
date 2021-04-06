@@ -107,6 +107,18 @@ CLASS zcl_adu_email IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD zif_adu_email~xstring_to_attachment.
+
+    result =
+        VALUE zif_adu_email=>ts_attachment(
+        type        = type
+        subject     = subject
+        size        = COND #( WHEN size IS NOT INITIAL THEN size ELSE xstrlen( content ) )
+        content_hex = cl_document_bcs=>xstring_to_solix( content ) ).
+
+  ENDMETHOD.
+
+
   METHOD send_from_user.
 
     result =

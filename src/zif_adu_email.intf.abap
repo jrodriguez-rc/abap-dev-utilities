@@ -15,7 +15,7 @@ INTERFACE zif_adu_email
       size        TYPE so_obj_len,
       content_hex TYPE solix_tab,
     END OF ts_attachment,
-    tt_attachment TYPE STANDARD TABLE OF ts_attachment WITH DEFAULT KEY.
+    tt_attachment TYPE STANDARD TABLE OF zif_adu_email=>ts_attachment WITH DEFAULT KEY.
 
   METHODS send_email
     IMPORTING
@@ -64,5 +64,14 @@ INTERFACE zif_adu_email
       cx_send_req_bcs
       cx_address_bcs
       cx_document_bcs.
+
+  METHODS xstring_to_attachment
+    IMPORTING
+      content       TYPE xstring
+      type          TYPE so_obj_tp
+      subject       TYPE so_obj_des
+      size          TYPE so_obj_len OPTIONAL
+    RETURNING
+      VALUE(result) TYPE zif_adu_email=>ts_attachment.
 
 ENDINTERFACE.
