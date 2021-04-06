@@ -4,8 +4,9 @@ INTERFACE zif_adu_email
 
   CONSTANTS:
     BEGIN OF document_type,
-      html TYPE so_obj_tp VALUE 'HTM' ##NO_TEXT,
-      raw  TYPE so_obj_tp VALUE 'RAW' ##NO_TEXT,
+      binary TYPE so_obj_tp VALUE `BIN`,
+      html   TYPE so_obj_tp VALUE `HTM`,
+      raw    TYPE so_obj_tp VALUE `RAW`,
     END OF document_type.
 
   TYPES:
