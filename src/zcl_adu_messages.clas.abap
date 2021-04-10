@@ -1,7 +1,6 @@
 "! <p class="shorttext synchronized" lang="en">Messages</p>
 CLASS zcl_adu_messages DEFINITION
   PUBLIC
-  FINAL
   CREATE PUBLIC .
 
   PUBLIC SECTION.
