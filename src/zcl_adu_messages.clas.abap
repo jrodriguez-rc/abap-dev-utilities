@@ -46,7 +46,10 @@ CLASS zcl_adu_messages DEFINITION
 
     METHODS add_exception
       IMPORTING
-        exception TYPE REF TO cx_root.
+        exception TYPE REF TO cx_root
+        parameter TYPE bapiret2-parameter OPTIONAL
+        row       TYPE bapiret2-row OPTIONAL
+        field     TYPE bapiret2-field OPTIONAL.
 
     METHODS add_t100_message
       IMPORTING
@@ -161,11 +164,30 @@ CLASS zcl_adu_messages IMPLEMENTATION.
 
     TRY.
         DATA(dyn_info) = CAST zif_adu_exception_dyn_info( exception ).
-        DATA(parameter) = dyn_info->parameter.
-        DATA(row)       = dyn_info->row.
-        DATA(field)     = dyn_info->field.
       CATCH cx_sy_move_cast_error.
+        CLEAR: dyn_info.
     ENDTRY.
+
+    DATA(current_parameter) =
+        COND #(
+            WHEN parameter IS NOT INITIAL
+                THEN parameter
+            WHEN dyn_info IS BOUND
+                THEN dyn_info->parameter ).
+
+    DATA(current_row) =
+        COND #(
+            WHEN row IS NOT INITIAL
+                THEN row
+            WHEN dyn_info IS BOUND
+                THEN dyn_info->row ).
+
+    DATA(current_field) =
+        COND #(
+            WHEN field IS NOT INITIAL
+                THEN field
+            WHEN dyn_info IS BOUND
+                THEN dyn_info->field ).
 
     TRY.
         DATA(t100_exception) = CAST if_t100_message( exception ).
@@ -176,9 +198,9 @@ CLASS zcl_adu_messages IMPLEMENTATION.
                 message_var_2  = get_t100_attr( exception = exception attribute = t100_exception->t100key-attr2 )
                 message_var_3  = get_t100_attr( exception = exception attribute = t100_exception->t100key-attr3 )
                 message_var_4  = get_t100_attr( exception = exception attribute = t100_exception->t100key-attr4 )
-                parameter      = parameter
-                row            = row
-                field          = field ).
+                parameter      = current_parameter
+                row            = current_row
+                field          = current_field ).
       CATCH cx_sy_move_cast_error.
         text_message  = exception->get_text( ).
         DATA(text_message_var_1) = text_message(50).
@@ -194,9 +216,9 @@ CLASS zcl_adu_messages IMPLEMENTATION.
                        message_var_2  = text_message_var_2
                        message_var_3  = lv_include
                        message_var_4  = lv_line
-                       parameter      = parameter
-                       row            = row
-                       field          = field ).
+                       parameter      = current_parameter
+                       row            = current_row
+                       field          = current_field ).
         ENDIF.
 
     ENDTRY.
