@@ -8,16 +8,18 @@ INTERFACE zif_adu_texts
     END OF ts_tag_replace,
     tt_tag_replace TYPE HASHED TABLE OF ts_tag_replace WITH UNIQUE KEY tag.
 
+  METHODS itf_to_string
+    IMPORTING
+      itf           TYPE tline_tab
+      language      TYPE sy-langu DEFAULT sy-langu
+      newline_char  TYPE abap_char1 DEFAULT cl_abap_char_utilities=>newline
+    RETURNING
+      VALUE(result) TYPE string.
+
   METHODS itf_to_text_stream
     IMPORTING
       itf           TYPE tline_tab
       language      TYPE sy-langu DEFAULT sy-langu
-    RETURNING
-      VALUE(result) TYPE soli_tab.
-
-  METHODS text_string_to_tab
-    IMPORTING
-      !text         TYPE string
     RETURNING
       VALUE(result) TYPE soli_tab.
 
@@ -44,5 +46,11 @@ INTERFACE zif_adu_texts
       language      TYPE langu DEFAULT sy-langu
     RETURNING
       VALUE(result) TYPE textpooltx.
+
+  METHODS text_string_to_tab
+    IMPORTING
+      !text         TYPE string
+    RETURNING
+      VALUE(result) TYPE soli_tab.
 
 ENDINTERFACE.

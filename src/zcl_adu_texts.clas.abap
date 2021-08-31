@@ -37,6 +37,35 @@ CLASS zcl_adu_texts IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD zif_adu_texts~itf_to_string.
+
+    DATA(text_stream) = zif_adu_texts~itf_to_text_stream( itf = itf language = language ).
+
+    result =
+        REDUCE #(
+            INIT text_string TYPE string
+            FOR text IN text_stream
+            NEXT text_string = COND #( WHEN text_string IS INITIAL
+                                           THEN text-line
+                                           ELSE |{ text_string }| &
+                                                |{ newline_char }| &
+                                                |{ text-line }| ) ).
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_texts~itf_to_text_stream.
+
+    CALL FUNCTION 'CONVERT_ITF_TO_STREAM_TEXT'
+      EXPORTING
+        language    = language
+      TABLES
+        itf_text    = itf
+        text_stream = result.
+
+  ENDMETHOD.
+
+
   METHOD zif_adu_texts~read_standard_text.
 
     DATA:
@@ -75,29 +104,6 @@ CLASS zcl_adu_texts IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD zif_adu_texts~text_string_to_tab.
-
-    CALL FUNCTION 'SCMS_STRING_TO_FTEXT'
-      EXPORTING
-        text      = text
-      TABLES
-        ftext_tab = result.
-
-  ENDMETHOD.
-
-
-  METHOD zif_adu_texts~itf_to_text_stream.
-
-    CALL FUNCTION 'CONVERT_ITF_TO_STREAM_TEXT'
-      EXPORTING
-        language    = language
-      TABLES
-        itf_text    = itf
-        text_stream = result.
-
-  ENDMETHOD.
-
-
   METHOD zif_adu_texts~read_textpool.
 
     READ TEXTPOOL program INTO result LANGUAGE language.
@@ -117,6 +123,17 @@ CLASS zcl_adu_texts IMPLEMENTATION.
       CATCH cx_sy_itab_line_not_found.
         CLEAR: result.
     ENDTRY.
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_texts~text_string_to_tab.
+
+    CALL FUNCTION 'SCMS_STRING_TO_FTEXT'
+      EXPORTING
+        text      = text
+      TABLES
+        ftext_tab = result.
 
   ENDMETHOD.
 
