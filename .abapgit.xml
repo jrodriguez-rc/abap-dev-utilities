@@ -20,10 +20,11 @@
     <item>
      <COMPONENT>SAP_BASIS</COMPONENT>
      <MIN_RELEASE>740</MIN_RELEASE>
-     <MIN_PATCH>08</MIN_PATCH>
+     <MIN_PATCH>0008</MIN_PATCH>
     </item>
     <item>
      <COMPONENT>ST-PI</COMPONENT>
+     <MIN_RELEASE>740</MIN_RELEASE>
     </item>
    </REQUIREMENTS>
   </DATA>
