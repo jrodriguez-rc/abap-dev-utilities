@@ -68,6 +68,18 @@ CLASS zcl_adu_texts IMPLEMENTATION.
 
   METHOD zif_adu_texts~read_standard_text.
 
+    result =
+        zif_adu_texts~itf_to_text_stream(
+            itf      = zif_adu_texts~read_standard_text_itf( text        = text
+                                                             language    = language
+                                                             tag_replace = tag_replace )
+            language = language ).
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_texts~read_standard_text_itf.
+
     DATA:
       lt_tlines TYPE tline_tab.
 
@@ -96,10 +108,7 @@ CLASS zcl_adu_texts IMPLEMENTATION.
       REPLACE ALL OCCURRENCES OF lr_tag_replace->tag IN TABLE lt_tlines WITH lr_tag_replace->text.
     ENDLOOP.
 
-    result =
-        zif_adu_texts~itf_to_text_stream(
-            itf      = lt_tlines
-            language = language ).
+    result = lt_tlines.
 
   ENDMETHOD.
 

@@ -31,6 +31,14 @@ INTERFACE zif_adu_texts
     RETURNING
       VALUE(result) TYPE soli_tab.
 
+  METHODS read_standard_text_itf
+    IMPORTING
+      text          TYPE tdobname
+      language      TYPE sy-langu DEFAULT sy-langu
+      tag_replace   TYPE zif_adu_texts=>tt_tag_replace OPTIONAL
+    RETURNING
+      VALUE(result) TYPE tline_tab.
+
   METHODS read_textpool
     IMPORTING
       program       TYPE program
