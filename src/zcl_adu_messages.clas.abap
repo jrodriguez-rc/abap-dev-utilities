@@ -68,7 +68,7 @@ CLASS zcl_adu_messages DEFINITION
     METHODS display_messages
       IMPORTING
         initialize_after_display TYPE abap_bool DEFAULT abap_true
-        send_if_one              TYPE abap_bool DEFAULT abap_true.
+        send_if_one              TYPE abap_bool DEFAULT abap_false.
 
     METHODS get_messages
       RETURNING
