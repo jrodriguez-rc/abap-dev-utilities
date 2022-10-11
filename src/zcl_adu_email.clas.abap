@@ -157,7 +157,8 @@ CLASS zcl_adu_email IMPLEMENTATION.
       lo_document->add_attachment( i_attachment_type    = lr_attachment->type
                                    i_attachment_subject = lr_attachment->subject
                                    i_attachment_size    = lr_attachment->size
-                                   i_att_content_hex    = lr_attachment->content_hex ).
+                                   i_att_content_hex    = lr_attachment->content_hex
+                                   i_attachment_header  = zcl_adu_texts=>get_instance( )->text_string_to_tab( lr_attachment->header ) ).
     ENDLOOP.
 
     lo_send_request->set_document( lo_document ).

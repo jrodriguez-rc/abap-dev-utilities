@@ -138,6 +138,10 @@ CLASS zcl_adu_texts IMPLEMENTATION.
 
   METHOD zif_adu_texts~text_string_to_tab.
 
+    IF text IS INITIAL.
+      RETURN.
+    ENDIF.
+
     CALL FUNCTION 'SCMS_STRING_TO_FTEXT'
       EXPORTING
         text      = text

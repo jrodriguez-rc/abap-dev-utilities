@@ -15,6 +15,7 @@ INTERFACE zif_adu_email
       subject     TYPE so_obj_des,
       size        TYPE so_obj_len,
       content_hex TYPE solix_tab,
+      header      TYPE string,
     END OF ts_attachment,
     tt_attachment TYPE STANDARD TABLE OF zif_adu_email=>ts_attachment WITH DEFAULT KEY.
 
