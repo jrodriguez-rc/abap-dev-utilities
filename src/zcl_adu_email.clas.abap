@@ -154,7 +154,7 @@ CLASS zcl_adu_email IMPLEMENTATION.
                                                           i_subject = subject ).
 
     LOOP AT attachments REFERENCE INTO DATA(lr_attachment).
-      DATA(lt_attachment_header) = zcl_adu_texts=>get_instance( )->text_string_to_tab( lr_attachment->header ).
+      DATA(lt_attachment_header) = COND #( WHEN lr_attachment->header IS BOUND THEN lr_attachment->header->mt_objhead ).
       lo_document->add_attachment( i_attachment_type    = lr_attachment->type
                                    i_attachment_subject = lr_attachment->subject
                                    i_attachment_size    = lr_attachment->size
