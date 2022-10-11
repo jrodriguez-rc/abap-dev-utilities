@@ -12,7 +12,6 @@
    </VSEOINTERF>
    <DESCRIPTIONS>
     <SEOCOMPOTX>
-     <CLSNAME>ZIF_ADU_CONSTANTS</CLSNAME>
      <CMPNAME>CRUD</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>C (Create) - R (Read) - U (Update) - D (Delete)</DESCRIPT>
