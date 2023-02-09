@@ -24,6 +24,14 @@
      <DESCRIPT>Raise exception with system attribute message</DESCRIPT>
     </SEOCOMPOTX>
    </DESCRIPTIONS>
+   <DESCRIPTIONS_SUB>
+    <SEOSUBCOTX>
+     <CMPNAME>RAISE_SYSTEM</CMPNAME>
+     <SCONAME>ZCX_ADU_MESSAGES</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Exception</DESCRIPT>
+    </SEOSUBCOTX>
+   </DESCRIPTIONS_SUB>
   </asx:values>
  </asx:abap>
 </abapGit>

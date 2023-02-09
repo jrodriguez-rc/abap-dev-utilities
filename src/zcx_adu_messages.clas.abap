@@ -2,14 +2,13 @@
 CLASS zcx_adu_messages DEFINITION
   PUBLIC
   INHERITING FROM cx_static_check
-  FINAL
-  CREATE PUBLIC .
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
     INTERFACES: if_t100_message, zif_adu_exception_dyn_info.
 
     CONSTANTS:
-      "! &1 &2 (&3 line &4)
+      "! &amp;1 &amp;2 (&amp;3 line &amp;4)
       BEGIN OF text_exception_message,
         msgid TYPE symsgid VALUE 'ZADU_MESSAGES' ##NO_TEXT,
         msgno TYPE symsgno VALUE '001' ##NO_TEXT,
@@ -18,6 +17,17 @@ CLASS zcx_adu_messages DEFINITION
         attr3 TYPE scx_attrname VALUE 'TEXT3' ##NO_TEXT,
         attr4 TYPE scx_attrname VALUE 'TEXT4' ##NO_TEXT,
       END OF text_exception_message.
+
+    CONSTANTS:
+      "! Data type not compatible.
+      BEGIN OF data_type_not_compatible,
+        msgid TYPE symsgid VALUE 'ZADU_MESSAGES' ##NO_TEXT,
+        msgno TYPE symsgno VALUE '002' ##NO_TEXT,
+        attr1 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr2 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr3 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr4 TYPE scx_attrname VALUE '' ##NO_TEXT,
+      END OF data_type_not_compatible.
 
     DATA:
       text1 TYPE string READ-ONLY,
@@ -57,6 +67,7 @@ CLASS zcx_adu_messages IMPLEMENTATION.
 
 
   METHOD constructor ##ADT_SUPPRESS_GENERATION.
+
     CALL METHOD super->constructor
       EXPORTING
         previous = previous.
@@ -76,6 +87,7 @@ CLASS zcx_adu_messages IMPLEMENTATION.
     ELSE.
       if_t100_message~t100key = textid.
     ENDIF.
+
   ENDMETHOD.
 
 
