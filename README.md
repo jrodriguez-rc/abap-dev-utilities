@@ -14,3 +14,5 @@ This repository has a group of utilities that you can use in your development
 | ZCL_ADU_EMAIL | ZIF_ADU_EMAIL | e-mail utilities |
 | ZCL_ADU_TEXTS | ZIF_ADU_TEXTS | Utilities for text processing |
 | ZCL_ADU_OO_SERIALIZE |  | Object serialization |
+| ZCL_ADU_GOS | ZIF_ADU_GOS | GOS Utility |
+| ZCL_ADU_TABLE_PACK | ZIF_ADU_TABLE_PACK | Internal table packet selection |
