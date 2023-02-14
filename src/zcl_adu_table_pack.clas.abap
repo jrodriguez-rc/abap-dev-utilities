@@ -31,7 +31,7 @@ CLASS zcl_adu_table_pack DEFINITION
         data  TYPE REF TO data,
       END OF ty_line,
       ty_table TYPE SORTED TABLE OF ty_line
-        WITH UNIQUE KEY index..
+        WITH UNIQUE KEY index.
 
     DATA:
       mv_packet_size TYPE i,
@@ -139,7 +139,8 @@ CLASS zcl_adu_table_pack IMPLEMENTATION.
 
     ASSIGN lr_result->* TO <lt_result>.
 
-    LOOP AT mt_table ASSIGNING FIELD-SYMBOL(<ls_line>) WHERE index BETWEEN ( mv_iterator + 1 ) AND ( mv_iterator + mv_packet_size ).
+    LOOP AT mt_table ASSIGNING FIELD-SYMBOL(<ls_line>)
+        WHERE index BETWEEN ( mv_iterator + 1 ) AND ( mv_iterator + mv_packet_size ).
 
       ASSIGN <ls_line>-data->* TO FIELD-SYMBOL(<ls_data>).
 
