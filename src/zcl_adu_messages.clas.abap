@@ -4,12 +4,14 @@ CLASS zcl_adu_messages DEFINITION
   CREATE PUBLIC .
 
   PUBLIC SECTION.
+
     TYPES:
       tt_message_types TYPE STANDARD TABLE OF syst_msgty
-        WITH DEFAULT KEY,
+          WITH DEFAULT KEY .
+    TYPES:
       tt_messages      TYPE STANDARD TABLE OF bapiret2
-        WITH DEFAULT KEY
-        WITH NON-UNIQUE SORTED KEY type COMPONENTS type.
+          WITH DEFAULT KEY
+          WITH NON-UNIQUE SORTED KEY type COMPONENTS type .
 
     CONSTANTS:
       BEGIN OF severity,
@@ -19,14 +21,11 @@ CLASS zcl_adu_messages DEFINITION
         success     TYPE symsgty VALUE 'S',
         exception   TYPE symsgty VALUE 'X',
         abort       TYPE symsgty VALUE 'A',
-      END OF severity,
-      error_types TYPE string VALUE 'AEX'.
+      END OF severity .
+    CONSTANTS error_types TYPE string VALUE 'AEX' ##NO_TEXT.
+    CLASS-DATA message_error_types TYPE tt_message_types READ-ONLY .
 
-    CLASS-DATA:
-      message_error_types TYPE tt_message_types READ-ONLY.
-
-    CLASS-METHODS class_constructor.
-
+    CLASS-METHODS class_constructor .
     METHODS add_message
       IMPORTING
         !message_type   TYPE sy-msgty DEFAULT severity-error
@@ -38,60 +37,48 @@ CLASS zcl_adu_messages DEFINITION
         !message_var_4  TYPE any OPTIONAL
         !parameter      TYPE bapiret2-parameter OPTIONAL
         !row            TYPE bapiret2-row OPTIONAL
-        !field          TYPE bapiret2-field OPTIONAL.
-
+        !field          TYPE bapiret2-field OPTIONAL .
     METHODS add_messages
       IMPORTING
-        !messages TYPE bapiret2_t.
-
+        !messages TYPE bapiret2_t .
     METHODS add_exception
       IMPORTING
-        exception TYPE REF TO cx_root
-        parameter TYPE bapiret2-parameter OPTIONAL
-        row       TYPE bapiret2-row OPTIONAL
-        field     TYPE bapiret2-field OPTIONAL.
-
+        !exception TYPE REF TO cx_root
+        !parameter TYPE bapiret2-parameter OPTIONAL
+        !row       TYPE bapiret2-row OPTIONAL
+        !field     TYPE bapiret2-field OPTIONAL .
     METHODS add_t100_message
       IMPORTING
-        message TYPE REF TO if_t100_message.
-
+        !message TYPE REF TO if_t100_message .
     METHODS add_text_message
       IMPORTING
-        message_type   TYPE sy-msgty DEFAULT severity-error
-        message_id     TYPE sy-msgid
-        message_number TYPE sy-msgno
-        text           TYPE string
-        parameter      TYPE bapiret2-parameter OPTIONAL
-        row            TYPE bapiret2-row OPTIONAL
-        field          TYPE bapiret2-field OPTIONAL.
-
+        !message_type   TYPE sy-msgty DEFAULT severity-error
+        !message_id     TYPE sy-msgid
+        !message_number TYPE sy-msgno
+        !text           TYPE string
+        !parameter      TYPE bapiret2-parameter OPTIONAL
+        !row            TYPE bapiret2-row OPTIONAL
+        !field          TYPE bapiret2-field OPTIONAL .
     METHODS display_messages
       IMPORTING
-        initialize_after_display TYPE abap_bool DEFAULT abap_true
-        send_if_one              TYPE abap_bool DEFAULT abap_false.
-
+        !initialize_after_display TYPE abap_bool DEFAULT abap_true
+        !send_if_one              TYPE abap_bool DEFAULT abap_false .
     METHODS get_messages
       RETURNING
-        VALUE(result) TYPE tt_messages.
-
-    METHODS initialize.
-
+        VALUE(result) TYPE tt_messages .
+    METHODS initialize .
     METHODS is_error
       RETURNING
-        VALUE(result) TYPE abap_bool.
-
+        VALUE(result) TYPE abap_bool .
     METHODS raise_gateway
       RAISING
-        /iwbep/cx_gateway.
-
+        /iwbep/cx_gateway .
     METHODS raise_gateway_busi_exception
       RAISING
-        /iwbep/cx_mgw_busi_exception.
-
+        /iwbep/cx_mgw_busi_exception .
     METHODS raise_gateway_tech_exception
       RAISING
-        /iwbep/cx_mgw_tech_exception.
-
+        /iwbep/cx_mgw_tech_exception .
   PROTECTED SECTION.
 
   PRIVATE SECTION.
@@ -382,6 +369,26 @@ CLASS zcl_adu_messages IMPLEMENTATION.
 
   METHOD fill_return_param.
 
+    DATA:
+      BEGIN OF ls_message_backup,
+        type   LIKE message_type,
+        id     LIKE message_id,
+        number LIKE message_number,
+        var1   LIKE message_var_1,
+        var2   LIKE message_var_2,
+        var3   LIKE message_var_3,
+        var4   LIKE message_var_4,
+      END OF ls_message_backup.
+
+    " BALW_BAPIRETURN_GET2 will replace the system variables
+    ls_message_backup-type   = sy-msgty.
+    ls_message_backup-id     = sy-msgid.
+    ls_message_backup-number = sy-msgno.
+    ls_message_backup-var1   = sy-msgv1.
+    ls_message_backup-var2   = sy-msgv2.
+    ls_message_backup-var3   = sy-msgv3.
+    ls_message_backup-var4   = sy-msgv4.
+
     CALL FUNCTION 'BALW_BAPIRETURN_GET2'
       EXPORTING
         type      = message_type
@@ -398,6 +405,25 @@ CLASS zcl_adu_messages IMPLEMENTATION.
         return    = result
       EXCEPTIONS
         OTHERS    = 0.
+
+    IF ls_message_backup IS INITIAL.
+      CLEAR sy-msgty.
+      CLEAR sy-msgid.
+      CLEAR sy-msgno.
+      CLEAR sy-msgv1.
+      CLEAR sy-msgv2.
+      CLEAR sy-msgv3.
+      CLEAR sy-msgv4.
+    ELSE.
+      MESSAGE ID     ls_message_backup-id
+              TYPE   ls_message_backup-type
+              NUMBER ls_message_backup-number
+              WITH   ls_message_backup-var1
+                     ls_message_backup-var2
+                     ls_message_backup-var3
+                     ls_message_backup-var4
+              INTO   DATA(null).
+    ENDIF.
 
   ENDMETHOD.
 
@@ -518,6 +544,4 @@ CLASS zcl_adu_messages IMPLEMENTATION.
     RAISE EXCEPTION exception.
 
   ENDMETHOD.
-
-
 ENDCLASS.
