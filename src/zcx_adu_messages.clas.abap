@@ -1,11 +1,11 @@
 "! <p class="shorttext synchronized" lang="en">Messages Exceptions</p>
 CLASS zcx_adu_messages DEFINITION
   PUBLIC
-  INHERITING FROM cx_static_check
+  INHERITING FROM zcx_adu_static_check
   CREATE PUBLIC.
 
   PUBLIC SECTION.
-    INTERFACES: if_t100_message, zif_adu_exception_dyn_info.
+    INTERFACES: zif_adu_exception_dyn_info.
 
     CONSTANTS:
       "! &amp;1 &amp;2 (&amp;3 line &amp;4)
@@ -28,12 +28,6 @@ CLASS zcx_adu_messages DEFINITION
         attr3 TYPE scx_attrname VALUE '' ##NO_TEXT,
         attr4 TYPE scx_attrname VALUE '' ##NO_TEXT,
       END OF data_type_not_compatible.
-
-    DATA:
-      text1 TYPE string READ-ONLY,
-      text2 TYPE string READ-ONLY,
-      text3 TYPE string READ-ONLY,
-      text4 TYPE string READ-ONLY.
 
     "! <p class="shorttext synchronized" lang="en">Raise exception with system attribute message</p>
     "!
@@ -68,25 +62,17 @@ CLASS zcx_adu_messages IMPLEMENTATION.
 
   METHOD constructor ##ADT_SUPPRESS_GENERATION.
 
-    CALL METHOD super->constructor
-      EXPORTING
-        previous = previous.
-
-    me->text1 = text1.
-    me->text2 = text2.
-    me->text3 = text3.
-    me->text4 = text4.
+    super->constructor(
+        textid   = textid
+        text1    = text1
+        text2    = text2
+        text3    = text3
+        text4    = text4
+        previous = previous ).
 
     zif_adu_exception_dyn_info~parameter = parameter.
     zif_adu_exception_dyn_info~row       = row.
     zif_adu_exception_dyn_info~field     = field.
-
-    CLEAR me->textid.
-    IF textid IS INITIAL.
-      if_t100_message~t100key = if_t100_message=>default_textid.
-    ELSE.
-      if_t100_message~t100key = textid.
-    ENDIF.
 
   ENDMETHOD.
 
