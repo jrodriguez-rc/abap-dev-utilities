@@ -1,11 +1,11 @@
-CLASS lcl_switch_test DEFINITION DEFERRED.
-CLASS zcl_adu_switch DEFINITION LOCAL FRIENDS lcl_switch_test.
-CLASS lcl_switch_test DEFINITION INHERITING FROM zcl_adu_switch FOR TESTING.
+CLASS lctl_switch_test DEFINITION DEFERRED.
+CLASS zcl_adu_switch DEFINITION LOCAL FRIENDS lctl_switch_test.
+CLASS lctl_switch_test DEFINITION INHERITING FROM zcl_adu_switch FOR TESTING.
 
   PUBLIC SECTION.
     CLASS-METHODS create_test
       RETURNING
-        VALUE(result) TYPE REF TO lcl_switch_test.
+        VALUE(result) TYPE REF TO lctl_switch_test.
 
     METHODS set_condition
       IMPORTING
@@ -22,7 +22,7 @@ CLASS lcl_switch_test DEFINITION INHERITING FROM zcl_adu_switch FOR TESTING.
 ENDCLASS.
 
 
-CLASS lcl_switch_test IMPLEMENTATION.
+CLASS lctl_switch_test IMPLEMENTATION.
 
 
   METHOD create_test.
@@ -63,7 +63,7 @@ CLASS ltcl_simple DEFINITION FINAL
 
   PRIVATE SECTION.
     DATA:
-      mo_switch TYPE REF TO lcl_switch_test.
+      mo_switch TYPE REF TO lctl_switch_test.
 
     METHODS setup.
     METHODS disabled FOR TESTING RAISING zcx_adu_switch.
@@ -77,7 +77,7 @@ CLASS ltcl_simple IMPLEMENTATION.
 
   METHOD setup.
 
-    mo_switch = lcl_switch_test=>create_test( ).
+    mo_switch = lctl_switch_test=>create_test( ).
 
   ENDMETHOD.
 
@@ -118,7 +118,7 @@ CLASS ltcl_user DEFINITION FINAL
 
   PRIVATE SECTION.
     DATA:
-      mo_switch TYPE REF TO lcl_switch_test.
+      mo_switch TYPE REF TO lctl_switch_test.
 
     METHODS setup.
     METHODS disabled FOR TESTING RAISING zcx_adu_switch.
@@ -136,7 +136,7 @@ CLASS ltcl_user IMPLEMENTATION.
 
   METHOD setup.
 
-    mo_switch = lcl_switch_test=>create_test( ).
+    mo_switch = lctl_switch_test=>create_test( ).
 
     mo_switch->set_status( zif_adu_switch=>gc_status-user ).
 
@@ -203,7 +203,7 @@ CLASS ltcl_user IMPLEMENTATION.
 ENDCLASS.
 
 
-CLASS lcl_condition_test DEFINITION FINAL.
+CLASS lctl_condition_test DEFINITION FINAL.
 
   PUBLIC SECTION.
     INTERFACES zif_adu_switch_condition.
@@ -216,7 +216,7 @@ CLASS lcl_condition_test DEFINITION FINAL.
 ENDCLASS.
 
 
-CLASS lcl_condition_test IMPLEMENTATION.
+CLASS lctl_condition_test IMPLEMENTATION.
 
 
   METHOD zif_adu_switch_condition~is_active.
@@ -238,7 +238,7 @@ CLASS ltcl_condition DEFINITION FINAL
 
   PRIVATE SECTION.
     DATA:
-      mo_switch TYPE REF TO lcl_switch_test.
+      mo_switch TYPE REF TO lctl_switch_test.
 
     METHODS setup.
     METHODS disabled FOR TESTING RAISING zcx_adu_switch.
@@ -252,17 +252,17 @@ CLASS ltcl_condition IMPLEMENTATION.
 
   METHOD setup.
 
-    mo_switch = lcl_switch_test=>create_test( ).
+    mo_switch = lctl_switch_test=>create_test( ).
 
     mo_switch->set_status( zif_adu_switch=>gc_status-custom_condition ).
-    mo_switch->set_condition( NEW lcl_condition_test( ) ).
+    mo_switch->set_condition( NEW lctl_condition_test( ) ).
 
   ENDMETHOD.
 
 
   METHOD disabled.
 
-    DATA(ls_data) = VALUE lcl_condition_test=>ty_data( enabled = abap_false ).
+    DATA(ls_data) = VALUE lctl_condition_test=>ty_data( enabled = abap_false ).
 
     cl_abap_unit_assert=>assert_false( mo_switch->zif_adu_switch~is_active( ls_data ) ).
 
@@ -275,7 +275,7 @@ CLASS ltcl_condition IMPLEMENTATION.
 
   METHOD enabled.
 
-    DATA(ls_data) = VALUE lcl_condition_test=>ty_data( enabled = abap_true ).
+    DATA(ls_data) = VALUE lctl_condition_test=>ty_data( enabled = abap_true ).
 
     cl_abap_unit_assert=>assert_true( mo_switch->zif_adu_switch~is_active( ls_data ) ).
 
