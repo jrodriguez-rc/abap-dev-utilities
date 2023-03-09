@@ -4,15 +4,15 @@
   <asx:values>
    <AREAT>Extended Table Maintenance (Generated)</AREAT>
    <INCLUDES>
-    <SOBJ_NAME>LZADU_SWITCHF00</SOBJ_NAME>
-    <SOBJ_NAME>LZADU_SWITCHI00</SOBJ_NAME>
-    <SOBJ_NAME>LZADU_SWITCHT00</SOBJ_NAME>
-    <SOBJ_NAME>LZADU_SWITCHTOP</SOBJ_NAME>
-    <SOBJ_NAME>SAPLZADU_SWITCH</SOBJ_NAME>
+    <SOBJ_NAME>LZADUVSWITCHF00</SOBJ_NAME>
+    <SOBJ_NAME>LZADUVSWITCHI00</SOBJ_NAME>
+    <SOBJ_NAME>LZADUVSWITCHT00</SOBJ_NAME>
+    <SOBJ_NAME>LZADUVSWITCHTOP</SOBJ_NAME>
+    <SOBJ_NAME>SAPLZADUVSWITCH</SOBJ_NAME>
    </INCLUDES>
    <FUNCTIONS>
     <item>
-     <FUNCNAME>TABLEFRAME_ZADU_SWITCH</FUNCNAME>
+     <FUNCNAME>VIEWFRAME_ZADUVSWITCH</FUNCNAME>
      <SHORT_TEXT>Extended Table Maintenance: Upper Level</SHORT_TEXT>
      <IMPORT>
       <RSIMP>
@@ -53,6 +53,9 @@
      </TABLES>
      <EXCEPTION>
       <RSEXC>
+       <EXCEPTION>NO_VALUE_FOR_SUBSET_IDENT</EXCEPTION>
+      </RSEXC>
+      <RSEXC>
        <EXCEPTION>MISSING_CORR_NUMBER</EXCEPTION>
       </RSEXC>
      </EXCEPTION>
@@ -60,12 +63,12 @@
       <RSFDO>
        <PARAMETER>VIEW_ACTION</PARAMETER>
        <KIND>P</KIND>
-       <STEXT>Aktion mit Tabelle: anz./änd./transp. (S/U/T)</STEXT>
+       <STEXT>Aktion mit dem View: anzeigen/ändern (S/U)</STEXT>
       </RSFDO>
       <RSFDO>
        <PARAMETER>VIEW_NAME</PARAMETER>
        <KIND>P</KIND>
-       <STEXT>Name der Tabelle</STEXT>
+       <STEXT>Name des Views</STEXT>
       </RSFDO>
       <RSFDO>
        <PARAMETER>CORR_NUMBER</PARAMETER>
@@ -90,12 +93,17 @@
       <RSFDO>
        <PARAMETER>X_HEADER</PARAMETER>
        <KIND>P</KIND>
-       <STEXT>Kontrollblocktabelle für die Tabelle</STEXT>
+       <STEXT>Kontrollblocktabelle für den View</STEXT>
       </RSFDO>
       <RSFDO>
        <PARAMETER>X_NAMTAB</PARAMETER>
        <KIND>P</KIND>
-       <STEXT>Kontrollblocktabelle für die Tabellen-Felder</STEXT>
+       <STEXT>Kontrollblocktabelle für die View-Felder</STEXT>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>NO_VALUE_FOR_SUBSET_IDENT</PARAMETER>
+       <KIND>X</KIND>
+       <STEXT>für &apos;SUBSET&apos;-Feld wurde kein Wert vorgegeben</STEXT>
       </RSFDO>
       <RSFDO>
        <PARAMETER>MISSING_CORR_NUMBER</PARAMETER>
@@ -105,7 +113,7 @@
      </DOCUMENTATION>
     </item>
     <item>
-     <FUNCNAME>TABLEPROC_ZADU_SWITCH</FUNCNAME>
+     <FUNCNAME>VIEWPROC_ZADUVSWITCH</FUNCNAME>
      <GLOBAL_FLAG>X</GLOBAL_FLAG>
      <SHORT_TEXT>Lower-level extended table maintenance</SHORT_TEXT>
      <IMPORT>
@@ -172,6 +180,9 @@
      </TABLES>
      <EXCEPTION>
       <RSEXC>
+       <EXCEPTION>NO_VALUE_FOR_SUBSET_IDENT</EXCEPTION>
+      </RSEXC>
+      <RSEXC>
        <EXCEPTION>MISSING_CORR_NUMBER</EXCEPTION>
       </RSEXC>
       <RSEXC>
@@ -187,12 +198,12 @@
       <RSFDO>
        <PARAMETER>VIEW_ACTION</PARAMETER>
        <KIND>P</KIND>
-       <STEXT>Aktion mit Tabelle: anz./änd./transp. (S/U/T)</STEXT>
+       <STEXT>Aktion mit dem View: anzeigen/ändern (S/U)</STEXT>
       </RSFDO>
       <RSFDO>
        <PARAMETER>VIEW_NAME</PARAMETER>
        <KIND>P</KIND>
-       <STEXT>Name der Tabelle</STEXT>
+       <STEXT>Name des Views</STEXT>
       </RSFDO>
       <RSFDO>
        <PARAMETER>CORR_NUMBER</PARAMETER>
@@ -247,12 +258,17 @@
       <RSFDO>
        <PARAMETER>X_HEADER</PARAMETER>
        <KIND>P</KIND>
-       <STEXT>Kontrollblocktabelle für die Tabelle</STEXT>
+       <STEXT>Kontrollblocktabelle für den View</STEXT>
       </RSFDO>
       <RSFDO>
        <PARAMETER>X_NAMTAB</PARAMETER>
        <KIND>P</KIND>
-       <STEXT>Kontrollblocktabelle für die Tabellen-Felder</STEXT>
+       <STEXT>Kontrollblocktabelle für die View-Felder</STEXT>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>NO_VALUE_FOR_SUBSET_IDENT</PARAMETER>
+       <KIND>X</KIND>
+       <STEXT>für ein &apos;SUBSET&apos;-Feld wurde kein Wert vorgegeben</STEXT>
       </RSFDO>
       <RSFDO>
        <PARAMETER>MISSING_CORR_NUMBER</PARAMETER>
@@ -270,10 +286,10 @@
    <DYNPROS>
     <item>
      <HEADER>
-      <PROGRAM>SAPLZADU_SWITCH</PROGRAM>
+      <PROGRAM>SAPLZADUVSWITCH</PROGRAM>
       <SCREEN>0100</SCREEN>
       <LANGUAGE>E</LANGUAGE>
-      <DESCRIPT>View Maintenance: Overview Screen ZADU_SWITCH</DESCRIPT>
+      <DESCRIPT>View Maintenance: Overview Screen ZADUVSWITCH</DESCRIPT>
       <TYPE>N</TYPE>
       <NEXTSCREEN>0100</NEXTSCREEN>
       <LINES>061</LINES>
@@ -286,7 +302,7 @@
       </RPY_DYCATT>
       <RPY_DYCATT>
        <TYPE>TABLE_CTRL</TYPE>
-       <NAME>TCTRL_ZADU_SWITCH</NAME>
+       <NAME>TCTRL_ZADUVSWITCH</NAME>
        <ELEMENT_OF>SCREEN</ELEMENT_OF>
        <LINE>001</LINE>
        <COLUMN>001</COLUMN>
@@ -357,7 +373,7 @@
       </RPY_DYFATC>
       <RPY_DYFATC>
        <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
-       <CONT_NAME>TCTRL_ZADU_SWITCH</CONT_NAME>
+       <CONT_NAME>TCTRL_ZADUVSWITCH</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
        <NAME>VIM_FRAME_FIELD</NAME>
        <TEXT>____________________________________________________________</TEXT>
@@ -373,9 +389,9 @@
       </RPY_DYFATC>
       <RPY_DYFATC>
        <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
-       <CONT_NAME>TCTRL_ZADU_SWITCH</CONT_NAME>
+       <CONT_NAME>TCTRL_ZADUVSWITCH</CONT_NAME>
        <TYPE>TEXT</TYPE>
-       <NAME>*ZADU_SWITCH-CODE</NAME>
+       <NAME>*ZADUVSWITCH-CODE</NAME>
        <LINE>001</LINE>
        <COLUMN>001</COLUMN>
        <LENGTH>040</LENGTH>
@@ -389,9 +405,9 @@
       </RPY_DYFATC>
       <RPY_DYFATC>
        <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
-       <CONT_NAME>TCTRL_ZADU_SWITCH</CONT_NAME>
+       <CONT_NAME>TCTRL_ZADUVSWITCH</CONT_NAME>
        <TYPE>TEXT</TYPE>
-       <NAME>*ZADU_SWITCH-STATUS</NAME>
+       <NAME>*ZADUVSWITCH-STATUS</NAME>
        <LINE>001</LINE>
        <COLUMN>002</COLUMN>
        <LENGTH>040</LENGTH>
@@ -405,9 +421,9 @@
       </RPY_DYFATC>
       <RPY_DYFATC>
        <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
-       <CONT_NAME>TCTRL_ZADU_SWITCH</CONT_NAME>
+       <CONT_NAME>TCTRL_ZADUVSWITCH</CONT_NAME>
        <TYPE>TEXT</TYPE>
-       <NAME>*ZADU_SWITCH-NAME</NAME>
+       <NAME>*ZADUVSWITCH-NAME</NAME>
        <LINE>001</LINE>
        <COLUMN>003</COLUMN>
        <LENGTH>040</LENGTH>
@@ -421,9 +437,9 @@
       </RPY_DYFATC>
       <RPY_DYFATC>
        <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
-       <CONT_NAME>TCTRL_ZADU_SWITCH</CONT_NAME>
+       <CONT_NAME>TCTRL_ZADUVSWITCH</CONT_NAME>
        <TYPE>TEXT</TYPE>
-       <NAME>*ZADU_SWITCH-CUSTOM_CHECK</NAME>
+       <NAME>*ZADUVSWITCH-CUSTOM_CHECK</NAME>
        <LINE>001</LINE>
        <COLUMN>004</COLUMN>
        <LENGTH>040</LENGTH>
@@ -437,7 +453,7 @@
       </RPY_DYFATC>
       <RPY_DYFATC>
        <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
-       <CONT_NAME>TCTRL_ZADU_SWITCH</CONT_NAME>
+       <CONT_NAME>TCTRL_ZADUVSWITCH</CONT_NAME>
        <TYPE>CHECK</TYPE>
        <NAME>VIM_MARKED</NAME>
        <LINE>001</LINE>
@@ -451,9 +467,9 @@
       </RPY_DYFATC>
       <RPY_DYFATC>
        <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
-       <CONT_NAME>TCTRL_ZADU_SWITCH</CONT_NAME>
+       <CONT_NAME>TCTRL_ZADUVSWITCH</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
-       <NAME>ZADU_SWITCH-CODE</NAME>
+       <NAME>ZADUVSWITCH-CODE</NAME>
        <TEXT>______________________________</TEXT>
        <LINE>001</LINE>
        <COLUMN>001</COLUMN>
@@ -469,9 +485,9 @@
       </RPY_DYFATC>
       <RPY_DYFATC>
        <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
-       <CONT_NAME>TCTRL_ZADU_SWITCH</CONT_NAME>
+       <CONT_NAME>TCTRL_ZADUVSWITCH</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
-       <NAME>ZADU_SWITCH-STATUS</NAME>
+       <NAME>ZADUVSWITCH-STATUS</NAME>
        <TEXT>__________</TEXT>
        <DROPDOWN>L</DROPDOWN>
        <LINE>001</LINE>
@@ -488,9 +504,9 @@
       </RPY_DYFATC>
       <RPY_DYFATC>
        <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
-       <CONT_NAME>TCTRL_ZADU_SWITCH</CONT_NAME>
+       <CONT_NAME>TCTRL_ZADUVSWITCH</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
-       <NAME>ZADU_SWITCH-NAME</NAME>
+       <NAME>ZADUVSWITCH-NAME</NAME>
        <TEXT>________________________________________________________________________________________________________________________</TEXT>
        <LINE>001</LINE>
        <COLUMN>003</COLUMN>
@@ -506,9 +522,9 @@
       </RPY_DYFATC>
       <RPY_DYFATC>
        <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
-       <CONT_NAME>TCTRL_ZADU_SWITCH</CONT_NAME>
+       <CONT_NAME>TCTRL_ZADUVSWITCH</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
-       <NAME>ZADU_SWITCH-CUSTOM_CHECK</NAME>
+       <NAME>ZADUVSWITCH-CUSTOM_CHECK</NAME>
        <TEXT>______________________________</TEXT>
        <LINE>001</LINE>
        <COLUMN>004</COLUMN>
@@ -536,7 +552,7 @@
        <LINE> LOOP AT EXTRACT WITH CONTROL</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>  TCTRL_ZADU_SWITCH CURSOR NEXTLINE.</LINE>
+       <LINE>  TCTRL_ZADUVSWITCH CURSOR NEXTLINE.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
        <LINE>   MODULE LISTE_SHOW_LISTE.</LINE>
@@ -566,16 +582,16 @@
        <LINE>   CHAIN.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>    FIELD ZADU_SWITCH-CODE .</LINE>
+       <LINE>    FIELD ZADUVSWITCH-CODE .</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>    FIELD ZADU_SWITCH-STATUS .</LINE>
+       <LINE>    FIELD ZADUVSWITCH-STATUS .</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>    FIELD ZADU_SWITCH-NAME .</LINE>
+       <LINE>    FIELD ZADUVSWITCH-NAME .</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>    FIELD ZADU_SWITCH-CUSTOM_CHECK .</LINE>
+       <LINE>    FIELD ZADUVSWITCH-CUSTOM_CHECK .</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
        <LINE>    MODULE SET_UPDATE_FLAG ON CHAIN-REQUEST.</LINE>
@@ -590,7 +606,7 @@
        <LINE>   CHAIN.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>    FIELD ZADU_SWITCH-CODE .</LINE>
+       <LINE>    FIELD ZADUVSWITCH-CODE .</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
        <LINE>    MODULE LISTE_UPDATE_LISTE.</LINE>
@@ -603,6 +619,239 @@
       </RPY_DYFLOW>
       <RPY_DYFLOW>
        <LINE> MODULE LISTE_AFTER_LOOP.</LINE>
+      </RPY_DYFLOW>
+     </FLOW_LOGIC>
+    </item>
+    <item>
+     <HEADER>
+      <PROGRAM>SAPLZADUVSWITCH</PROGRAM>
+      <SCREEN>0101</SCREEN>
+      <LANGUAGE>E</LANGUAGE>
+      <DESCRIPT>View Maintenance: Detail Screen ZADUVSWITCH</DESCRIPT>
+      <TYPE>N</TYPE>
+      <NEXTSCREEN>0101</NEXTSCREEN>
+      <LINES>061</LINES>
+      <COLUMNS>083</COLUMNS>
+     </HEADER>
+     <CONTAINERS>
+      <RPY_DYCATT>
+       <TYPE>SCREEN</TYPE>
+       <NAME>SCREEN</NAME>
+      </RPY_DYCATT>
+     </CONTAINERS>
+     <FIELDS>
+      <RPY_DYFATC>
+       <CONT_TYPE>SCREEN</CONT_TYPE>
+       <CONT_NAME>SCREEN</CONT_NAME>
+       <TYPE>TEXT</TYPE>
+       <NAME>ZADUVSWITCH-CODE</NAME>
+       <LINE>001</LINE>
+       <COLUMN>001</COLUMN>
+       <LENGTH>020</LENGTH>
+       <VISLENGTH>020</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <FORMAT>CHAR</FORMAT>
+       <FROM_DICT>X</FROM_DICT>
+       <MODIFIC>2</MODIFIC>
+       <REQU_ENTRY>N</REQU_ENTRY>
+       <LABELLEFT>X</LABELLEFT>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>SCREEN</CONT_TYPE>
+       <CONT_NAME>SCREEN</CONT_NAME>
+       <TYPE>TEMPLATE</TYPE>
+       <NAME>ZADUVSWITCH-CODE</NAME>
+       <LINE>001</LINE>
+       <COLUMN>022</COLUMN>
+       <LENGTH>030</LENGTH>
+       <VISLENGTH>030</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <GROUP1>KEY</GROUP1>
+       <FORMAT>CHAR</FORMAT>
+       <FROM_DICT>X</FROM_DICT>
+       <OUTPUT_FLD>X</OUTPUT_FLD>
+       <REQU_ENTRY>N</REQU_ENTRY>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>SCREEN</CONT_TYPE>
+       <CONT_NAME>SCREEN</CONT_NAME>
+       <TYPE>FRAME_TMPL</TYPE>
+       <NAME>VIM_FRAME_FIELD</NAME>
+       <TEXT>___________________________________________________________________________________</TEXT>
+       <LINE>003</LINE>
+       <COLUMN>001</COLUMN>
+       <LENGTH>083</LENGTH>
+       <VISLENGTH>083</VISLENGTH>
+       <HEIGHT>005</HEIGHT>
+       <FORMAT>CHAR</FORMAT>
+       <UP_LOWER>X</UP_LOWER>
+       <OUTPUT_FLD>X</OUTPUT_FLD>
+       <REQU_ENTRY>N</REQU_ENTRY>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>SCREEN</CONT_TYPE>
+       <CONT_NAME>SCREEN</CONT_NAME>
+       <TYPE>TEXT</TYPE>
+       <NAME>ZADUVSWITCH-STATUS</NAME>
+       <LINE>004</LINE>
+       <COLUMN>002</COLUMN>
+       <LENGTH>020</LENGTH>
+       <VISLENGTH>020</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <FORMAT>CHAR</FORMAT>
+       <FROM_DICT>X</FROM_DICT>
+       <MODIFIC>2</MODIFIC>
+       <REQU_ENTRY>N</REQU_ENTRY>
+       <LABELLEFT>X</LABELLEFT>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>SCREEN</CONT_TYPE>
+       <CONT_NAME>SCREEN</CONT_NAME>
+       <TYPE>TEMPLATE</TYPE>
+       <NAME>ZADUVSWITCH-STATUS</NAME>
+       <DROPDOWN>L</DROPDOWN>
+       <LINE>004</LINE>
+       <COLUMN>023</COLUMN>
+       <LENGTH>010</LENGTH>
+       <VISLENGTH>060</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <FORMAT>CHAR</FORMAT>
+       <FROM_DICT>X</FROM_DICT>
+       <INPUT_FLD>X</INPUT_FLD>
+       <OUTPUT_FLD>X</OUTPUT_FLD>
+       <DICT_I_VAL>X</DICT_I_VAL>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>SCREEN</CONT_TYPE>
+       <CONT_NAME>SCREEN</CONT_NAME>
+       <TYPE>TEXT</TYPE>
+       <NAME>ZADUVSWITCH-NAME</NAME>
+       <LINE>005</LINE>
+       <COLUMN>002</COLUMN>
+       <LENGTH>020</LENGTH>
+       <VISLENGTH>020</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <FORMAT>CHAR</FORMAT>
+       <FROM_DICT>X</FROM_DICT>
+       <MODIFIC>2</MODIFIC>
+       <REQU_ENTRY>N</REQU_ENTRY>
+       <LABELLEFT>X</LABELLEFT>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>SCREEN</CONT_TYPE>
+       <CONT_NAME>SCREEN</CONT_NAME>
+       <TYPE>TEMPLATE</TYPE>
+       <NAME>ZADUVSWITCH-NAME</NAME>
+       <ROLLING>X</ROLLING>
+       <LINE>005</LINE>
+       <COLUMN>023</COLUMN>
+       <LENGTH>120</LENGTH>
+       <VISLENGTH>059</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <FORMAT>CHAR</FORMAT>
+       <FROM_DICT>X</FROM_DICT>
+       <UP_LOWER>X</UP_LOWER>
+       <INPUT_FLD>X</INPUT_FLD>
+       <OUTPUT_FLD>X</OUTPUT_FLD>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>SCREEN</CONT_TYPE>
+       <CONT_NAME>SCREEN</CONT_NAME>
+       <TYPE>TEXT</TYPE>
+       <NAME>ZADUVSWITCH-CUSTOM_CHECK</NAME>
+       <LINE>006</LINE>
+       <COLUMN>002</COLUMN>
+       <LENGTH>015</LENGTH>
+       <VISLENGTH>015</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <FORMAT>CHAR</FORMAT>
+       <FROM_DICT>X</FROM_DICT>
+       <MODIFIC>2</MODIFIC>
+       <REQU_ENTRY>N</REQU_ENTRY>
+       <LABELLEFT>X</LABELLEFT>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>SCREEN</CONT_TYPE>
+       <CONT_NAME>SCREEN</CONT_NAME>
+       <TYPE>TEMPLATE</TYPE>
+       <NAME>ZADUVSWITCH-CUSTOM_CHECK</NAME>
+       <ROLLING>X</ROLLING>
+       <LINE>006</LINE>
+       <COLUMN>023</COLUMN>
+       <LENGTH>030</LENGTH>
+       <VISLENGTH>030</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <FORMAT>CHAR</FORMAT>
+       <FROM_DICT>X</FROM_DICT>
+       <PARAM_ID>CLASS</PARAM_ID>
+       <INPUT_FLD>X</INPUT_FLD>
+       <OUTPUT_FLD>X</OUTPUT_FLD>
+       <DICT_I_FKY>X</DICT_I_FKY>
+      </RPY_DYFATC>
+      <RPY_DYFATC>
+       <CONT_TYPE>SCREEN</CONT_TYPE>
+       <CONT_NAME>SCREEN</CONT_NAME>
+       <TYPE>OKCODE</TYPE>
+       <NAME>OK_CODE</NAME>
+       <TEXT>____________________</TEXT>
+       <LENGTH>020</LENGTH>
+       <VISLENGTH>020</VISLENGTH>
+       <HEIGHT>001</HEIGHT>
+       <FORMAT>CHAR</FORMAT>
+       <INPUT_FLD>X</INPUT_FLD>
+      </RPY_DYFATC>
+     </FIELDS>
+     <FLOW_LOGIC>
+      <RPY_DYFLOW>
+       <LINE>PROCESS BEFORE OUTPUT.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE> MODULE detail_init.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>*</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>PROCESS AFTER INPUT.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE> MODULE DETAIL_EXIT_COMMAND AT EXIT-COMMAND.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE> MODULE DETAIL_SET_PFSTATUS.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE> CHAIN.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>    FIELD ZADUVSWITCH-CODE .</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>    FIELD ZADUVSWITCH-STATUS .</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>    FIELD ZADUVSWITCH-NAME .</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>    FIELD ZADUVSWITCH-CUSTOM_CHECK .</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>  MODULE SET_UPDATE_FLAG ON CHAIN-REQUEST.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE> endchain.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE> chain.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>    FIELD ZADUVSWITCH-CODE .</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE>  module detail_pai.</LINE>
+      </RPY_DYFLOW>
+      <RPY_DYFLOW>
+       <LINE> endchain.</LINE>
       </RPY_DYFLOW>
      </FLOW_LOGIC>
     </item>

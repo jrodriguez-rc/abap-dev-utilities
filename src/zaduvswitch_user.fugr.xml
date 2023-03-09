@@ -4,15 +4,15 @@
   <asx:values>
    <AREAT>Extended Table Maintenance (Generated)</AREAT>
    <INCLUDES>
-    <SOBJ_NAME>LZADU_SWITCH_USERF00</SOBJ_NAME>
-    <SOBJ_NAME>LZADU_SWITCH_USERI00</SOBJ_NAME>
-    <SOBJ_NAME>LZADU_SWITCH_USERT00</SOBJ_NAME>
-    <SOBJ_NAME>LZADU_SWITCH_USERTOP</SOBJ_NAME>
-    <SOBJ_NAME>SAPLZADU_SWITCH_USER</SOBJ_NAME>
+    <SOBJ_NAME>LZADUVSWITCH_USERF00</SOBJ_NAME>
+    <SOBJ_NAME>LZADUVSWITCH_USERI00</SOBJ_NAME>
+    <SOBJ_NAME>LZADUVSWITCH_USERT00</SOBJ_NAME>
+    <SOBJ_NAME>LZADUVSWITCH_USERTOP</SOBJ_NAME>
+    <SOBJ_NAME>SAPLZADUVSWITCH_USER</SOBJ_NAME>
    </INCLUDES>
    <FUNCTIONS>
     <item>
-     <FUNCNAME>TABLEFRAME_ZADU_SWITCH_USER</FUNCNAME>
+     <FUNCNAME>VIEWFRAME_ZADUVSWITCH_USER</FUNCNAME>
      <SHORT_TEXT>Extended Table Maintenance: Upper Level</SHORT_TEXT>
      <IMPORT>
       <RSIMP>
@@ -53,6 +53,9 @@
      </TABLES>
      <EXCEPTION>
       <RSEXC>
+       <EXCEPTION>NO_VALUE_FOR_SUBSET_IDENT</EXCEPTION>
+      </RSEXC>
+      <RSEXC>
        <EXCEPTION>MISSING_CORR_NUMBER</EXCEPTION>
       </RSEXC>
      </EXCEPTION>
@@ -60,12 +63,12 @@
       <RSFDO>
        <PARAMETER>VIEW_ACTION</PARAMETER>
        <KIND>P</KIND>
-       <STEXT>Aktion mit Tabelle: anz./änd./transp. (S/U/T)</STEXT>
+       <STEXT>Aktion mit dem View: anzeigen/ändern (S/U)</STEXT>
       </RSFDO>
       <RSFDO>
        <PARAMETER>VIEW_NAME</PARAMETER>
        <KIND>P</KIND>
-       <STEXT>Name der Tabelle</STEXT>
+       <STEXT>Name des Views</STEXT>
       </RSFDO>
       <RSFDO>
        <PARAMETER>CORR_NUMBER</PARAMETER>
@@ -90,12 +93,17 @@
       <RSFDO>
        <PARAMETER>X_HEADER</PARAMETER>
        <KIND>P</KIND>
-       <STEXT>Kontrollblocktabelle für die Tabelle</STEXT>
+       <STEXT>Kontrollblocktabelle für den View</STEXT>
       </RSFDO>
       <RSFDO>
        <PARAMETER>X_NAMTAB</PARAMETER>
        <KIND>P</KIND>
-       <STEXT>Kontrollblocktabelle für die Tabellen-Felder</STEXT>
+       <STEXT>Kontrollblocktabelle für die View-Felder</STEXT>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>NO_VALUE_FOR_SUBSET_IDENT</PARAMETER>
+       <KIND>X</KIND>
+       <STEXT>für &apos;SUBSET&apos;-Feld wurde kein Wert vorgegeben</STEXT>
       </RSFDO>
       <RSFDO>
        <PARAMETER>MISSING_CORR_NUMBER</PARAMETER>
@@ -105,7 +113,7 @@
      </DOCUMENTATION>
     </item>
     <item>
-     <FUNCNAME>TABLEPROC_ZADU_SWITCH_USER</FUNCNAME>
+     <FUNCNAME>VIEWPROC_ZADUVSWITCH_USER</FUNCNAME>
      <GLOBAL_FLAG>X</GLOBAL_FLAG>
      <SHORT_TEXT>Lower-level extended table maintenance</SHORT_TEXT>
      <IMPORT>
@@ -172,6 +180,9 @@
      </TABLES>
      <EXCEPTION>
       <RSEXC>
+       <EXCEPTION>NO_VALUE_FOR_SUBSET_IDENT</EXCEPTION>
+      </RSEXC>
+      <RSEXC>
        <EXCEPTION>MISSING_CORR_NUMBER</EXCEPTION>
       </RSEXC>
       <RSEXC>
@@ -187,12 +198,12 @@
       <RSFDO>
        <PARAMETER>VIEW_ACTION</PARAMETER>
        <KIND>P</KIND>
-       <STEXT>Aktion mit Tabelle: anz./änd./transp. (S/U/T)</STEXT>
+       <STEXT>Aktion mit dem View: anzeigen/ändern (S/U)</STEXT>
       </RSFDO>
       <RSFDO>
        <PARAMETER>VIEW_NAME</PARAMETER>
        <KIND>P</KIND>
-       <STEXT>Name der Tabelle</STEXT>
+       <STEXT>Name des Views</STEXT>
       </RSFDO>
       <RSFDO>
        <PARAMETER>CORR_NUMBER</PARAMETER>
@@ -247,12 +258,17 @@
       <RSFDO>
        <PARAMETER>X_HEADER</PARAMETER>
        <KIND>P</KIND>
-       <STEXT>Kontrollblocktabelle für die Tabelle</STEXT>
+       <STEXT>Kontrollblocktabelle für den View</STEXT>
       </RSFDO>
       <RSFDO>
        <PARAMETER>X_NAMTAB</PARAMETER>
        <KIND>P</KIND>
-       <STEXT>Kontrollblocktabelle für die Tabellen-Felder</STEXT>
+       <STEXT>Kontrollblocktabelle für die View-Felder</STEXT>
+      </RSFDO>
+      <RSFDO>
+       <PARAMETER>NO_VALUE_FOR_SUBSET_IDENT</PARAMETER>
+       <KIND>X</KIND>
+       <STEXT>für ein &apos;SUBSET&apos;-Feld wurde kein Wert vorgegeben</STEXT>
       </RSFDO>
       <RSFDO>
        <PARAMETER>MISSING_CORR_NUMBER</PARAMETER>
@@ -270,10 +286,10 @@
    <DYNPROS>
     <item>
      <HEADER>
-      <PROGRAM>SAPLZADU_SWITCH_USER</PROGRAM>
+      <PROGRAM>SAPLZADUVSWITCH_USER</PROGRAM>
       <SCREEN>0100</SCREEN>
       <LANGUAGE>E</LANGUAGE>
-      <DESCRIPT>View Maintenance: Overview Screen ZADU_SWITCH_USER</DESCRIPT>
+      <DESCRIPT>View Maintenance: Overview Screen ZADUVSWITCH_USER</DESCRIPT>
       <TYPE>N</TYPE>
       <NEXTSCREEN>0100</NEXTSCREEN>
       <LINES>061</LINES>
@@ -286,7 +302,7 @@
       </RPY_DYCATT>
       <RPY_DYCATT>
        <TYPE>TABLE_CTRL</TYPE>
-       <NAME>TCTRL_ZADU_SWITCH_USER</NAME>
+       <NAME>TCTRL_ZADUVSWITCH_USER</NAME>
        <ELEMENT_OF>SCREEN</ELEMENT_OF>
        <LINE>001</LINE>
        <COLUMN>001</COLUMN>
@@ -357,7 +373,7 @@
       </RPY_DYFATC>
       <RPY_DYFATC>
        <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
-       <CONT_NAME>TCTRL_ZADU_SWITCH_USER</CONT_NAME>
+       <CONT_NAME>TCTRL_ZADUVSWITCH_USER</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
        <NAME>VIM_FRAME_FIELD</NAME>
        <TEXT>____________________________________________________________</TEXT>
@@ -373,9 +389,9 @@
       </RPY_DYFATC>
       <RPY_DYFATC>
        <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
-       <CONT_NAME>TCTRL_ZADU_SWITCH_USER</CONT_NAME>
+       <CONT_NAME>TCTRL_ZADUVSWITCH_USER</CONT_NAME>
        <TYPE>TEXT</TYPE>
-       <NAME>*ZADU_SWITCH_USER-CODE</NAME>
+       <NAME>*ZADUVSWITCH_USER-CODE</NAME>
        <LINE>001</LINE>
        <COLUMN>001</COLUMN>
        <LENGTH>040</LENGTH>
@@ -389,9 +405,9 @@
       </RPY_DYFATC>
       <RPY_DYFATC>
        <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
-       <CONT_NAME>TCTRL_ZADU_SWITCH_USER</CONT_NAME>
+       <CONT_NAME>TCTRL_ZADUVSWITCH_USER</CONT_NAME>
        <TYPE>TEXT</TYPE>
-       <NAME>*ZADU_SWITCH_USER-USERNAME</NAME>
+       <NAME>*ZADUVSWITCH_USER-USERNAME</NAME>
        <LINE>001</LINE>
        <COLUMN>002</COLUMN>
        <LENGTH>040</LENGTH>
@@ -405,7 +421,7 @@
       </RPY_DYFATC>
       <RPY_DYFATC>
        <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
-       <CONT_NAME>TCTRL_ZADU_SWITCH_USER</CONT_NAME>
+       <CONT_NAME>TCTRL_ZADUVSWITCH_USER</CONT_NAME>
        <TYPE>CHECK</TYPE>
        <NAME>VIM_MARKED</NAME>
        <LINE>001</LINE>
@@ -419,9 +435,9 @@
       </RPY_DYFATC>
       <RPY_DYFATC>
        <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
-       <CONT_NAME>TCTRL_ZADU_SWITCH_USER</CONT_NAME>
+       <CONT_NAME>TCTRL_ZADUVSWITCH_USER</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
-       <NAME>ZADU_SWITCH_USER-CODE</NAME>
+       <NAME>ZADUVSWITCH_USER-CODE</NAME>
        <TEXT>______________________________</TEXT>
        <LINE>001</LINE>
        <COLUMN>001</COLUMN>
@@ -438,9 +454,9 @@
       </RPY_DYFATC>
       <RPY_DYFATC>
        <CONT_TYPE>TABLE_CTRL</CONT_TYPE>
-       <CONT_NAME>TCTRL_ZADU_SWITCH_USER</CONT_NAME>
+       <CONT_NAME>TCTRL_ZADUVSWITCH_USER</CONT_NAME>
        <TYPE>TEMPLATE</TYPE>
-       <NAME>ZADU_SWITCH_USER-USERNAME</NAME>
+       <NAME>ZADUVSWITCH_USER-USERNAME</NAME>
        <TEXT>____________</TEXT>
        <LINE>001</LINE>
        <COLUMN>002</COLUMN>
@@ -469,7 +485,7 @@
        <LINE> LOOP AT EXTRACT WITH CONTROL</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>  TCTRL_ZADU_SWITCH_USER CURSOR NEXTLINE.</LINE>
+       <LINE>  TCTRL_ZADUVSWITCH_USER CURSOR NEXTLINE.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
        <LINE>   MODULE LISTE_SHOW_LISTE.</LINE>
@@ -499,10 +515,10 @@
        <LINE>   CHAIN.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>    FIELD ZADU_SWITCH_USER-CODE .</LINE>
+       <LINE>    FIELD ZADUVSWITCH_USER-CODE .</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>    FIELD ZADU_SWITCH_USER-USERNAME .</LINE>
+       <LINE>    FIELD ZADUVSWITCH_USER-USERNAME .</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
        <LINE>    MODULE SET_UPDATE_FLAG ON CHAIN-REQUEST.</LINE>
@@ -517,10 +533,10 @@
        <LINE>   CHAIN.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>    FIELD ZADU_SWITCH_USER-CODE .</LINE>
+       <LINE>    FIELD ZADUVSWITCH_USER-CODE .</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>    FIELD ZADU_SWITCH_USER-USERNAME .</LINE>
+       <LINE>    FIELD ZADUVSWITCH_USER-USERNAME .</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
        <LINE>    MODULE LISTE_UPDATE_LISTE.</LINE>
@@ -541,7 +557,7 @@
        <LINE>PROCESS ON VALUE-REQUEST.</LINE>
       </RPY_DYFLOW>
       <RPY_DYFLOW>
-       <LINE>    FIELD  ZADU_SWITCH_USER-CODE MODULE VCL_HELP_VALUES.</LINE>
+       <LINE>    FIELD  ZADUVSWITCH_USER-CODE MODULE VCL_HELP_VALUES.</LINE>
       </RPY_DYFLOW>
      </FLOW_LOGIC>
     </item>
