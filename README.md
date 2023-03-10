@@ -16,3 +16,4 @@ This repository has a group of utilities that you can use in your development
 | ZCL_ADU_OO_SERIALIZE |  | Object serialization |
 | ZCL_ADU_GOS | ZIF_ADU_GOS | GOS Utility |
 | ZCL_ADU_TABLE_PACK | ZIF_ADU_TABLE_PACK | Internal table packet selection |
+| ZCL_ADU_SWITCH | ZIF_ADU_SWITCH | Check [Wiki](https://github.com/jrodriguez-rc/abap-dev-utilities/wiki/Switch) |
