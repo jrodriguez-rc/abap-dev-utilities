@@ -20,4 +20,5 @@ INCLUDE STRUCTURE ZADUVSWITCH_USER.
 DATA: END OF ZADUVSWITCH_USER_TOTAL.
 
 *.........table declarations:.................................*
+TABLES: ZADU_SWITCH                    .
 TABLES: ZADU_SWITCH_USER               .
