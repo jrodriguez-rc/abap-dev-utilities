@@ -1,7 +1,7 @@
 CLASS zcl_adu_texts DEFINITION
   PUBLIC
   FINAL
-  CREATE PUBLIC .
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
     INTERFACES zif_adu_texts.
@@ -16,7 +16,7 @@ CLASS zcl_adu_texts DEFINITION
 
   PRIVATE SECTION.
     CLASS-DATA:
-      instance TYPE REF TO zif_adu_texts.
+      mi_instance TYPE REF TO zif_adu_texts.
 
 ENDCLASS.
 
@@ -25,31 +25,42 @@ ENDCLASS.
 CLASS zcl_adu_texts IMPLEMENTATION.
 
 
-  METHOD get_instance.
+  METHOD constructor.
 
-    result = COND #( WHEN instance IS BOUND THEN instance ELSE NEW zcl_adu_texts( ) ).
+    mi_instance = me.
 
   ENDMETHOD.
 
 
-  METHOD constructor.
-    instance = me.
+  METHOD get_instance.
+
+    result = COND #( WHEN mi_instance IS BOUND THEN mi_instance ELSE NEW zcl_adu_texts( ) ).
+
   ENDMETHOD.
 
 
   METHOD zif_adu_texts~itf_to_string.
 
-    DATA(text_stream) = zif_adu_texts~itf_to_text_stream( itf = itf language = language ).
+    DATA(lv_initial) = abap_false.
+    DATA(lv_length)  = 0.
+    DATA(lv_string)  = ``.
 
-    result =
-        REDUCE #(
-            INIT text_string TYPE string
-            FOR text IN text_stream
-            NEXT text_string = COND #( WHEN text_string IS INITIAL
-                                           THEN text-line
-                                           ELSE |{ text_string }| &
-                                                |{ newline_char }| &
-                                                |{ text-line }| ) ).
+    LOOP AT itf INTO DATA(ls_text_line).
+
+      IF lv_initial = abap_false.
+        lv_initial = abap_true.
+      ELSEIF ls_text_line-tdformat(1) = '/' OR ls_text_line-tdformat(1) = '*'.
+        lv_string = |{ lv_string }{ newline_char }|.
+        lv_length = strlen( lv_string ).
+      ENDIF.
+
+      lv_string = |{ lv_string WIDTH = lv_length }{ ls_text_line-tdline }|.
+
+      lv_length = lv_length + 132.
+
+    ENDLOOP.
+
+    result = lv_string.
 
   ENDMETHOD.
 
@@ -149,6 +160,4 @@ CLASS zcl_adu_texts IMPLEMENTATION.
         ftext_tab = result.
 
   ENDMETHOD.
-
-
 ENDCLASS.
