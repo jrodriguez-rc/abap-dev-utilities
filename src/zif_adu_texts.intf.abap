@@ -8,6 +8,10 @@ INTERFACE zif_adu_texts
     END OF ts_tag_replace,
     tt_tag_replace TYPE HASHED TABLE OF ts_tag_replace WITH UNIQUE KEY tag.
 
+  CLASS-METHODS get
+    RETURNING
+      VALUE(result) TYPE REF TO zif_adu_texts.
+
   METHODS itf_to_string
     IMPORTING
       itf           TYPE tline_tab

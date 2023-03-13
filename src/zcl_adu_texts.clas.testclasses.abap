@@ -27,15 +27,13 @@ CLASS ltcl_itf IMPLEMENTATION.
         cl_abap_char_utilities=>newline &&
         `Line 3`.
 
-    DATA(li_text) = zcl_adu_texts=>get_instance( ).
-
     DATA(lv_string) =
-        li_text->itf_to_string( VALUE #( ( tdformat = '*' tdline = 'Line 1' )
-                                         ( tdformat = ' ' tdline = 'Still on line 1' )
-                                         ( tdformat = ' ' tdline = 'Still on line 1' )
-                                         ( tdformat = '/' tdline = 'Line 2' )
-                                         ( tdformat = ' ' tdline = 'Still on line 2' )
-                                         ( tdformat = '*' tdline = 'Line 3' ) ) ).
+        zcl_adu_texts=>get( )->itf_to_string( VALUE #( ( tdformat = '*' tdline = 'Line 1' )
+                                                       ( tdformat = ' ' tdline = 'Still on line 1' )
+                                                       ( tdformat = ' ' tdline = 'Still on line 1' )
+                                                       ( tdformat = '/' tdline = 'Line 2' )
+                                                       ( tdformat = ' ' tdline = 'Still on line 2' )
+                                                       ( tdformat = '*' tdline = 'Line 3' ) ) ).
 
     cl_abap_unit_assert=>assert_equals( act = lv_string exp = lv_expected ).
 

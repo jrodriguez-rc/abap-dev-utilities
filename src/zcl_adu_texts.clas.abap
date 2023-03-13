@@ -6,9 +6,8 @@ CLASS zcl_adu_texts DEFINITION
   PUBLIC SECTION.
     INTERFACES zif_adu_texts.
 
-    CLASS-METHODS get_instance
-      RETURNING
-        VALUE(result) TYPE REF TO zif_adu_texts.
+    ALIASES get FOR zif_adu_texts~get.
+    ALIASES get_instance FOR zif_adu_texts~get.
 
     METHODS constructor.
 
@@ -32,7 +31,7 @@ CLASS zcl_adu_texts IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD get_instance.
+  METHOD zif_adu_texts~get.
 
     result = COND #( WHEN mi_instance IS BOUND THEN mi_instance ELSE NEW zcl_adu_texts( ) ).
 
@@ -160,4 +159,6 @@ CLASS zcl_adu_texts IMPLEMENTATION.
         ftext_tab = result.
 
   ENDMETHOD.
+
+
 ENDCLASS.
