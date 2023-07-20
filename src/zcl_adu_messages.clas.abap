@@ -496,6 +496,8 @@ CLASS zcl_adu_messages IMPLEMENTATION.
                                 THEN |{ CONV t( message_var ) TIME = USER }|
                             WHEN 'P' OR 'I'
                                 THEN |{ CONV string( message_var ) ALIGN = LEFT }|
+                            WHEN 'C'
+                                THEN message_var
                                 ELSE |{ CONV string( message_var ) ALPHA = OUT }| ).
 
   ENDMETHOD.
