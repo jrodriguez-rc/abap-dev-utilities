@@ -121,13 +121,11 @@ CLASS zcl_adu_log IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    DATA(lv_log_handle) = get_log_handle( ).
-
-    IF lv_log_handle IS NOT INITIAL.
+    IF mv_log_handle IS NOT INITIAL.
 
       CALL FUNCTION 'BAL_LOG_READ'
         EXPORTING
-          i_log_handle  = lv_log_handle
+          i_log_handle  = mv_log_handle
         EXCEPTIONS
           log_not_found = 1
           OTHERS        = 2.
@@ -167,6 +165,8 @@ CLASS zcl_adu_log IMPLEMENTATION.
 
 
   METHOD get_log_handle.
+
+    initialize( ).
 
     rv_result = mv_log_handle.
 
