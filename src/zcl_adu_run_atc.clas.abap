@@ -47,6 +47,15 @@ CLASS zcl_adu_run_atc DEFINITION
       RAISING
         cx_adt_rest.
 
+    METHODS retrieve_findings_ge_754
+      IMPORTING
+        iv_execution_id  TYPE satc_d_id
+        ii_access        TYPE REF TO if_satc_adt_result_read_access
+      RETURNING
+        VALUE(rs_result) TYPE zif_adu_run_atc=>ts_result
+      RAISING
+        cx_adt_rest.
+
     METHODS get_standard_check_ids
       EXPORTING
         check_profile TYPE satc_d_ac_chk_profile_name
@@ -155,16 +164,82 @@ CLASS zcl_adu_run_atc IMPLEMENTATION.
 
   METHOD retrieve_findings.
 
-    DATA(access) = cl_satc_adt_result_read_access=>create( cl_satc_adt_result_reader=>create( ) ).
+    DATA:
+      lv_display_id TYPE satc_d_id.
 
-    access->read_display_id_4_execution_id( EXPORTING i_execution_id = execution_id
-                                            IMPORTING e_display_id   = DATA(display_id) ).
+    DATA(li_access) = cl_satc_adt_result_read_access=>create( cl_satc_adt_result_reader=>create( ) ).
 
-    access->read_findings( EXPORTING i_display_id = display_id
-                           IMPORTING e_findings   = result-findings ).
+    TRY.
 
-    access->read_metrics_4_id( EXPORTING i_display_id          = display_id
-                               IMPORTING e_has_caused_abortion = result-has_caused_abortion ).
+        CALL METHOD li_access->('READ_DISPLAY_ID_4_EXECUTION_ID')
+          EXPORTING
+            i_execution_id = execution_id
+          IMPORTING
+            e_display_id   = lv_display_id.
+
+        CALL METHOD li_access->('READ_FINDINGS')
+          EXPORTING
+            i_display_id = lv_display_id
+          IMPORTING
+            e_findings   = result-findings.
+
+        CALL METHOD li_access->read_metrics_4_id
+          EXPORTING
+            i_display_id          = lv_display_id
+          IMPORTING
+            e_has_caused_abortion = result-has_caused_abortion.
+
+      CATCH cx_root.
+        result = retrieve_findings_ge_754( iv_execution_id = execution_id ii_access = li_access ).
+    ENDTRY.
+
+  ENDMETHOD.
+
+
+  METHOD retrieve_findings_ge_754.
+
+    DATA:
+      lr_atc_result TYPE REF TO data.
+
+    FIELD-SYMBOLS:
+      <lt_veredicts>  LIKE rs_result-findings.
+
+    CREATE DATA lr_atc_result TYPE ('CL_SATC_ADT_CH_FACTORY=>TY_ADT_ATC_RESULT').
+    IF sy-subrc <> 0 OR lr_atc_result IS NOT BOUND.
+      RETURN.
+    ENDIF.
+
+    ASSIGN lr_atc_result->* TO FIELD-SYMBOL(<ls_atc_result>).
+    IF sy-subrc <> 0 OR <ls_atc_result> IS NOT ASSIGNED.
+      RETURN.
+    ENDIF.
+
+    DO 3 TIMES.
+
+      DATA(lv_uri_type) = SWITCH char1( sy-index WHEN 1 THEN cl_satc_adt_deferred_uri_mappr=>co_uri_type-adt
+                                                 WHEN 2 THEN cl_satc_adt_deferred_uri_mappr=>co_uri_type-http
+                                                 WHEN 3 THEN cl_satc_adt_deferred_uri_mappr=>co_uri_type-none ).
+
+      CALL METHOD ii_access->('READ_FINDINGS')
+        EXPORTING
+          i_display_id = iv_execution_id
+          i_uri_type   = cl_satc_adt_deferred_uri_mappr=>co_uri_type-none
+        IMPORTING
+          e_atc_result = <ls_atc_result>.
+
+      ASSIGN COMPONENT 'VERDICTS' OF STRUCTURE <ls_atc_result> TO <lt_veredicts>.
+      IF sy-subrc = 0 AND <lt_veredicts> IS ASSIGNED.
+        INSERT LINES OF <lt_veredicts> INTO TABLE rs_result-findings.
+        UNASSIGN <lt_veredicts>.
+      ENDIF.
+
+    ENDDO.
+
+    CALL METHOD ii_access->read_metrics_4_id
+      EXPORTING
+        i_display_id          = iv_execution_id
+      IMPORTING
+        e_has_caused_abortion = rs_result-has_caused_abortion.
 
   ENDMETHOD.
 
