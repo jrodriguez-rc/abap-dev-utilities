@@ -21,12 +21,10 @@
     "rules": {
         "avoid_use": {
             "define": true,
-            "endselect": true,
-            "execSQL": true,
-            "kernelCall": true,
-            "communication": true,
+            "exportToDatabase": true,
+            "exportToMemory": true,
+            "testSeams": false,
             "statics": true,
-            "systemCall": true,
             "defaultKey": false,
             "break": true,
             "describeLines": false
@@ -42,10 +40,12 @@
             "case": true,
             "select": true,
             "do": true,
-            "at": true
+            "at": true,
+            "when": true
         },
         "exporting": true,
         "functional_writing": {
+            "exclude": ["zcl_adu_run_atc"],
             "ignoreExceptions": true
         },
         "global_class": true,
@@ -59,6 +59,7 @@
             "statements": 100,
             "ignoreTestClasses": false,
             "errorWhenEmpty": true,
+            "checkForms": true,
             "exclude":[
                 ".*WRITE*.DOC*"
             ]
@@ -74,15 +75,29 @@
             "add": true,
             "subtract": true,
             "multiply": true,
-            "move": true,
             "divide": true,
+            "move": true,
             "requested": true,
             "occurs": true,
             "setExtended": true,
             "withHeaderLine": true,
             "fieldSymbolStructure": true,
             "typePools": true,
-            "load": true
+            "load": true,
+            "parameter": true,
+            "ranges": true,
+            "communication": true,
+            "pack": true,
+            "selectWithoutInto": true,
+            "freeMemory": true,
+            "exitFromSQL": true,
+            "sortByFS": true,
+            "callTransformation": true,
+            "regex": true,
+            "occurences": true,
+            "clientSpecified": true,
+            "formDefinition": true,
+            "formImplementation": true
         },
         "parser_error": true,
         "short_case": {
@@ -100,7 +115,6 @@
         "form_tables_obsolete": true,
         "tabl_enhancement_category": true,
         "implement_methods": false,
-        "local_testclass_location": true,
         "main_file_contents": true,
         "rfc_error_handling": true,
         "sequential_blank": {
@@ -111,7 +125,8 @@
         },
         "check_abstract": true,
         "no_public_attributes": {
-            "allowReadOnly": true
+            "allowReadOnly": true,
+            "ignoreTestClasses": false
         },
         "abapdoc": false,
         "local_class_naming": {
@@ -193,11 +208,12 @@
             ]
         },
         "indentation": {
+            "ignoreExceptions": true,
             "alignTryCatch": false,
-            "ignoreExceptions": false,
+            "selectionScreenBlockIndentation": false,
             "globalClassSkipFirst": false,
             "ignoreGlobalClassDefinition": false,
-            "ignoreGlobalInterface": true,
+            "ignoreGlobalInterface": false,
             "exclude":[
                 ".*WRITE*.DOC*"
             ]
