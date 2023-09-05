@@ -49,4 +49,14 @@ INTERFACE zif_adu_transport_request
     RETURNING
       VALUE(result) TYPE trwbo_request_header.
 
+  "! <p class="shorttext synchronized" lang="en">Get transport request zipped in a file</p>
+  "!
+  "! @parameter result | <p class="shorttext synchronized" lang="en">Zip file</p>
+  "! @raising zcx_adu_transport_request | <p class="shorttext synchronized" lang="en">Exception</p>
+  METHODS get_zip_file
+    RETURNING
+      VALUE(result) TYPE xstring
+    RAISING
+      zcx_adu_transport_request.
+
 ENDINTERFACE.

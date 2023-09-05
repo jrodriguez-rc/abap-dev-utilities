@@ -2,7 +2,7 @@
 CLASS zcl_adu_transport_request DEFINITION
   PUBLIC
   FINAL
-  CREATE PUBLIC .
+  CREATE PRIVATE.
 
   PUBLIC SECTION.
     INTERFACES:
@@ -28,14 +28,6 @@ CLASS zcl_adu_transport_request DEFINITION
     DATA:
       transport_request_header TYPE trwbo_request_header.
 
-    METHODS read_transport_request_header
-      IMPORTING
-        transport_request TYPE trkorr
-      RETURNING
-        VALUE(result)     TYPE trwbo_request_header
-      RAISING
-        zcx_adu_transport_request.
-
 ENDCLASS.
 
 
@@ -52,7 +44,7 @@ CLASS zcl_adu_transport_request IMPLEMENTATION.
 
   METHOD constructor.
 
-    transport_request_header = read_transport_request_header( transport_request ).
+    transport_request_header = zcl_adu_utl_transport_request=>get( )->read_header( transport_request ).
 
   ENDMETHOD.
 
@@ -206,25 +198,77 @@ CLASS zcl_adu_transport_request IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD read_transport_request_header.
+  METHOD zif_adu_transport_request~get_zip_file.
 
-    result = VALUE #( trkorr = transport_request ).
+    DATA big_string TYPE xstring.
 
-    CALL FUNCTION 'TRINT_READ_REQUEST_HEADER'
-      EXPORTING
-        iv_read_e070   = abap_true
-        iv_read_e07t   = abap_true
-        iv_read_e070c  = abap_true
-        iv_read_e070m  = abap_true
-      CHANGING
-        cs_request     = result
-      EXCEPTIONS
-        empty_trkorr   = 1
-        not_exist_e070 = 2
-        OTHERS         = 3.
-    IF sy-subrc <> 0.
-      zcx_adu_transport_request=>raise_system( ).
+    DATA(transport_request) = zif_adu_transport_request~get_header( ).
+
+    IF transport_request-trstatus <> zif_adu_tr_constants=>gc_status-released.
+      RAISE EXCEPTION TYPE zcx_adu_transport_request
+        EXPORTING
+          textid = zcx_adu_transport_request=>not_released
+          text1  = |{ transport_request-trkorr }|.
     ENDIF.
+
+    IF transport_request-tarsystem IS INITIAL.
+      RAISE EXCEPTION TYPE zcx_adu_transport_request
+        EXPORTING
+          textid = zcx_adu_transport_request=>no_target
+          text1  = |{ transport_request-trkorr }|.
+    ENDIF.
+
+    DATA(zip) = NEW cl_abap_zip( ).
+
+    DATA(cofile) = zcl_adu_utl_transport_request=>get( )->build_path_cofiles( transport_request-trkorr ).
+
+    OPEN DATASET cofile FOR INPUT IN BINARY MODE.
+    IF sy-subrc <> 0.
+      RAISE EXCEPTION TYPE zcx_adu_transport_request
+        EXPORTING
+          textid = zcx_adu_transport_request=>not_found_cofile
+          text1  = |{ transport_request-trkorr }|.
+    ENDIF.
+
+    READ DATASET cofile INTO big_string.
+    IF sy-subrc <> 0.
+      RAISE EXCEPTION TYPE zcx_adu_transport_request
+        EXPORTING
+          textid = zcx_adu_transport_request=>not_found_cofile
+          text1  = |{ transport_request-trkorr }|.
+    ENDIF.
+
+    CLOSE DATASET cofile.
+
+    zip->add(
+        name    = zcl_adu_utl_transport_request=>get( )->build_filename_cofiles( transport_request-trkorr )
+        content = big_string ).
+
+    DATA(data) = zcl_adu_utl_transport_request=>get( )->build_path_data( transport_request-trkorr ).
+
+    OPEN DATASET data FOR INPUT IN BINARY MODE.
+    IF sy-subrc <> 0.
+      RAISE EXCEPTION TYPE zcx_adu_transport_request
+        EXPORTING
+          textid = zcx_adu_transport_request=>not_found_data
+          text1  = |{ transport_request-trkorr }|.
+    ENDIF.
+
+    READ DATASET data INTO big_string.
+    IF sy-subrc <> 0.
+      RAISE EXCEPTION TYPE zcx_adu_transport_request
+        EXPORTING
+          textid = zcx_adu_transport_request=>not_found_data
+          text1  = |{ transport_request-trkorr }|.
+    ENDIF.
+
+    CLOSE DATASET data.
+
+    zip->add(
+        name    = zcl_adu_utl_transport_request=>get( )->build_filename_data( transport_request-trkorr )
+        content = big_string ).
+
+    result = zip->save( ).
 
   ENDMETHOD.
 

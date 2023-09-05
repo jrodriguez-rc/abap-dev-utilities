@@ -2,43 +2,109 @@
 CLASS zcx_adu_transport_request DEFINITION
   PUBLIC
   INHERITING FROM cx_static_check
-  FINAL
-  CREATE PUBLIC .
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
     INTERFACES if_t100_message.
+    INTERFACES if_t100_dyn_msg.
 
     CONSTANTS:
-      "! Transport request &1 doesn't exist
+      "! Transport request &amp;1 doesn't exist
       BEGIN OF not_exists,
         msgid TYPE symsgid VALUE 'ZADU_TRANSPORT_REQ' ##NO_TEXT,
         msgno TYPE symsgno VALUE '001' ##NO_TEXT,
         attr1 TYPE scx_attrname VALUE 'TEXT1' ##NO_TEXT,
-        attr2 TYPE scx_attrname VALUE 'TEXT2' ##NO_TEXT,
-        attr3 TYPE scx_attrname VALUE 'TEXT3' ##NO_TEXT,
-        attr4 TYPE scx_attrname VALUE 'TEXT4' ##NO_TEXT,
+        attr2 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr3 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr4 TYPE scx_attrname VALUE '' ##NO_TEXT,
       END OF not_exists.
 
     CONSTANTS:
-      "! Source client does not exist: &
+      "! Transport request &amp;1 isn't released.
+      BEGIN OF not_released,
+        msgid TYPE symsgid VALUE 'ZADU_TRANSPORT_REQ' ##NO_TEXT,
+        msgno TYPE symsgno VALUE '002' ##NO_TEXT,
+        attr1 TYPE scx_attrname VALUE 'TEXT1' ##NO_TEXT,
+        attr2 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr3 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr4 TYPE scx_attrname VALUE '' ##NO_TEXT,
+      END OF not_released.
+
+    CONSTANTS:
+      "! Transport request &amp;1 has no target.
+      BEGIN OF no_target,
+        msgid TYPE symsgid VALUE 'ZADU_TRANSPORT_REQ' ##NO_TEXT,
+        msgno TYPE symsgno VALUE '003' ##NO_TEXT,
+        attr1 TYPE scx_attrname VALUE 'TEXT1' ##NO_TEXT,
+        attr2 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr3 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr4 TYPE scx_attrname VALUE '' ##NO_TEXT,
+      END OF no_target.
+
+    CONSTANTS:
+      "! Not found cofile for transport request &amp;1.
+      BEGIN OF not_found_cofile,
+        msgid TYPE symsgid VALUE 'ZADU_TRANSPORT_REQ' ##NO_TEXT,
+        msgno TYPE symsgno VALUE '004' ##NO_TEXT,
+        attr1 TYPE scx_attrname VALUE 'TEXT1' ##NO_TEXT,
+        attr2 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr3 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr4 TYPE scx_attrname VALUE '' ##NO_TEXT,
+      END OF not_found_cofile.
+
+    CONSTANTS:
+      "! Not found data for transport request &amp;1.
+      BEGIN OF not_found_data,
+        msgid TYPE symsgid VALUE 'ZADU_TRANSPORT_REQ' ##NO_TEXT,
+        msgno TYPE symsgno VALUE '005' ##NO_TEXT,
+        attr1 TYPE scx_attrname VALUE 'TEXT1' ##NO_TEXT,
+        attr2 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr3 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr4 TYPE scx_attrname VALUE '' ##NO_TEXT,
+      END OF not_found_data.
+
+    CONSTANTS:
+      "! Filename &amp;1 not supported.
+      BEGIN OF filename_not_supported,
+        msgid TYPE symsgid VALUE 'ZADU_TRANSPORT_REQ' ##NO_TEXT,
+        msgno TYPE symsgno VALUE '006' ##NO_TEXT,
+        attr1 TYPE scx_attrname VALUE 'TEXT1' ##NO_TEXT,
+        attr2 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr3 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr4 TYPE scx_attrname VALUE '' ##NO_TEXT,
+      END OF filename_not_supported.
+
+    CONSTANTS:
+      "! Transport request &amp;1 is incomplete.
+      BEGIN OF incomplete,
+        msgid TYPE symsgid VALUE 'ZADU_TRANSPORT_REQ' ##NO_TEXT,
+        msgno TYPE symsgno VALUE '007' ##NO_TEXT,
+        attr1 TYPE scx_attrname VALUE 'TEXT1' ##NO_TEXT,
+        attr2 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr3 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr4 TYPE scx_attrname VALUE '' ##NO_TEXT,
+      END OF incomplete.
+
+    CONSTANTS:
+      "! Source client does not exist: &amp;
       BEGIN OF source_client_not_exists,
         msgid TYPE symsgid VALUE 'TA' ##NO_TEXT,
         msgno TYPE symsgno VALUE '008' ##NO_TEXT,
         attr1 TYPE scx_attrname VALUE 'TEXT1' ##NO_TEXT,
-        attr2 TYPE scx_attrname VALUE 'TEXT2' ##NO_TEXT,
-        attr3 TYPE scx_attrname VALUE 'TEXT3' ##NO_TEXT,
-        attr4 TYPE scx_attrname VALUE 'TEXT4' ##NO_TEXT,
+        attr2 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr3 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr4 TYPE scx_attrname VALUE '' ##NO_TEXT,
       END OF source_client_not_exists.
 
     CONSTANTS:
-      "! Source client & is protected against data export by client copy
+      "! Source client &amp; is protected against data export by client copy
       BEGIN OF client_copy_protected,
         msgid TYPE symsgid VALUE 'TA' ##NO_TEXT,
         msgno TYPE symsgno VALUE '260' ##NO_TEXT,
         attr1 TYPE scx_attrname VALUE 'TEXT1' ##NO_TEXT,
-        attr2 TYPE scx_attrname VALUE 'TEXT2' ##NO_TEXT,
-        attr3 TYPE scx_attrname VALUE 'TEXT3' ##NO_TEXT,
-        attr4 TYPE scx_attrname VALUE 'TEXT4' ##NO_TEXT,
+        attr2 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr3 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr4 TYPE scx_attrname VALUE '' ##NO_TEXT,
       END OF client_copy_protected.
 
     CONSTANTS:
@@ -46,10 +112,10 @@ CLASS zcx_adu_transport_request DEFINITION
       BEGIN OF client_000_protected,
         msgid TYPE symsgid VALUE 'TA' ##NO_TEXT,
         msgno TYPE symsgno VALUE '011' ##NO_TEXT,
-        attr1 TYPE scx_attrname VALUE 'TEXT1' ##NO_TEXT,
-        attr2 TYPE scx_attrname VALUE 'TEXT2' ##NO_TEXT,
-        attr3 TYPE scx_attrname VALUE 'TEXT3' ##NO_TEXT,
-        attr4 TYPE scx_attrname VALUE 'TEXT4' ##NO_TEXT,
+        attr1 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr2 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr3 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr4 TYPE scx_attrname VALUE '' ##NO_TEXT,
       END OF client_000_protected.
 
     CONSTANTS:
@@ -57,21 +123,21 @@ CLASS zcx_adu_transport_request DEFINITION
       BEGIN OF source_client_same_logon,
         msgid TYPE symsgid VALUE 'TA' ##NO_TEXT,
         msgno TYPE symsgno VALUE '009' ##NO_TEXT,
-        attr1 TYPE scx_attrname VALUE 'TEXT1' ##NO_TEXT,
-        attr2 TYPE scx_attrname VALUE 'TEXT2' ##NO_TEXT,
-        attr3 TYPE scx_attrname VALUE 'TEXT3' ##NO_TEXT,
-        attr4 TYPE scx_attrname VALUE 'TEXT4' ##NO_TEXT,
+        attr1 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr2 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr3 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr4 TYPE scx_attrname VALUE '' ##NO_TEXT,
       END OF source_client_same_logon.
 
     CONSTANTS:
-      "! Program ended with error or warning, return code: &
+      "! Program ended with error or warning, return code: &amp;
       BEGIN OF program_ended_with_error,
         msgid TYPE symsgid VALUE 'TA' ##NO_TEXT,
         msgno TYPE symsgno VALUE '146' ##NO_TEXT,
         attr1 TYPE scx_attrname VALUE 'TEXT1' ##NO_TEXT,
-        attr2 TYPE scx_attrname VALUE 'TEXT2' ##NO_TEXT,
-        attr3 TYPE scx_attrname VALUE 'TEXT3' ##NO_TEXT,
-        attr4 TYPE scx_attrname VALUE 'TEXT4' ##NO_TEXT,
+        attr2 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr3 TYPE scx_attrname VALUE '' ##NO_TEXT,
+        attr4 TYPE scx_attrname VALUE '' ##NO_TEXT,
       END OF program_ended_with_error.
 
     DATA:
