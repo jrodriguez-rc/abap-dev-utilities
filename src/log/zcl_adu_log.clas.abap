@@ -6,34 +6,39 @@ CLASS zcl_adu_log DEFINITION
     INTERFACES zif_adu_log.
 
     METHODS constructor
-      IMPORTING
-        iv_object     TYPE balobj_d
-        iv_subobject  TYPE balsubobj
-        iv_extnumber  TYPE balnrext
-        iv_log_handle TYPE balloghndl OPTIONAL
-        iv_source     TYPE balprog OPTIONAL
-        iv_date       TYPE baldate DEFAULT sy-datum
-        iv_time       TYPE baltime DEFAULT sy-uzeit.
+      IMPORTING iv_object     TYPE balobj_d
+                iv_subobject  TYPE balsubobj
+                iv_extnumber  TYPE balnrext
+                iv_log_handle TYPE balloghndl OPTIONAL
+                iv_source     TYPE balprog    OPTIONAL
+                iv_date       TYPE baldate    DEFAULT sy-datum
+                iv_time       TYPE baltime    DEFAULT sy-uzeit.
 
   PROTECTED SECTION.
     METHODS initialize FINAL.
 
     METHODS get_default_header
-      RETURNING
-        VALUE(rs_result) TYPE bal_s_log.
+      RETURNING VALUE(rs_result) TYPE bal_s_log.
 
     METHODS get_log_handle FINAL
-      RETURNING
-        VALUE(rv_result) TYPE balloghndl.
+      RETURNING VALUE(rv_result) TYPE balloghndl.
 
     METHODS is_initialized FINAL
-      RETURNING
-        VALUE(rv_result) TYPE abap_bool.
+      RETURNING VALUE(rv_result) TYPE abap_bool.
 
   PRIVATE SECTION.
-    DATA ms_header TYPE bal_s_log.
-    DATA mv_log_handle TYPE balloghndl.
+    DATA ms_header      TYPE bal_s_log.
+    DATA mv_log_handle  TYPE balloghndl.
     DATA mv_initialized TYPE abap_bool.
+
+    METHODS add_content
+      IMPORTING iv_content      TYPE string
+                iv_content_type TYPE balpval
+                is_callback     TYPE bal_s_clbk OPTIONAL.
+
+    METHODS content_to_params
+      IMPORTING iv_content       TYPE string
+      RETURNING VALUE(rt_result) TYPE bal_t_par.
 
 ENDCLASS.
 
@@ -83,10 +88,11 @@ CLASS zcl_adu_log IMPLEMENTATION.
 
     DATA(ls_message) = is_message.
 
-    ls_message-probclass = SWITCH #( ls_message-msgty WHEN 'E' OR 'A' THEN '2'
-                                                      WHEN 'W'        THEN '3'
-                                                      WHEN 'S' OR 'I' THEN '4'
-                                                      ELSE ls_message-probclass ).
+    ls_message-probclass = SWITCH #( ls_message-msgty
+                                     WHEN 'E' OR 'A' THEN '2'
+                                     WHEN 'W'        THEN '3'
+                                     WHEN 'S' OR 'I' THEN '4'
+                                     ELSE                 ls_message-probclass ).
 
     CALL FUNCTION 'BAL_LOG_MSG_ADD'
       EXPORTING
@@ -94,6 +100,20 @@ CLASS zcl_adu_log IMPLEMENTATION.
         i_s_msg      = ls_message
       EXCEPTIONS
         OTHERS       = 0.
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_log~add_content_json.
+
+    add_content( iv_content = iv_json iv_content_type = CONV #( if_rest_media_type=>gc_appl_json ) ).
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_log~add_content_xml.
+
+    add_content( iv_content = iv_xml iv_content_type = CONV #( if_rest_media_type=>gc_appl_xml ) ).
 
   ENDMETHOD.
 
@@ -176,6 +196,46 @@ CLASS zcl_adu_log IMPLEMENTATION.
   METHOD is_initialized.
 
     rv_result = mv_initialized.
+
+  ENDMETHOD.
+
+
+  METHOD add_content.
+
+    DATA(ls_callback) =
+        COND #( WHEN is_callback IS NOT INITIAL
+                THEN is_callback
+                ELSE VALUE #( userexitf = 'Z_ADU_LOG_DISPLAY_CONTENT'
+                              userexitt = 'F' ) ).
+
+    DATA(lv_base64) = cl_http_utility=>encode_base64( iv_content ).
+
+    zif_adu_log~add_message(
+        VALUE #( msgty  = zcl_adu_messages=>severity-information
+                 msgid  = zcx_adu_log=>display_content-msgid
+                 msgno  = zcx_adu_log=>display_content-msgno
+                 params = VALUE #( callback = ls_callback
+                                   t_par    = VALUE #( ( parname  = zif_adu_log=>gc_parameter-content_type
+                                                         parvalue = iv_content_type )
+                                                       ( LINES OF content_to_params( lv_base64 ) ) ) ) ) ).
+
+  ENDMETHOD.
+
+
+  METHOD content_to_params.
+
+    DATA lt_parameter_values TYPE STANDARD TABLE OF balpval WITH EMPTY KEY.
+
+    CALL FUNCTION 'SCMS_STRING_TO_FTEXT'
+      EXPORTING
+        text      = iv_content
+      TABLES
+        ftext_tab = lt_parameter_values.
+
+    rt_result =
+        VALUE #( FOR <value> IN lt_parameter_values
+                 parname = zif_adu_log=>gc_parameter-content
+                 ( parvalue = <value> ) ).
 
   ENDMETHOD.
 
