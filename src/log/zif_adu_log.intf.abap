@@ -17,21 +17,22 @@ INTERFACE zif_adu_log
     END OF gc_message_class.
 
   METHODS add_exception
-    IMPORTING
-      ix_exception TYPE REF TO cx_root.
+    IMPORTING ix_exception     TYPE REF TO cx_root
+    RETURNING VALUE(ri_result) TYPE REF TO zif_adu_log.
 
   METHODS add_message
-    IMPORTING
-      is_message TYPE bal_s_msg.
+    IMPORTING is_message       TYPE bal_s_msg
+    RETURNING VALUE(ri_result) TYPE REF TO zif_adu_log.
 
   METHODS add_content_json
-    IMPORTING
-      iv_json TYPE string.
+    IMPORTING iv_json          TYPE string
+    RETURNING VALUE(ri_result) TYPE REF TO zif_adu_log.
 
   METHODS add_content_xml
-    IMPORTING
-      iv_xml TYPE string.
+    IMPORTING iv_xml           TYPE string
+    RETURNING VALUE(ri_result) TYPE REF TO zif_adu_log.
 
-  METHODS save.
+  METHODS save
+    RETURNING VALUE(ri_result) TYPE REF TO zif_adu_log.
 
 ENDINTERFACE.

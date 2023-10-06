@@ -74,6 +74,8 @@ CLASS zcl_adu_log IMPLEMENTATION.
 
   METHOD zif_adu_log~add_exception.
 
+    ri_result = me.
+
     IF get_log_handle( ) IS INITIAL OR ix_exception IS NOT BOUND.
       RETURN.
     ENDIF.
@@ -97,6 +99,8 @@ CLASS zcl_adu_log IMPLEMENTATION.
 
 
   METHOD zif_adu_log~add_message.
+
+    ri_result = me.
 
     IF get_log_handle( ) IS INITIAL.
       RETURN.
@@ -135,6 +139,8 @@ CLASS zcl_adu_log IMPLEMENTATION.
 
   METHOD zif_adu_log~add_content_json.
 
+    ri_result = me.
+
     add_content( iv_content = iv_json iv_content_type = CONV #( if_rest_media_type=>gc_appl_json ) ).
 
   ENDMETHOD.
@@ -142,12 +148,16 @@ CLASS zcl_adu_log IMPLEMENTATION.
 
   METHOD zif_adu_log~add_content_xml.
 
+    ri_result = me.
+
     add_content( iv_content = iv_xml iv_content_type = CONV #( if_rest_media_type=>gc_appl_xml ) ).
 
   ENDMETHOD.
 
 
   METHOD zif_adu_log~save.
+
+    ri_result = me.
 
     IF get_log_handle( ) IS INITIAL.
       RETURN.
@@ -231,9 +241,10 @@ CLASS zcl_adu_log IMPLEMENTATION.
 
   METHOD apply_problem_class.
 
-    rv_result = xsdbool( get_lower_problem_class( ) IS INITIAL
-                      OR ( iv_problem_class <= get_lower_problem_class( )
-                       AND iv_problem_class IS NOT INITIAL ) ).
+    rv_result = xsdbool(    get_lower_problem_class( ) IS INITIAL
+                         OR
+                            (     iv_problem_class <= get_lower_problem_class( )
+                              AND iv_problem_class IS NOT INITIAL ) ).
 
   ENDMETHOD.
 
