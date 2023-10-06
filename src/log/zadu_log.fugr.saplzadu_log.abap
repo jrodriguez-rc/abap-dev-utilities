@@ -1,8 +1,8 @@
 *******************************************************************
 *   System-defined Include-files.                                 *
 *******************************************************************
-  INCLUDE lzadu_logtop.                      " Global Declarations
-  INCLUDE lzadu_loguxx.                      " Function Modules
+INCLUDE lzadu_logtop.                      " Global Declarations
+INCLUDE lzadu_loguxx.                      " Function Modules
 
 *******************************************************************
 *   User-defined Include-files (if necessary).                    *

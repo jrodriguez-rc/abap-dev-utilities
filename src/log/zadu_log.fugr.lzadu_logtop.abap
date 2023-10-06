@@ -1,3 +1,3 @@
-FUNCTION-POOL ZADU_LOG.                     "MESSAGE-ID ..
+FUNCTION-POOL zadu_log.                     "MESSAGE-ID ..
 
 * INCLUDE LZADU_LOGD...                      " Local class definition

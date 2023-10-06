@@ -1,4 +1,4 @@
-FUNCTION Z_ADU_LOG_DISPLAY_CONTENT.
+FUNCTION z_adu_log_display_content.
 *"----------------------------------------------------------------------
 *"*"Local Interface:
 *"  TABLES
