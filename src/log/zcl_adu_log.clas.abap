@@ -88,11 +88,20 @@ CLASS zcl_adu_log IMPLEMENTATION.
 
     DATA(ls_message) = is_message.
 
-    ls_message-probclass = SWITCH #( ls_message-msgty
-                                     WHEN 'E' OR 'A' THEN '2'
-                                     WHEN 'W'        THEN '3'
-                                     WHEN 'S' OR 'I' THEN '4'
-                                     ELSE                 ls_message-probclass ).
+    IF ls_message-probclass IS INITIAL.
+      ls_message-probclass =
+        SWITCH #( ls_message-msgty
+                  WHEN zcl_adu_messages=>severity-abort OR zcl_adu_messages=>severity-exception THEN
+                    zif_adu_log=>gc_message_class-very_important
+                  WHEN zcl_adu_messages=>severity-error THEN
+                    zif_adu_log=>gc_message_class-important
+                  WHEN zcl_adu_messages=>severity-warning THEN
+                    zif_adu_log=>gc_message_class-medium
+                  WHEN zcl_adu_messages=>severity-success OR zcl_adu_messages=>severity-information THEN
+                    zif_adu_log=>gc_message_class-additinal_information
+                  ELSE
+                    zif_adu_log=>gc_message_class-other ).
+    ENDIF.
 
     CALL FUNCTION 'BAL_LOG_MSG_ADD'
       EXPORTING

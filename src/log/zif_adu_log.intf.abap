@@ -7,6 +7,15 @@ INTERFACE zif_adu_log
       content      TYPE balpar VALUE 'DATA',
     END OF gc_parameter.
 
+  CONSTANTS:
+    BEGIN OF gc_message_class,
+      very_important        TYPE balprobcl VALUE '1',
+      important             TYPE balprobcl VALUE '2',
+      medium                TYPE balprobcl VALUE '3',
+      additinal_information TYPE balprobcl VALUE '4',
+      other                 TYPE balprobcl VALUE '',
+    END OF gc_message_class.
+
   METHODS add_exception
     IMPORTING
       ix_exception TYPE REF TO cx_root.
