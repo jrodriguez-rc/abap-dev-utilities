@@ -231,7 +231,9 @@ CLASS zcl_adu_log IMPLEMENTATION.
 
   METHOD apply_problem_class.
 
-    rv_result = xsdbool( iv_problem_class >= get_lower_problem_class( ) ).
+    rv_result = xsdbool( get_lower_problem_class( ) IS INITIAL
+                      OR ( iv_problem_class <= get_lower_problem_class( )
+                       AND iv_problem_class IS NOT INITIAL ) ).
 
   ENDMETHOD.
 
