@@ -16,6 +16,17 @@ INTERFACE zif_adu_log
       other                 TYPE balprobcl VALUE '',
     END OF gc_message_class.
 
+  TYPES:
+    BEGIN OF ty_message,
+      type      TYPE msgty,
+      id        TYPE msgid,
+      number    TYPE msgno,
+      variable1 TYPE msgv1,
+      variable2 TYPE msgv2,
+      variable3 TYPE msgv3,
+      variable4 TYPE msgv4,
+    END OF ty_message.
+
   METHODS add_exception
     IMPORTING ix_exception     TYPE REF TO cx_root
     RETURNING VALUE(ri_result) TYPE REF TO zif_adu_log.
@@ -25,12 +36,14 @@ INTERFACE zif_adu_log
     RETURNING VALUE(ri_result) TYPE REF TO zif_adu_log.
 
   METHODS add_content_json
-    IMPORTING iv_json          TYPE string
-    RETURNING VALUE(ri_result) TYPE REF TO zif_adu_log.
+    IMPORTING iv_json           TYPE string
+              is_custom_message TYPE ty_message OPTIONAL
+    RETURNING VALUE(ri_result)  TYPE REF TO zif_adu_log.
 
   METHODS add_content_xml
-    IMPORTING iv_xml           TYPE string
-    RETURNING VALUE(ri_result) TYPE REF TO zif_adu_log.
+    IMPORTING iv_xml            TYPE string
+              is_custom_message TYPE ty_message OPTIONAL
+    RETURNING VALUE(ri_result)  TYPE REF TO zif_adu_log.
 
   METHODS save
     RETURNING VALUE(ri_result) TYPE REF TO zif_adu_log.

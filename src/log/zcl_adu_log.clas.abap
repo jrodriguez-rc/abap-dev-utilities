@@ -34,9 +34,10 @@ CLASS zcl_adu_log DEFINITION
       RETURNING VALUE(rv_result) TYPE balprobcl.
 
     METHODS add_content
-      IMPORTING iv_content      TYPE string
-                iv_content_type TYPE balpval
-                is_callback     TYPE bal_s_clbk OPTIONAL.
+      IMPORTING iv_content        TYPE string
+                iv_content_type   TYPE balpval
+                is_custom_message TYPE zif_adu_log=>ty_message OPTIONAL
+                is_callback       TYPE bal_s_clbk OPTIONAL.
 
     METHODS content_to_params
       IMPORTING iv_content       TYPE string
@@ -136,21 +137,23 @@ CLASS zcl_adu_log IMPLEMENTATION.
 
   ENDMETHOD.
 
-
   METHOD zif_adu_log~add_content_json.
 
     ri_result = me.
 
-    add_content( iv_content = iv_json iv_content_type = CONV #( if_rest_media_type=>gc_appl_json ) ).
+    add_content( iv_content        = iv_json
+                 iv_content_type   = CONV #( if_rest_media_type=>gc_appl_json )
+                 is_custom_message = is_custom_message ).
 
   ENDMETHOD.
-
 
   METHOD zif_adu_log~add_content_xml.
 
     ri_result = me.
 
-    add_content( iv_content = iv_xml iv_content_type = CONV #( if_rest_media_type=>gc_appl_xml ) ).
+    add_content( iv_content        = iv_xml
+                 iv_content_type   = CONV #( if_rest_media_type=>gc_appl_xml )
+                 is_custom_message = is_custom_message ).
 
   ENDMETHOD.
 
@@ -255,7 +258,6 @@ CLASS zcl_adu_log IMPLEMENTATION.
 
   ENDMETHOD.
 
-
   METHOD add_content.
 
     DATA(ls_callback) =
@@ -266,14 +268,27 @@ CLASS zcl_adu_log IMPLEMENTATION.
 
     DATA(lv_base64) = cl_http_utility=>encode_base64( iv_content ).
 
-    zif_adu_log~add_message(
-        VALUE #( msgty  = zcl_adu_messages=>severity-information
-                 msgid  = zcx_adu_log=>display_content-msgid
-                 msgno  = zcx_adu_log=>display_content-msgno
-                 params = VALUE #( callback = ls_callback
-                                   t_par    = VALUE #( ( parname  = zif_adu_log=>gc_parameter-content_type
-                                                         parvalue = iv_content_type )
-                                                       ( LINES OF content_to_params( lv_base64 ) ) ) ) ) ).
+    DATA(ls_parameters) =
+        VALUE bal_s_parm( callback = ls_callback
+                          t_par    = VALUE #( ( parname  = zif_adu_log=>gc_parameter-content_type
+                                                parvalue = iv_content_type )
+                                              ( LINES OF content_to_params( lv_base64 ) ) ) ).
+
+    IF is_custom_message IS INITIAL.
+      zif_adu_log~add_message( VALUE #( msgty  = zcl_adu_messages=>severity-information
+                                        msgid  = zcx_adu_log=>display_content-msgid
+                                        msgno  = zcx_adu_log=>display_content-msgno
+                                        params = ls_parameters ) ).
+    ELSE.
+      zif_adu_log~add_message( VALUE #( msgty  = is_custom_message-type
+                                        msgid  = is_custom_message-id
+                                        msgno  = is_custom_message-number
+                                        msgv1  = is_custom_message-variable1
+                                        msgv2  = is_custom_message-variable2
+                                        msgv3  = is_custom_message-variable3
+                                        msgv4  = is_custom_message-variable4
+                                        params = ls_parameters ) ).
+    ENDIF.
 
   ENDMETHOD.
 
