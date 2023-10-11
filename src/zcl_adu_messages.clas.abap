@@ -1,135 +1,74 @@
 "! <p class="shorttext synchronized" lang="en">Messages</p>
 CLASS zcl_adu_messages DEFINITION
   PUBLIC
-  CREATE PUBLIC .
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
+    INTERFACES zif_adu_messages.
 
-    TYPES:
-      tt_message_types TYPE STANDARD TABLE OF syst_msgty
-          WITH DEFAULT KEY .
-    TYPES:
-      tt_messages      TYPE STANDARD TABLE OF bapiret2
-          WITH DEFAULT KEY
-          WITH NON-UNIQUE SORTED KEY type COMPONENTS type .
+    ALIASES tt_message_types FOR zif_adu_messages~tt_message_types.
+    ALIASES tt_messages FOR zif_adu_messages~tt_messages.
+    ALIASES severity FOR zif_adu_messages~severity.
+    ALIASES error_types FOR zif_adu_messages~error_types.
+    ALIASES add_message FOR zif_adu_messages~add_message.
+    ALIASES add_messages FOR zif_adu_messages~add_messages.
+    ALIASES add_exception FOR zif_adu_messages~add_exception.
+    ALIASES add_t100_message FOR zif_adu_messages~add_t100_message.
+    ALIASES add_text_message FOR zif_adu_messages~add_text_message.
+    ALIASES display_messages FOR zif_adu_messages~display_messages.
+    ALIASES get_messages FOR zif_adu_messages~get_messages.
+    ALIASES initialize FOR zif_adu_messages~initialize.
+    ALIASES is_error FOR zif_adu_messages~is_error.
+    ALIASES raise_gateway FOR zif_adu_messages~raise_gateway.
+    ALIASES raise_gateway_busi_exception FOR zif_adu_messages~raise_gateway_busi_exception.
+    ALIASES raise_gateway_tech_exception FOR zif_adu_messages~raise_gateway_tech_exception.
 
-    CONSTANTS:
-      BEGIN OF severity,
-        error       TYPE symsgty VALUE 'E',
-        warning     TYPE symsgty VALUE 'W',
-        information TYPE symsgty VALUE 'I',
-        success     TYPE symsgty VALUE 'S',
-        exception   TYPE symsgty VALUE 'X',
-        abort       TYPE symsgty VALUE 'A',
-      END OF severity .
-    CONSTANTS error_types TYPE string VALUE 'AEX' ##NO_TEXT.
-    CLASS-DATA message_error_types TYPE tt_message_types READ-ONLY .
+    CLASS-DATA message_error_types TYPE zif_adu_messages=>tt_message_types READ-ONLY.
 
-    CLASS-METHODS class_constructor .
-    METHODS add_message
-      IMPORTING
-        !message_type   TYPE sy-msgty DEFAULT severity-error
-        !message_id     TYPE sy-msgid
-        !message_number TYPE sy-msgno
-        !message_var_1  TYPE any OPTIONAL
-        !message_var_2  TYPE any OPTIONAL
-        !message_var_3  TYPE any OPTIONAL
-        !message_var_4  TYPE any OPTIONAL
-        !parameter      TYPE bapiret2-parameter OPTIONAL
-        !row            TYPE bapiret2-row OPTIONAL
-        !field          TYPE bapiret2-field OPTIONAL .
-    METHODS add_messages
-      IMPORTING
-        !messages TYPE bapiret2_t .
-    METHODS add_exception
-      IMPORTING
-        !exception TYPE REF TO cx_root
-        !parameter TYPE bapiret2-parameter OPTIONAL
-        !row       TYPE bapiret2-row OPTIONAL
-        !field     TYPE bapiret2-field OPTIONAL .
-    METHODS add_t100_message
-      IMPORTING
-        !message TYPE REF TO if_t100_message .
-    METHODS add_text_message
-      IMPORTING
-        !message_type   TYPE sy-msgty DEFAULT severity-error
-        !message_id     TYPE sy-msgid
-        !message_number TYPE sy-msgno
-        !text           TYPE string
-        !parameter      TYPE bapiret2-parameter OPTIONAL
-        !row            TYPE bapiret2-row OPTIONAL
-        !field          TYPE bapiret2-field OPTIONAL .
-    METHODS display_messages
-      IMPORTING
-        !initialize_after_display TYPE abap_bool DEFAULT abap_true
-        !send_if_one              TYPE abap_bool DEFAULT abap_false .
-    METHODS get_messages
-      RETURNING
-        VALUE(result) TYPE tt_messages .
-    METHODS initialize .
-    METHODS is_error
-      RETURNING
-        VALUE(result) TYPE abap_bool .
-    METHODS raise_gateway
-      RAISING
-        /iwbep/cx_gateway .
-    METHODS raise_gateway_busi_exception
-      RAISING
-        /iwbep/cx_mgw_busi_exception .
-    METHODS raise_gateway_tech_exception
-      RAISING
-        /iwbep/cx_mgw_tech_exception .
+    CLASS-METHODS class_constructor.
+    CLASS-METHODS create
+      RETURNING VALUE(ri_result) TYPE REF TO zif_adu_messages.
+
   PROTECTED SECTION.
 
   PRIVATE SECTION.
-    DATA:
-      collected_messages TYPE tt_messages.
+    DATA collected_messages TYPE zif_adu_messages=>tt_messages.
 
     METHODS create_gateway_exception
-      IMPORTING
-        !iv_tech      TYPE abap_bool DEFAULT abap_false
-      RETURNING
-        VALUE(result) TYPE REF TO /iwbep/cx_mgw_base_exception.
+      IMPORTING iv_tech       TYPE abap_bool DEFAULT abap_false
+      RETURNING VALUE(result) TYPE REF TO /iwbep/cx_mgw_base_exception.
 
     METHODS get_t100_attr
-      IMPORTING
-        !attribute    TYPE scx_attrname
-        !exception    TYPE REF TO object
-      RETURNING
-        VALUE(result) TYPE symsgv.
+      IMPORTING attribute     TYPE scx_attrname
+                !exception    TYPE REF TO object
+      RETURNING VALUE(result) TYPE symsgv.
 
     METHODS message_vars_prepare
-      IMPORTING
-        !message_var_1          TYPE any OPTIONAL
-        !message_var_2          TYPE any OPTIONAL
-        !message_var_3          TYPE any OPTIONAL
-        !message_var_4          TYPE any OPTIONAL
-      EXPORTING
-        message_var_formatted_1 TYPE syst_msgv
-        message_var_formatted_2 TYPE syst_msgv
-        message_var_formatted_3 TYPE syst_msgv
-        message_var_formatted_4 TYPE syst_msgv.
+      IMPORTING message_var_1           TYPE any OPTIONAL
+                message_var_2           TYPE any OPTIONAL
+                message_var_3           TYPE any OPTIONAL
+                message_var_4           TYPE any OPTIONAL
+      EXPORTING message_var_formatted_1 TYPE syst_msgv
+                message_var_formatted_2 TYPE syst_msgv
+                message_var_formatted_3 TYPE syst_msgv
+                message_var_formatted_4 TYPE syst_msgv.
 
     METHODS message_var_prepare
-      IMPORTING
-        !message_var  TYPE any OPTIONAL
-      RETURNING
-        VALUE(result) TYPE syst_msgv.
+      IMPORTING message_var   TYPE any OPTIONAL
+      RETURNING VALUE(result) TYPE syst_msgv.
 
     METHODS fill_return_param
-      IMPORTING
-        !message_type   TYPE syst_msgty
-        !message_id     TYPE syst_msgid
-        !message_number TYPE syst_msgno
-        !message_var_1  TYPE syst_msgv OPTIONAL
-        !message_var_2  TYPE syst_msgv OPTIONAL
-        !message_var_3  TYPE syst_msgv OPTIONAL
-        !message_var_4  TYPE syst_msgv OPTIONAL
-        !parameter      TYPE bapiret2-parameter OPTIONAL
-        !row            TYPE bapiret2-row OPTIONAL
-        !field          TYPE bapiret2-field OPTIONAL
-      RETURNING
-        VALUE(result)   TYPE bapiret2.
+      IMPORTING message_type   TYPE syst_msgty
+                message_id     TYPE syst_msgid
+                message_number TYPE syst_msgno
+                message_var_1  TYPE syst_msgv          OPTIONAL
+                message_var_2  TYPE syst_msgv          OPTIONAL
+                message_var_3  TYPE syst_msgv          OPTIONAL
+                message_var_4  TYPE syst_msgv          OPTIONAL
+                !parameter     TYPE bapiret2-parameter OPTIONAL
+                !row           TYPE bapiret2-row       OPTIONAL
+                !field         TYPE bapiret2-field     OPTIONAL
+      RETURNING VALUE(result)  TYPE bapiret2.
 
 ENDCLASS.
 
@@ -138,58 +77,51 @@ ENDCLASS.
 CLASS zcl_adu_messages IMPLEMENTATION.
 
 
-  METHOD add_exception.
+  METHOD zif_adu_messages~add_exception.
 
-    DATA:
-      text_message TYPE c LENGTH 250.
+    DATA text_message TYPE c LENGTH 250.
 
     IF exception IS NOT BOUND.
       RETURN.
     ENDIF.
 
-    add_exception( exception->previous ).
+    zif_adu_messages~add_exception( exception->previous ).
 
     TRY.
         DATA(dyn_info) = CAST zif_adu_exception_dyn_info( exception ).
       CATCH cx_sy_move_cast_error.
-        CLEAR: dyn_info.
+        CLEAR dyn_info.
     ENDTRY.
 
     DATA(current_parameter) =
         COND #(
-            WHEN parameter IS NOT INITIAL
-                THEN parameter
-            WHEN dyn_info IS BOUND
-                THEN dyn_info->parameter ).
+            WHEN parameter IS NOT INITIAL THEN parameter
+            WHEN dyn_info IS BOUND        THEN dyn_info->parameter ).
 
     DATA(current_row) =
         COND #(
-            WHEN row IS NOT INITIAL
-                THEN row
-            WHEN dyn_info IS BOUND
-                THEN dyn_info->row ).
+            WHEN row IS NOT INITIAL THEN row
+            WHEN dyn_info IS BOUND  THEN dyn_info->row ).
 
     DATA(current_field) =
         COND #(
-            WHEN field IS NOT INITIAL
-                THEN field
-            WHEN dyn_info IS BOUND
-                THEN dyn_info->field ).
+            WHEN field IS NOT INITIAL THEN field
+            WHEN dyn_info IS BOUND    THEN dyn_info->field ).
 
     TRY.
         DATA(t100_exception) = CAST if_t100_message( exception ).
-        add_message(
-                message_id     = t100_exception->t100key-msgid
-                message_number = t100_exception->t100key-msgno
-                message_var_1  = get_t100_attr( exception = exception attribute = t100_exception->t100key-attr1 )
-                message_var_2  = get_t100_attr( exception = exception attribute = t100_exception->t100key-attr2 )
-                message_var_3  = get_t100_attr( exception = exception attribute = t100_exception->t100key-attr3 )
-                message_var_4  = get_t100_attr( exception = exception attribute = t100_exception->t100key-attr4 )
-                parameter      = current_parameter
-                row            = current_row
-                field          = current_field ).
+        zif_adu_messages~add_message(
+            message_id     = t100_exception->t100key-msgid
+            message_number = t100_exception->t100key-msgno
+            message_var_1  = get_t100_attr( exception = exception attribute = t100_exception->t100key-attr1 )
+            message_var_2  = get_t100_attr( exception = exception attribute = t100_exception->t100key-attr2 )
+            message_var_3  = get_t100_attr( exception = exception attribute = t100_exception->t100key-attr3 )
+            message_var_4  = get_t100_attr( exception = exception attribute = t100_exception->t100key-attr4 )
+            parameter      = current_parameter
+            row            = current_row
+            field          = current_field ).
       CATCH cx_sy_move_cast_error.
-        text_message  = exception->get_text( ).
+        text_message = exception->get_text( ).
         DATA(text_message_var_1) = text_message(50).
         DATA(text_message_var_2) = text_message+50(50).
 
@@ -197,15 +129,15 @@ CLASS zcl_adu_messages IMPLEMENTATION.
                                                   source_line  = DATA(lv_line) ).
 
         IF text_message IS NOT  INITIAL.
-          add_message( message_id     = zcx_adu_messages=>text_exception_message-msgid
-                       message_number = zcx_adu_messages=>text_exception_message-msgno
-                       message_var_1  = text_message_var_1
-                       message_var_2  = text_message_var_2
-                       message_var_3  = lv_include
-                       message_var_4  = lv_line
-                       parameter      = current_parameter
-                       row            = current_row
-                       field          = current_field ).
+          zif_adu_messages~add_message( message_id     = zcx_adu_messages=>text_exception_message-msgid
+                                        message_number = zcx_adu_messages=>text_exception_message-msgno
+                                        message_var_1  = text_message_var_1
+                                        message_var_2  = text_message_var_2
+                                        message_var_3  = lv_include
+                                        message_var_4  = lv_line
+                                        parameter      = current_parameter
+                                        row            = current_row
+                                        field          = current_field ).
         ENDIF.
 
     ENDTRY.
@@ -213,7 +145,7 @@ CLASS zcl_adu_messages IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD add_message.
+  METHOD zif_adu_messages~add_message.
 
     message_vars_prepare( EXPORTING message_var_1           = message_var_1
                                     message_var_2           = message_var_2
@@ -238,25 +170,25 @@ CLASS zcl_adu_messages IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD add_messages.
+  METHOD zif_adu_messages~add_messages.
 
     LOOP AT messages INTO DATA(ls_message).
-      add_message( message_type   = ls_message-type
-                   message_id     = ls_message-id
-                   message_number = ls_message-number
-                   message_var_1  = ls_message-message_v1
-                   message_var_2  = ls_message-message_v2
-                   message_var_3  = ls_message-message_v3
-                   message_var_4  = ls_message-message_v4
-                   parameter      = ls_message-parameter
-                   row            = ls_message-row
-                   field          = ls_message-field ).
+      zif_adu_messages~add_message( message_type   = ls_message-type
+                                    message_id     = ls_message-id
+                                    message_number = ls_message-number
+                                    message_var_1  = ls_message-message_v1
+                                    message_var_2  = ls_message-message_v2
+                                    message_var_3  = ls_message-message_v3
+                                    message_var_4  = ls_message-message_v4
+                                    parameter      = ls_message-parameter
+                                    row            = ls_message-row
+                                    field          = ls_message-field ).
     ENDLOOP.
 
   ENDMETHOD.
 
 
-  METHOD add_t100_message.
+  METHOD zif_adu_messages~add_t100_message.
 
     TRY.
         DATA(dyn_info) = CAST zif_adu_exception_dyn_info( message ).
@@ -266,21 +198,21 @@ CLASS zcl_adu_messages IMPLEMENTATION.
       CATCH cx_sy_move_cast_error.
     ENDTRY.
 
-    add_message(
-            message_id     = message->t100key-msgid
-            message_number = message->t100key-msgno
-            message_var_1  = get_t100_attr( exception = message attribute = message->t100key-attr1 )
-            message_var_2  = get_t100_attr( exception = message attribute = message->t100key-attr2 )
-            message_var_3  = get_t100_attr( exception = message attribute = message->t100key-attr3 )
-            message_var_4  = get_t100_attr( exception = message attribute = message->t100key-attr4 )
-            parameter      = parameter
-            row            = row
-            field          = field ).
+    zif_adu_messages~add_message(
+        message_id     = message->t100key-msgid
+        message_number = message->t100key-msgno
+        message_var_1  = get_t100_attr( exception = message attribute = message->t100key-attr1 )
+        message_var_2  = get_t100_attr( exception = message attribute = message->t100key-attr2 )
+        message_var_3  = get_t100_attr( exception = message attribute = message->t100key-attr3 )
+        message_var_4  = get_t100_attr( exception = message attribute = message->t100key-attr4 )
+        parameter      = parameter
+        row            = row
+        field          = field ).
 
   ENDMETHOD.
 
 
-  METHOD add_text_message.
+  METHOD zif_adu_messages~add_text_message.
 
     DATA:
       BEGIN OF message_variables,
@@ -292,53 +224,58 @@ CLASS zcl_adu_messages IMPLEMENTATION.
 
     message_variables = text.
 
-    add_message(
-        message_type   = message_type
-        message_id     = message_id
-        message_number = message_number
-        message_var_1  = message_variables-var1
-        message_var_2  = message_variables-var2
-        message_var_3  = message_variables-var3
-        message_var_4  = message_variables-var4
-        parameter      = parameter
-        row            = row
-        field          = field ).
+    zif_adu_messages~add_message( message_type   = message_type
+                                  message_id     = message_id
+                                  message_number = message_number
+                                  message_var_1  = message_variables-var1
+                                  message_var_2  = message_variables-var2
+                                  message_var_3  = message_variables-var3
+                                  message_var_4  = message_variables-var4
+                                  parameter      = parameter
+                                  row            = row
+                                  field          = field ).
 
   ENDMETHOD.
 
 
   METHOD class_constructor.
 
-    message_error_types = VALUE #( ( severity-abort )
-                                   ( severity-error )
-                                   ( severity-exception ) ).
+    message_error_types = VALUE #( ( zif_adu_messages=>severity-abort )
+                                   ( zif_adu_messages=>severity-error )
+                                   ( zif_adu_messages=>severity-exception ) ).
+
+  ENDMETHOD.
+
+
+  METHOD create.
+
+    ri_result = NEW zcl_adu_messages( ).
 
   ENDMETHOD.
 
 
   METHOD create_gateway_exception.
 
-    DATA(lt_messages) = get_messages( ).
-
-    result = COND #( WHEN iv_tech = abap_false THEN NEW /iwbep/cx_mgw_busi_exception( )
-                                                  ELSE NEW /iwbep/cx_mgw_tech_exception( ) ).
+    result = COND #( WHEN iv_tech = abap_false
+                     THEN NEW /iwbep/cx_mgw_busi_exception( )
+                     ELSE NEW /iwbep/cx_mgw_tech_exception( ) ).
 
     DATA(messages_container) = CAST /iwbep/if_message_container( result->get_msg_container( ) ).
 
     messages_container->add_messages_from_bapi(
-                        it_bapi_messages         = CORRESPONDING #( get_messages( ) )
-                        iv_determine_leading_msg = /iwbep/if_message_container=>gcs_leading_msg_search_option-first ).
+        it_bapi_messages         = CORRESPONDING #( zif_adu_messages~get_messages( ) )
+        iv_determine_leading_msg = /iwbep/if_message_container=>gcs_leading_msg_search_option-first ).
 
   ENDMETHOD.
 
 
-  METHOD display_messages.
+  METHOD zif_adu_messages~display_messages.
 
     CALL FUNCTION 'MESSAGES_INITIALIZE'
       EXCEPTIONS
         OTHERS = 0.
 
-    DATA(messages) = get_messages( ).
+    DATA(messages) = zif_adu_messages~get_messages( ).
 
     LOOP AT messages INTO DATA(message).
       CALL FUNCTION 'MESSAGE_STORE'
@@ -361,7 +298,7 @@ CLASS zcl_adu_messages IMPLEMENTATION.
         OTHERS      = 0.
 
     IF initialize_after_display = abap_true.
-      initialize( ).
+      zif_adu_messages~initialize( ).
     ENDIF.
 
   ENDMETHOD.
@@ -380,7 +317,6 @@ CLASS zcl_adu_messages IMPLEMENTATION.
         var4   LIKE message_var_4,
       END OF ls_message_backup.
 
-    " BALW_BAPIRETURN_GET2 will replace the system variables
     ls_message_backup-type   = sy-msgty.
     ls_message_backup-id     = sy-msgid.
     ls_message_backup-number = sy-msgno.
@@ -422,13 +358,13 @@ CLASS zcl_adu_messages IMPLEMENTATION.
                      ls_message_backup-var2
                      ls_message_backup-var3
                      ls_message_backup-var4
-              INTO   DATA(null).
+              INTO   DATA(null) ##NEEDED.
     ENDIF.
 
   ENDMETHOD.
 
 
-  METHOD get_messages.
+  METHOD zif_adu_messages~get_messages.
 
     result = collected_messages.
 
@@ -458,19 +394,19 @@ CLASS zcl_adu_messages IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD initialize.
-    CLEAR: collected_messages.
+  METHOD zif_adu_messages~initialize.
+    CLEAR collected_messages.
   ENDMETHOD.
 
 
-  METHOD is_error.
+  METHOD zif_adu_messages~is_error.
 
-    DATA(messages) = get_messages( ).
+    DATA(messages) = zif_adu_messages~get_messages( ).
 
     result =
-        xsdbool( line_exists( messages[ KEY type type = severity-error ] ) OR
-                 line_exists( messages[ KEY type type = severity-abort ] ) OR
-                 line_exists( messages[ KEY type type = severity-exception ] ) ).
+        xsdbool(    line_exists( messages[ KEY type type = zif_adu_messages=>severity-error ] )
+                 OR line_exists( messages[ KEY type type = zif_adu_messages=>severity-abort ] )
+                 OR line_exists( messages[ KEY type type = zif_adu_messages=>severity-exception ] ) ).
 
   ENDMETHOD.
 
@@ -490,38 +426,31 @@ CLASS zcl_adu_messages IMPLEMENTATION.
     DESCRIBE FIELD message_var TYPE DATA(lv_field_type).
 
     result = SWITCH #( lv_field_type
-                            WHEN 'D'
-                                THEN |{ CONV d( message_var ) DATE = USER }|
-                            WHEN 'T'
-                                THEN |{ CONV t( message_var ) TIME = USER }|
-                            WHEN 'P' OR 'I'
-                                THEN |{ CONV string( message_var ) ALIGN = LEFT }|
-                            WHEN 'C'
-                                THEN message_var
-                                ELSE |{ CONV string( message_var ) ALPHA = OUT }| ).
+                       WHEN 'D'        THEN |{ CONV d( message_var ) DATE = USER }|
+                       WHEN 'T'        THEN |{ CONV t( message_var ) TIME = USER }|
+                       WHEN 'P' OR 'I' THEN |{ CONV string( message_var ) ALIGN = LEFT }|
+                       WHEN 'C'        THEN message_var
+                       ELSE                 |{ CONV string( message_var ) ALPHA = OUT }| ).
 
   ENDMETHOD.
 
 
-  METHOD raise_gateway.
-
-    DATA(lt_messages) = get_messages( ).
+  METHOD zif_adu_messages~raise_gateway.
 
     DATA(exception) = NEW  /iwbep/cx_gateway( ).
 
     DATA(messages_container) = exception->get_message_container( ).
 
-    LOOP AT get_messages( ) INTO DATA(message).
+    LOOP AT zif_adu_messages~get_messages( ) INTO DATA(message).
 
-      messages_container->add_t100(
-          iv_msg_type                 = message-type
-          iv_msg_id                   = message-id
-          iv_msg_number               = message-number
-          iv_msg_v1                   = message-message_v1
-          iv_msg_v2                   = message-message_v2
-          iv_msg_v3                   = message-message_v3
-          iv_msg_v4                   = message-message_v4
-          iv_leading_message_for_user = xsdbool( sy-tabix = 1 ) ).
+      messages_container->add_t100( iv_msg_type                 = message-type
+                                    iv_msg_id                   = message-id
+                                    iv_msg_number               = message-number
+                                    iv_msg_v1                   = message-message_v1
+                                    iv_msg_v2                   = message-message_v2
+                                    iv_msg_v3                   = message-message_v3
+                                    iv_msg_v4                   = message-message_v4
+                                    iv_leading_message_for_user = xsdbool( sy-tabix = 1 ) ).
 
     ENDLOOP.
 
@@ -530,7 +459,7 @@ CLASS zcl_adu_messages IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD raise_gateway_busi_exception.
+  METHOD zif_adu_messages~raise_gateway_busi_exception.
 
     DATA(exception) = CAST /iwbep/cx_mgw_busi_exception( create_gateway_exception( ) ).
 
@@ -539,11 +468,13 @@ CLASS zcl_adu_messages IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD raise_gateway_tech_exception.
+  METHOD zif_adu_messages~raise_gateway_tech_exception.
 
     DATA(exception) = CAST /iwbep/cx_mgw_tech_exception( create_gateway_exception( ) ).
 
     RAISE EXCEPTION exception.
 
   ENDMETHOD.
+
+
 ENDCLASS.
