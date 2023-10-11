@@ -6,10 +6,10 @@ CLASS zcl_adu_messages DEFINITION
   PUBLIC SECTION.
     INTERFACES zif_adu_messages.
 
-    ALIASES tt_message_types FOR zif_adu_messages~tt_message_types.
-    ALIASES tt_messages FOR zif_adu_messages~tt_messages.
-    ALIASES severity FOR zif_adu_messages~severity.
-    ALIASES error_types FOR zif_adu_messages~error_types.
+    ALIASES tt_message_types FOR zif_adu_messages~ty_message_types.
+    ALIASES tt_messages FOR zif_adu_messages~ty_messages.
+    ALIASES severity FOR zif_adu_messages~gc_severity.
+    ALIASES error_types FOR zif_adu_messages~gc_error_types.
     ALIASES add_message FOR zif_adu_messages~add_message.
     ALIASES add_messages FOR zif_adu_messages~add_messages.
     ALIASES add_exception FOR zif_adu_messages~add_exception.
@@ -23,16 +23,17 @@ CLASS zcl_adu_messages DEFINITION
     ALIASES raise_gateway_busi_exception FOR zif_adu_messages~raise_gateway_busi_exception.
     ALIASES raise_gateway_tech_exception FOR zif_adu_messages~raise_gateway_tech_exception.
 
-    CLASS-DATA message_error_types TYPE zif_adu_messages=>tt_message_types READ-ONLY.
+    CLASS-DATA message_error_types TYPE tt_message_types READ-ONLY.
 
     CLASS-METHODS class_constructor.
+
     CLASS-METHODS create
       RETURNING VALUE(ri_result) TYPE REF TO zif_adu_messages.
 
   PROTECTED SECTION.
 
   PRIVATE SECTION.
-    DATA collected_messages TYPE zif_adu_messages=>tt_messages.
+    DATA collected_messages TYPE tt_messages.
 
     METHODS create_gateway_exception
       IMPORTING iv_tech       TYPE abap_bool DEFAULT abap_false
@@ -188,6 +189,16 @@ CLASS zcl_adu_messages IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD zif_adu_messages~add_text.
+
+    zif_adu_messages~add_text_message( message_type   = iv_message_type
+                                       message_id     = zcx_adu_messages=>free_text-msgid
+                                       message_number = zcx_adu_messages=>free_text-msgno
+                                       text           = |{ iv_text }| ).
+
+  ENDMETHOD.
+
+
   METHOD zif_adu_messages~add_t100_message.
 
     TRY.
@@ -240,9 +251,9 @@ CLASS zcl_adu_messages IMPLEMENTATION.
 
   METHOD class_constructor.
 
-    message_error_types = VALUE #( ( zif_adu_messages=>severity-abort )
-                                   ( zif_adu_messages=>severity-error )
-                                   ( zif_adu_messages=>severity-exception ) ).
+    message_error_types = VALUE #( ( severity-abort )
+                                   ( severity-error )
+                                   ( severity-exception ) ).
 
   ENDMETHOD.
 
@@ -404,9 +415,9 @@ CLASS zcl_adu_messages IMPLEMENTATION.
     DATA(messages) = zif_adu_messages~get_messages( ).
 
     result =
-        xsdbool(    line_exists( messages[ KEY type type = zif_adu_messages=>severity-error ] )
-                 OR line_exists( messages[ KEY type type = zif_adu_messages=>severity-abort ] )
-                 OR line_exists( messages[ KEY type type = zif_adu_messages=>severity-exception ] ) ).
+        xsdbool(    line_exists( messages[ KEY type type = severity-error ] )
+                 OR line_exists( messages[ KEY type type = severity-abort ] )
+                 OR line_exists( messages[ KEY type type = severity-exception ] ) ).
 
   ENDMETHOD.
 

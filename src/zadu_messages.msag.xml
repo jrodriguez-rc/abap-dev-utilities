@@ -20,6 +20,12 @@
      <MSGNR>002</MSGNR>
      <TEXT>Data type not compatible.</TEXT>
     </T100>
+    <T100>
+     <SPRSL>E</SPRSL>
+     <ARBGB>ZADU_MESSAGES</ARBGB>
+     <MSGNR>999</MSGNR>
+     <TEXT>&amp;1&amp;2&amp;3&amp;4</TEXT>
+    </T100>
    </T100>
   </asx:values>
  </asx:abap>

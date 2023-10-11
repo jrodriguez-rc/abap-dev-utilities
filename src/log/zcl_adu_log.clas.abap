@@ -137,6 +137,22 @@ CLASS zcl_adu_log IMPLEMENTATION.
 
   ENDMETHOD.
 
+
+  METHOD zif_adu_log~add_bapiret_message.
+
+    ri_result = me.
+
+    zif_adu_log~add_message( VALUE #( msgty = is_message-type
+                                      msgid = is_message-id
+                                      msgno = is_message-number
+                                      msgv1 = is_message-message_v1
+                                      msgv2 = is_message-message_v2
+                                      msgv3 = is_message-message_v3
+                                      msgv4 = is_message-message_v4 ) ).
+
+  ENDMETHOD.
+
+
   METHOD zif_adu_log~add_content_json.
 
     ri_result = me.
@@ -147,6 +163,7 @@ CLASS zcl_adu_log IMPLEMENTATION.
 
   ENDMETHOD.
 
+
   METHOD zif_adu_log~add_content_xml.
 
     ri_result = me.
@@ -154,6 +171,21 @@ CLASS zcl_adu_log IMPLEMENTATION.
     add_content( iv_content        = iv_xml
                  iv_content_type   = CONV #( if_rest_media_type=>gc_appl_xml )
                  is_custom_message = is_custom_message ).
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_log~add_text.
+
+    ri_result = me.
+
+    DATA(li_message) = zcl_adu_messages=>create( ).
+
+    li_message->add_text( iv_message_type = iv_type iv_text = iv_text ).
+
+    LOOP AT li_message->get_messages( ) ASSIGNING FIELD-SYMBOL(<ls_message>).
+      zif_adu_log~add_bapiret_message( <ls_message> ).
+    ENDLOOP.
 
   ENDMETHOD.
 
@@ -257,6 +289,7 @@ CLASS zcl_adu_log IMPLEMENTATION.
     rv_result = mv_lower_problem_class.
 
   ENDMETHOD.
+
 
   METHOD add_content.
 

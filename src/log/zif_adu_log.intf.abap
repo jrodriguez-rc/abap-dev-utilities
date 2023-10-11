@@ -35,6 +35,10 @@ INTERFACE zif_adu_log
     IMPORTING is_message       TYPE bal_s_msg
     RETURNING VALUE(ri_result) TYPE REF TO zif_adu_log.
 
+  METHODS add_bapiret_message
+    IMPORTING is_message       TYPE bapiret2
+    RETURNING VALUE(ri_result) TYPE REF TO zif_adu_log.
+
   METHODS add_content_json
     IMPORTING iv_json           TYPE string
               is_custom_message TYPE ty_message OPTIONAL
@@ -44,6 +48,11 @@ INTERFACE zif_adu_log
     IMPORTING iv_xml            TYPE string
               is_custom_message TYPE ty_message OPTIONAL
     RETURNING VALUE(ri_result)  TYPE REF TO zif_adu_log.
+
+  METHODS add_text
+    IMPORTING iv_type          TYPE sy-msgty DEFAULT zif_adu_messages=>gc_severity-error
+              iv_text          TYPE zif_adu_messages=>ty_message_text
+    RETURNING VALUE(ri_result) TYPE REF TO zif_adu_log.
 
   METHODS save
     RETURNING VALUE(ri_result) TYPE REF TO zif_adu_log.

@@ -5,13 +5,13 @@ CLASS zcx_adu_messages DEFINITION
   CREATE PUBLIC.
 
   PUBLIC SECTION.
-    INTERFACES: zif_adu_exception_dyn_info.
+    INTERFACES zif_adu_exception_dyn_info.
 
     CONSTANTS:
       "! &amp;1 &amp;2 (&amp;3 line &amp;4)
       BEGIN OF text_exception_message,
-        msgid TYPE symsgid VALUE 'ZADU_MESSAGES' ##NO_TEXT,
-        msgno TYPE symsgno VALUE '001' ##NO_TEXT,
+        msgid TYPE symsgid      VALUE 'ZADU_MESSAGES' ##NO_TEXT,
+        msgno TYPE symsgno      VALUE '001' ##NO_TEXT,
         attr1 TYPE scx_attrname VALUE 'TEXT1' ##NO_TEXT,
         attr2 TYPE scx_attrname VALUE 'TEXT2' ##NO_TEXT,
         attr3 TYPE scx_attrname VALUE 'TEXT3' ##NO_TEXT,
@@ -21,33 +21,42 @@ CLASS zcx_adu_messages DEFINITION
     CONSTANTS:
       "! Data type not compatible.
       BEGIN OF data_type_not_compatible,
-        msgid TYPE symsgid VALUE 'ZADU_MESSAGES' ##NO_TEXT,
-        msgno TYPE symsgno VALUE '002' ##NO_TEXT,
+        msgid TYPE symsgid      VALUE 'ZADU_MESSAGES' ##NO_TEXT,
+        msgno TYPE symsgno      VALUE '002' ##NO_TEXT,
         attr1 TYPE scx_attrname VALUE '' ##NO_TEXT,
         attr2 TYPE scx_attrname VALUE '' ##NO_TEXT,
         attr3 TYPE scx_attrname VALUE '' ##NO_TEXT,
         attr4 TYPE scx_attrname VALUE '' ##NO_TEXT,
       END OF data_type_not_compatible.
 
-    "! <p class="shorttext synchronized" lang="en">Raise exception with system attribute message</p>
-    "!
-    "! @raising zcx_adu_messages | <p class="shorttext synchronized" lang="en">Exception</p>
-    CLASS-METHODS raise_system
-      RAISING
-        zcx_adu_messages.
+    CONSTANTS:
+      "! &amp;1&amp;2&amp;3&amp;4
+      BEGIN OF free_text,
+        msgid TYPE symsgid      VALUE 'ZADU_MESSAGES',
+        msgno TYPE symsgno      VALUE '999',
+        attr1 TYPE scx_attrname VALUE 'TEXT1',
+        attr2 TYPE scx_attrname VALUE 'TEXT2',
+        attr3 TYPE scx_attrname VALUE 'TEXT3',
+        attr4 TYPE scx_attrname VALUE 'TEXT4',
+      END OF free_text.
 
-    "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
+    "! <p class="shorttext synchronized">Raise exception with system attribute message</p>
+    "!
+    "! @raising zcx_adu_messages | <p class="shorttext synchronized">Exception</p>
+    CLASS-METHODS raise_system
+      RAISING zcx_adu_messages.
+
+    "! <p class="shorttext synchronized">CONSTRUCTOR</p>
     METHODS constructor
-      IMPORTING
-        !textid    LIKE if_t100_message=>t100key OPTIONAL
-        !text1     TYPE string OPTIONAL
-        !text2     TYPE string OPTIONAL
-        !text3     TYPE string OPTIONAL
-        !text4     TYPE string OPTIONAL
-        !parameter TYPE bapiret2-parameter OPTIONAL
-        !row       TYPE bapiret2-row OPTIONAL
-        !field     TYPE bapiret2-field OPTIONAL
-        !previous  LIKE previous OPTIONAL.
+      IMPORTING textid     LIKE if_t100_message=>t100key OPTIONAL
+                text1      TYPE string                   OPTIONAL
+                text2      TYPE string                   OPTIONAL
+                text3      TYPE string                   OPTIONAL
+                text4      TYPE string                   OPTIONAL
+                !parameter TYPE bapiret2-parameter       OPTIONAL
+                !row       TYPE bapiret2-row             OPTIONAL
+                !field     TYPE bapiret2-field           OPTIONAL
+                !previous  LIKE previous                 OPTIONAL.
 
   PROTECTED SECTION.
 
