@@ -11,7 +11,7 @@ This repository has a group of utilities that you can use in your development
 | ATC | ZCL_ADU_RUN_ATC | ZIF_ADU_RUN_ATC | Can run ATC checks and get results |
 | Email | ZCL_ADU_EMAIL | ZIF_ADU_EMAIL | e-mail utilities |
 | GOS | ZCL_ADU_GOS | ZIF_ADU_GOS | GOS Utility |
-| Messages | ZCL_ADU_MESSAGES |  | Messages handler |
+| Messages | ZCL_ADU_MESSAGES | ZIF_ADU_MESSAGES | Messages handler |
 | Serialization | ZCL_ADU_OO_SERIALIZE |  | Object serialization |
 | Texts | ZCL_ADU_TEXTS | ZIF_ADU_TEXTS | Utilities for text processing |
 | Switch | ZCL_ADU_SWITCH | ZIF_ADU_SWITCH | Check [Wiki](https://github.com/jrodriguez-rc/abap-dev-utilities/wiki/Switch) |
