@@ -19,9 +19,19 @@
      <DESCRIPT>CONSTRUCTOR</DESCRIPT>
     </SEOCOMPOTX>
     <SEOCOMPOTX>
+     <CMPNAME>CONSTRUCTOR</CMPNAME>
+     <LANGU>S</LANGU>
+     <DESCRIPT>CONSTRUCTOR</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
      <CMPNAME>RAISE_SYSTEM</CMPNAME>
      <LANGU>E</LANGU>
      <DESCRIPT>Raise exception with system attribute message</DESCRIPT>
+    </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CMPNAME>RAISE_SYSTEM</CMPNAME>
+     <LANGU>S</LANGU>
+     <DESCRIPT>Lanzar excepción con mensaje de atributo del sistema</DESCRIPT>
     </SEOCOMPOTX>
    </DESCRIPTIONS>
   </asx:values>

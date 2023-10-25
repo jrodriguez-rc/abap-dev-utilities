@@ -16,6 +16,11 @@
      <LANGU>E</LANGU>
      <DESCRIPT>C (Create) - R (Read) - U (Update) - D (Delete)</DESCRIPT>
     </SEOCOMPOTX>
+    <SEOCOMPOTX>
+     <CMPNAME>CRUD</CMPNAME>
+     <LANGU>S</LANGU>
+     <DESCRIPT>C (Crear) - R (Leer) - U (Actualizar) - D (Eliminar)</DESCRIPT>
+    </SEOCOMPOTX>
    </DESCRIPTIONS>
   </asx:values>
  </asx:abap>

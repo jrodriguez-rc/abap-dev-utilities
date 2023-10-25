@@ -18,6 +18,19 @@
     <DTELMASTER>E</DTELMASTER>
     <REFKIND>D</REFKIND>
    </DD04V>
+   <I18N_LANGS>
+    <LANGU>S</LANGU>
+   </I18N_LANGS>
+   <DD04_TEXTS>
+    <item>
+     <DDLANGUAGE>S</DDLANGUAGE>
+     <DDTEXT>Indicador CRUD</DDTEXT>
+     <REPTEXT>Indicador CRUD</REPTEXT>
+     <SCRTEXT_S>Ind. CRUD</SCRTEXT_S>
+     <SCRTEXT_M>Indicador CRUD</SCRTEXT_M>
+     <SCRTEXT_L>Indicador CRUD</SCRTEXT_L>
+    </item>
+   </DD04_TEXTS>
   </asx:values>
  </asx:abap>
 </abapGit>
