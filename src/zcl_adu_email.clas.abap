@@ -2,49 +2,46 @@
 CLASS zcl_adu_email DEFINITION
   PUBLIC
   FINAL
-  CREATE PUBLIC .
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
     INTERFACES zif_adu_email.
 
     CLASS-METHODS get_instance
-      RETURNING
-        VALUE(result) TYPE REF TO zif_adu_email.
-
-  PROTECTED SECTION.
+      RETURNING VALUE(result) TYPE REF TO zif_adu_email.
 
   PRIVATE SECTION.
     METHODS send_email
-      IMPORTING
-        sender        TYPE REF TO if_sender_bcs
-        text          TYPE soli_tab
-        subject       TYPE so_obj_des
-        recipients    TYPE bcsy_smtpa
-        attachments   TYPE zif_adu_email=>tt_attachment
-        document_type TYPE so_obj_tp DEFAULT zif_adu_email=>document_type-raw
-        commit_work   TYPE abap_bool OPTIONAL
-      RETURNING
-        VALUE(result) TYPE abap_bool
-      RAISING
-        cx_send_req_bcs
-        cx_address_bcs
-        cx_document_bcs.
+      IMPORTING sender        TYPE REF TO if_sender_bcs
+                !text         TYPE soli_tab                           OPTIONAL
+                multirelated  TYPE REF TO cl_gbt_multirelated_service OPTIONAL
+                subject       TYPE so_obj_des
+                recipients    TYPE bcsy_smtpa
+                attachments   TYPE zif_adu_email=>tt_attachment
+                document_type TYPE so_obj_tp                          DEFAULT zif_adu_email=>document_type-raw
+                commit_work   TYPE abap_bool                          OPTIONAL
+      RETURNING VALUE(result) TYPE abap_bool
+      RAISING   cx_send_req_bcs
+                cx_address_bcs
+                cx_document_bcs
+                cx_bcom_mime
+                cx_gbt_mime.
 
     METHODS send_from_user
-      IMPORTING
-        username      TYPE uname DEFAULT sy-uname
-        text          TYPE soli_tab
-        subject       TYPE so_obj_des
-        recipients    TYPE bcsy_smtpa
-        attachments   TYPE zif_adu_email=>tt_attachment
-        document_type TYPE so_obj_tp DEFAULT zif_adu_email=>document_type-raw
-        commit_work   TYPE abap_bool OPTIONAL
-      RETURNING
-        VALUE(result) TYPE abap_bool
-      RAISING
-        cx_send_req_bcs
-        cx_address_bcs
-        cx_document_bcs.
+      IMPORTING username      TYPE uname                              DEFAULT sy-uname
+                !text         TYPE soli_tab
+                multirelated  TYPE REF TO cl_gbt_multirelated_service OPTIONAL
+                subject       TYPE so_obj_des
+                recipients    TYPE bcsy_smtpa
+                attachments   TYPE zif_adu_email=>tt_attachment
+                document_type TYPE so_obj_tp                          DEFAULT zif_adu_email=>document_type-raw
+                commit_work   TYPE abap_bool                          OPTIONAL
+      RETURNING VALUE(result) TYPE abap_bool
+      RAISING   cx_send_req_bcs
+                cx_address_bcs
+                cx_document_bcs
+                cx_bcom_mime
+                cx_gbt_mime.
 
 ENDCLASS.
 
@@ -54,82 +51,77 @@ CLASS zcl_adu_email IMPLEMENTATION.
 
 
   METHOD get_instance.
+
     result = NEW zcl_adu_email( ).
+
   ENDMETHOD.
 
 
   METHOD zif_adu_email~send_email.
 
-    result =
-        send_from_user(
-            text          = text
-            subject       = subject
-            recipients    = recipients
-            attachments   = attachments
-            document_type = document_type
-            commit_work   = commit_work ).
+    result = send_from_user( text          = text
+                             multirelated  = multirelated
+                             subject       = subject
+                             recipients    = recipients
+                             attachments   = attachments
+                             document_type = document_type
+                             commit_work   = commit_work ).
 
   ENDMETHOD.
 
 
   METHOD zif_adu_email~send_from_user.
 
-    result =
-        send_from_user(
-            username      = username
-            text          = text
-            subject       = subject
-            recipients    = recipients
-            attachments   = attachments
-            document_type = document_type
-            commit_work   = commit_work ).
+    result = send_from_user( username      = username
+                             text          = text
+                             multirelated  = multirelated
+                             subject       = subject
+                             recipients    = recipients
+                             attachments   = attachments
+                             document_type = document_type
+                             commit_work   = commit_work ).
 
   ENDMETHOD.
 
 
   METHOD zif_adu_email~send_from_smtp_address.
 
-    result =
-        send_email(
-            sender        = cl_cam_address_bcs=>create_internet_address(
-                                i_address_string = sender
-                                i_address_name   = COND #(
-                                                       WHEN sender_name IS INITIAL
-                                                           THEN sender
-                                                           ELSE sender_name ) )
-            text          = text
-            subject       = subject
-            recipients    = recipients
-            attachments   = attachments
-            document_type = document_type
-            commit_work   = commit_work ).
+    result = send_email( sender        = cl_cam_address_bcs=>create_internet_address(
+                                             i_address_string = sender
+                                             i_address_name   = COND #( WHEN sender_name IS INITIAL
+                                                                        THEN sender
+                                                                        ELSE sender_name ) )
+                         text          = text
+                         multirelated  = multirelated
+                         subject       = subject
+                         recipients    = recipients
+                         attachments   = attachments
+                         document_type = document_type
+                         commit_work   = commit_work ).
 
   ENDMETHOD.
 
 
   METHOD zif_adu_email~xstring_to_attachment.
 
-    result =
-        VALUE zif_adu_email=>ts_attachment(
-        type        = type
-        subject     = subject
-        size        = COND #( WHEN size IS NOT INITIAL THEN size ELSE xstrlen( content ) )
-        content_hex = cl_document_bcs=>xstring_to_solix( content ) ).
+    result = VALUE #( type        = type
+                      subject     = subject
+                      size        = COND #( WHEN size IS NOT INITIAL THEN size ELSE xstrlen( content ) )
+                      content_hex = cl_document_bcs=>xstring_to_solix( content ) ).
 
   ENDMETHOD.
 
 
   METHOD send_from_user.
 
-    result =
-        send_email(
-            sender        = cl_sapuser_bcs=>create( sy-uname )
-            text          = text
-            subject       = subject
-            recipients    = recipients
-            attachments   = attachments
-            document_type = document_type
-            commit_work   = commit_work ).
+    result = send_email( sender        = cl_sapuser_bcs=>create( sy-uname )
+                         text          = text
+                         multirelated  = multirelated
+                         subject       = subject
+                         recipients    = recipients
+                         attachments   = attachments
+                         document_type = document_type
+                         commit_work   = commit_work ).
 
   ENDMETHOD.
 
@@ -149,9 +141,13 @@ CLASS zcl_adu_email IMPLEMENTATION.
 
     ENDLOOP.
 
-    DATA(lo_document) = cl_document_bcs=>create_document( i_type    = document_type
-                                                          i_text    = text
-                                                          i_subject = subject ).
+    DATA(lo_document) =
+        COND #( WHEN multirelated IS BOUND AND document_type = zif_adu_email=>document_type-html
+                THEN cl_document_bcs=>create_from_multirelated( i_subject          = subject
+                                                                i_multirel_service = multirelated )
+                ELSE cl_document_bcs=>create_document( i_type    = document_type
+                                                       i_text    = text
+                                                       i_subject = subject ) ).
 
     LOOP AT attachments REFERENCE INTO DATA(lr_attachment).
       DATA(lt_attachment_header) = COND #( WHEN lr_attachment->header IS BOUND THEN lr_attachment->header->mt_objhead ).
