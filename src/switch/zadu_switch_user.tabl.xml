@@ -74,6 +74,15 @@
      <CHECKTABLE>ZADU_SWITCH</CHECKTABLE>
     </DD08V>
    </DD08V_TABLE>
+   <I18N_LANGS>
+    <LANGU>S</LANGU>
+   </I18N_LANGS>
+   <DD02_TEXTS>
+    <item>
+     <DDLANGUAGE>S</DDLANGUAGE>
+     <DDTEXT>Switch habilitado por usuario</DDTEXT>
+    </item>
+   </DD02_TEXTS>
    <TABL_EXTRAS>
     <TDDAT>
      <TABNAME>ZADU_SWITCH_USER</TABNAME>
