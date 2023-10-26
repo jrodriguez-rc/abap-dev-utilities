@@ -117,6 +117,15 @@
      <CHECKFLAG>X</CHECKFLAG>
     </DD08V>
    </DD08V_TABLE>
+   <I18N_LANGS>
+    <LANGU>S</LANGU>
+   </I18N_LANGS>
+   <DD02_TEXTS>
+    <item>
+     <DDLANGUAGE>S</DDLANGUAGE>
+     <DDTEXT>ADU: Deshabilitar logs por severidad</DDTEXT>
+    </item>
+   </DD02_TEXTS>
    <TABL_EXTRAS>
     <TDDAT>
      <TABNAME>ZADU_LOG_SEVERIT</TABNAME>
