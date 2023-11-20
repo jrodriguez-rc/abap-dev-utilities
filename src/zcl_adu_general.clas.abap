@@ -70,4 +70,37 @@ CLASS zcl_adu_general IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD zif_adu_general~split_filename_extension.
+
+    DATA lv_file_name_c    TYPE c LENGTH 255.
+    DATA lv_file_extension TYPE c LENGTH 20.
+
+    IF iv_filename IS INITIAL.
+      RETURN.
+    ENDIF.
+
+    lv_file_name_c = iv_filename.
+
+    CALL FUNCTION 'TRINT_FILE_GET_EXTENSION'
+      EXPORTING
+        filename  = lv_file_name_c
+        uppercase = abap_false
+      IMPORTING
+        extension = lv_file_extension.
+
+    result-extension = lv_file_extension.
+
+    IF lv_file_extension IS INITIAL.
+      result-filename = iv_filename.
+    ELSE.
+
+      DATA(lv_filename_length) = ( strlen( iv_filename ) - strlen( lv_file_extension ) ) - 1.
+
+      result-filename = iv_filename(lv_filename_length).
+
+    ENDIF.
+
+  ENDMETHOD.
+
+
 ENDCLASS.

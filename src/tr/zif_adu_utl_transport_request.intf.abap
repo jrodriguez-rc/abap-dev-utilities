@@ -54,6 +54,20 @@ INTERFACE zif_adu_utl_transport_request
     RETURNING
       VALUE(rv_result)     TYPE string.
 
+  METHODS is_filename_valid
+    IMPORTING
+      iv_filename      TYPE string
+    RETURNING
+      VALUE(rv_result) TYPE abap_bool.
+
+  METHODS convert_filename_to_tr
+    IMPORTING
+      iv_filename      TYPE string
+    RETURNING
+      VALUE(rv_result) TYPE trkorr
+    RAISING
+      zcx_adu_transport_request.
+
   METHODS read_header
     IMPORTING
       iv_transport_request TYPE trkorr
@@ -67,6 +81,15 @@ INTERFACE zif_adu_utl_transport_request
       iv_transport_request TYPE trkorr
     RETURNING
       VALUE(rs_result)     TYPE stmscalert
+    RAISING
+      zcx_adu_transport_request.
+
+  METHODS import
+    IMPORTING
+      it_content       TYPE ty_contents
+      iv_add_queue     TYPE abap_bool DEFAULT abap_true
+    RETURNING
+      VALUE(rt_result) TYPE ty_import_results
     RAISING
       zcx_adu_transport_request.
 

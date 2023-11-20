@@ -15,20 +15,6 @@ CLASS zcl_adu_utl_transport_request DEFINITION
   PRIVATE SECTION.
     CLASS-DATA gi_standalone TYPE REF TO zif_adu_utl_transport_request.
 
-    METHODS is_filename_valid
-      IMPORTING
-        iv_filename      TYPE string
-      RETURNING
-        VALUE(rv_result) TYPE abap_bool.
-
-    METHODS convert_filename_to_tr
-      IMPORTING
-        iv_filename      TYPE string
-      RETURNING
-        VALUE(rv_result) TYPE trkorr
-      RAISING
-        zcx_adu_transport_request.
-
 ENDCLASS.
 
 
@@ -203,11 +189,9 @@ CLASS zcl_adu_utl_transport_request IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD zif_adu_utl_transport_request~zip_import.
+  METHOD zif_adu_utl_transport_request~import.
 
-    DATA(lt_content) = zif_adu_utl_transport_request~zip_to_content( iv_zip ).
-
-    LOOP AT lt_content ASSIGNING FIELD-SYMBOL(<ls_content>).
+    LOOP AT it_content ASSIGNING FIELD-SYMBOL(<ls_content>).
 
       DATA(lv_path_cofiles) = zif_adu_utl_transport_request~build_path_cofiles( <ls_content>-transport_request ).
 
@@ -233,9 +217,18 @@ CLASS zcl_adu_utl_transport_request IMPLEMENTATION.
 
     rt_result =
         VALUE #(
-            FOR <content> IN lt_content
+            FOR <content> IN it_content
             ( transport_request = <content>-transport_request
               tms_alert         = zif_adu_utl_transport_request~add_to_queue( <content>-transport_request ) ) ).
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_utl_transport_request~zip_import.
+
+    DATA(lt_content) = zif_adu_utl_transport_request~zip_to_content( iv_zip ).
+
+    rt_result = zif_adu_utl_transport_request~import( lt_content ).
 
   ENDMETHOD.
 
@@ -251,11 +244,11 @@ CLASS zcl_adu_utl_transport_request IMPLEMENTATION.
 
     LOOP AT lo_zip->files ASSIGNING FIELD-SYMBOL(<ls_file>).
 
-      IF is_filename_valid( <ls_file>-name ) = abap_false.
+      IF zif_adu_utl_transport_request~is_filename_valid( <ls_file>-name ) = abap_false.
         CONTINUE.
       ENDIF.
 
-      DATA(lv_transport_request) = convert_filename_to_tr( <ls_file>-name ).
+      DATA(lv_transport_request) = zif_adu_utl_transport_request~convert_filename_to_tr( <ls_file>-name ).
 
       ASSIGN lt_content[ transport_request = lv_transport_request ] TO FIELD-SYMBOL(<ls_content>).
       IF sy-subrc <> 0 OR <ls_content> IS NOT ASSIGNED.
@@ -318,11 +311,11 @@ CLASS zcl_adu_utl_transport_request IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD convert_filename_to_tr.
+  METHOD zif_adu_utl_transport_request~convert_filename_to_tr.
 
     IF iv_filename IS INITIAL.
       RETURN.
-    ELSEIF is_filename_valid( iv_filename ) = abap_false.
+    ELSEIF zif_adu_utl_transport_request~is_filename_valid( iv_filename ) = abap_false.
       RAISE EXCEPTION TYPE zcx_adu_transport_request
         EXPORTING
           textid = zcx_adu_transport_request=>filename_not_supported
@@ -338,10 +331,10 @@ CLASS zcl_adu_utl_transport_request IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD is_filename_valid.
+  METHOD zif_adu_utl_transport_request~is_filename_valid.
 
     DATA:
-      lc_regex TYPE string VALUE `^(K|R)\d{7}(.)(.{3})$`.
+      lc_regex TYPE string VALUE `^(K|R)(.{6,7})(.)(.{3})$`.
 
     rv_result = xsdbool( contains( val = iv_filename regex = lc_regex ) ).
 
