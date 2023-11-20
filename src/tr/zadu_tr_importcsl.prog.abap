@@ -505,7 +505,7 @@ CLASS lcl_process IMPLEMENTATION.
         CLEAR lt_file_data.
 
         cl_gui_frontend_services=>gui_upload(
-          EXPORTING  filename                = |{ lr_file->path }\\{ lr_file->cofile_filename }|
+          EXPORTING  filename                = |{ lr_file->path }\\{ lr_file->data_filename }|
                      filetype                = 'BIN'
           CHANGING   data_tab                = lt_file_data
           EXCEPTIONS file_open_error         = 1                " File does not exist and cannot be opened
