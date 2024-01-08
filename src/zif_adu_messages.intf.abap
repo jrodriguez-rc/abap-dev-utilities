@@ -4,7 +4,7 @@ INTERFACE zif_adu_messages
   TYPES ty_message_types TYPE STANDARD TABLE OF syst_msgty WITH DEFAULT KEY.
   TYPES ty_messages      TYPE STANDARD TABLE OF bapiret2 WITH DEFAULT KEY
             WITH NON-UNIQUE SORTED KEY type COMPONENTS type.
-  TYPES ty_message_text TYPE c LENGTH 200.
+  TYPES ty_message_text  TYPE c LENGTH 200.
 
   CONSTANTS:
     BEGIN OF gc_severity,
@@ -34,17 +34,19 @@ INTERFACE zif_adu_messages
     IMPORTING !messages TYPE bapiret2_t.
 
   METHODS add_text
-    IMPORTING iv_message_type TYPE sy-msgty           DEFAULT gc_severity-error
+    IMPORTING iv_message_type TYPE sy-msgty DEFAULT gc_severity-error
               iv_text         TYPE ty_message_text.
 
   METHODS add_exception
-    IMPORTING !exception TYPE REF TO cx_root
-              !parameter TYPE bapiret2-parameter OPTIONAL
-              !row       TYPE bapiret2-row       OPTIONAL
-              !field     TYPE bapiret2-field     OPTIONAL.
+    IMPORTING message_type TYPE sy-msgty           DEFAULT gc_severity-error
+              !exception   TYPE REF TO cx_root
+              !parameter   TYPE bapiret2-parameter OPTIONAL
+              !row         TYPE bapiret2-row       OPTIONAL
+              !field       TYPE bapiret2-field     OPTIONAL.
 
   METHODS add_t100_message
-    IMPORTING !message TYPE REF TO if_t100_message.
+    IMPORTING message_type TYPE sy-msgty DEFAULT gc_severity-error
+              !message     TYPE REF TO if_t100_message.
 
   METHODS add_text_message
     IMPORTING message_type   TYPE sy-msgty           DEFAULT gc_severity-error

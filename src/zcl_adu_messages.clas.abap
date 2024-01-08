@@ -1,4 +1,4 @@
-"! <p class="shorttext synchronized" lang="en">Messages</p>
+"! <p class="shorttext synchronized">Messages</p>
 CLASS zcl_adu_messages DEFINITION
   PUBLIC
   CREATE PUBLIC.
@@ -6,20 +6,20 @@ CLASS zcl_adu_messages DEFINITION
   PUBLIC SECTION.
     INTERFACES zif_adu_messages.
 
-    ALIASES tt_message_types FOR zif_adu_messages~ty_message_types.
-    ALIASES tt_messages FOR zif_adu_messages~ty_messages.
-    ALIASES severity FOR zif_adu_messages~gc_severity.
-    ALIASES error_types FOR zif_adu_messages~gc_error_types.
-    ALIASES add_message FOR zif_adu_messages~add_message.
-    ALIASES add_messages FOR zif_adu_messages~add_messages.
-    ALIASES add_exception FOR zif_adu_messages~add_exception.
-    ALIASES add_t100_message FOR zif_adu_messages~add_t100_message.
-    ALIASES add_text_message FOR zif_adu_messages~add_text_message.
-    ALIASES display_messages FOR zif_adu_messages~display_messages.
-    ALIASES get_messages FOR zif_adu_messages~get_messages.
-    ALIASES initialize FOR zif_adu_messages~initialize.
-    ALIASES is_error FOR zif_adu_messages~is_error.
-    ALIASES raise_gateway FOR zif_adu_messages~raise_gateway.
+    ALIASES tt_message_types             FOR zif_adu_messages~ty_message_types.
+    ALIASES tt_messages                  FOR zif_adu_messages~ty_messages.
+    ALIASES severity                     FOR zif_adu_messages~gc_severity.
+    ALIASES error_types                  FOR zif_adu_messages~gc_error_types.
+    ALIASES add_message                  FOR zif_adu_messages~add_message.
+    ALIASES add_messages                 FOR zif_adu_messages~add_messages.
+    ALIASES add_exception                FOR zif_adu_messages~add_exception.
+    ALIASES add_t100_message             FOR zif_adu_messages~add_t100_message.
+    ALIASES add_text_message             FOR zif_adu_messages~add_text_message.
+    ALIASES display_messages             FOR zif_adu_messages~display_messages.
+    ALIASES get_messages                 FOR zif_adu_messages~get_messages.
+    ALIASES initialize                   FOR zif_adu_messages~initialize.
+    ALIASES is_error                     FOR zif_adu_messages~is_error.
+    ALIASES raise_gateway                FOR zif_adu_messages~raise_gateway.
     ALIASES raise_gateway_busi_exception FOR zif_adu_messages~raise_gateway_busi_exception.
     ALIASES raise_gateway_tech_exception FOR zif_adu_messages~raise_gateway_tech_exception.
 
@@ -86,7 +86,11 @@ CLASS zcl_adu_messages IMPLEMENTATION.
       RETURN.
     ENDIF.
 
-    zif_adu_messages~add_exception( exception->previous ).
+    zif_adu_messages~add_exception( message_type = message_type
+                                    exception    = exception->previous
+                                    parameter    = parameter
+                                    row          = row
+                                    field        = field ).
 
     TRY.
         DATA(dyn_info) = CAST zif_adu_exception_dyn_info( exception ).
@@ -111,16 +115,20 @@ CLASS zcl_adu_messages IMPLEMENTATION.
 
     TRY.
         DATA(t100_exception) = CAST if_t100_message( exception ).
-        zif_adu_messages~add_message(
-            message_id     = t100_exception->t100key-msgid
-            message_number = t100_exception->t100key-msgno
-            message_var_1  = get_t100_attr( exception = exception attribute = t100_exception->t100key-attr1 )
-            message_var_2  = get_t100_attr( exception = exception attribute = t100_exception->t100key-attr2 )
-            message_var_3  = get_t100_attr( exception = exception attribute = t100_exception->t100key-attr3 )
-            message_var_4  = get_t100_attr( exception = exception attribute = t100_exception->t100key-attr4 )
-            parameter      = current_parameter
-            row            = current_row
-            field          = current_field ).
+        zif_adu_messages~add_message( message_type   = message_type
+                                      message_id     = t100_exception->t100key-msgid
+                                      message_number = t100_exception->t100key-msgno
+                                      message_var_1  = get_t100_attr( exception = exception
+                                                                      attribute = t100_exception->t100key-attr1 )
+                                      message_var_2  = get_t100_attr( exception = exception
+                                                                      attribute = t100_exception->t100key-attr2 )
+                                      message_var_3  = get_t100_attr( exception = exception
+                                                                      attribute = t100_exception->t100key-attr3 )
+                                      message_var_4  = get_t100_attr( exception = exception
+                                                                      attribute = t100_exception->t100key-attr4 )
+                                      parameter      = current_parameter
+                                      row            = current_row
+                                      field          = current_field ).
       CATCH cx_sy_move_cast_error.
         text_message = exception->get_text( ).
         DATA(text_message_var_1) = text_message(50).
@@ -209,16 +217,20 @@ CLASS zcl_adu_messages IMPLEMENTATION.
       CATCH cx_sy_move_cast_error.
     ENDTRY.
 
-    zif_adu_messages~add_message(
-        message_id     = message->t100key-msgid
-        message_number = message->t100key-msgno
-        message_var_1  = get_t100_attr( exception = message attribute = message->t100key-attr1 )
-        message_var_2  = get_t100_attr( exception = message attribute = message->t100key-attr2 )
-        message_var_3  = get_t100_attr( exception = message attribute = message->t100key-attr3 )
-        message_var_4  = get_t100_attr( exception = message attribute = message->t100key-attr4 )
-        parameter      = parameter
-        row            = row
-        field          = field ).
+    zif_adu_messages~add_message( message_type   = message_type
+                                  message_id     = message->t100key-msgid
+                                  message_number = message->t100key-msgno
+                                  message_var_1  = get_t100_attr( exception = message
+                                                                  attribute = message->t100key-attr1 )
+                                  message_var_2  = get_t100_attr( exception = message
+                                                                  attribute = message->t100key-attr2 )
+                                  message_var_3  = get_t100_attr( exception = message
+                                                                  attribute = message->t100key-attr3 )
+                                  message_var_4  = get_t100_attr( exception = message
+                                                                  attribute = message->t100key-attr4 )
+                                  parameter      = parameter
+                                  row            = row
+                                  field          = field ).
 
   ENDMETHOD.
 
