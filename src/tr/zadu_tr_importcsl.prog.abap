@@ -22,8 +22,6 @@ CLASS lcl_process DEFINITION FINAL.
       END OF ty_file,
       ty_files TYPE STANDARD TABLE OF ty_file WITH KEY transport_request.
 
-    TYPES ty_hex TYPE x LENGTH 255.
-
     DATA mt_files TYPE ty_files.
     DATA mo_salv  TYPE REF TO cl_salv_table.
 
@@ -204,8 +202,8 @@ CLASS lcl_process IMPLEMENTATION.
 
     DATA lt_files              TYPE STANDARD TABLE OF file_info WITH EMPTY KEY.
     DATA lv_count              TYPE i.
-    DATA lt_transport_requests LIKE rt_result.
     DATA lt_folders            TYPE STANDARD TABLE OF file_info WITH EMPTY KEY.
+    DATA lt_transport_requests LIKE rt_result.
 
     cl_gui_frontend_services=>directory_list_files( EXPORTING  directory                   = iv_path
                                                                files_only                  = abap_true
@@ -302,7 +300,7 @@ CLASS lcl_process IMPLEMENTATION.
 
   METHOD read_from_zip.
 
-    DATA lt_file_data          TYPE TABLE OF ty_hex WITH DEFAULT KEY.
+    DATA lt_file_data          TYPE TABLE OF raw255 WITH EMPTY KEY.
     DATA lv_content            TYPE xstring.
     DATA lt_transport_requests LIKE rt_result.
 
@@ -401,7 +399,7 @@ CLASS lcl_process IMPLEMENTATION.
   METHOD import_selected_files.
 
     DATA lt_result    TYPE zif_adu_utl_transport_request=>ty_import_results.
-    DATA lt_file_data TYPE TABLE OF ty_hex WITH DEFAULT KEY.
+    DATA lt_file_data TYPE TABLE OF raw255 WITH EMPTY KEY.
     DATA lv_content   TYPE xstring.
 
     DATA(lt_rows) = mo_salv->get_selections( )->get_selected_rows( ).
@@ -472,7 +470,8 @@ CLASS lcl_process IMPLEMENTATION.
         cl_gui_frontend_services=>gui_upload(
           EXPORTING  filename                = |{ lr_file->path }\\{ lr_file->cofile_filename }|
                      filetype                = 'BIN'
-          CHANGING   data_tab                = lt_file_data
+          IMPORTING  filelength              = ls_content-cofile_filesize
+          CHANGING   data_tab                = ls_content-cofile
           EXCEPTIONS file_open_error         = 1                " File does not exist and cannot be opened
                      file_read_error         = 2                " Error when reading file
                      no_batch                = 3                " Cannot execute front-end function in background
@@ -499,15 +498,14 @@ CLASS lcl_process IMPLEMENTATION.
                   INTO lr_file->message.
           CONTINUE.
         ENDIF.
-
-        CONCATENATE LINES OF lt_file_data INTO ls_content-cofile IN BYTE MODE.
 
         CLEAR lt_file_data.
 
         cl_gui_frontend_services=>gui_upload(
           EXPORTING  filename                = |{ lr_file->path }\\{ lr_file->data_filename }|
                      filetype                = 'BIN'
-          CHANGING   data_tab                = lt_file_data
+          IMPORTING  filelength              = ls_content-data_filesize
+          CHANGING   data_tab                = ls_content-data
           EXCEPTIONS file_open_error         = 1                " File does not exist and cannot be opened
                      file_read_error         = 2                " Error when reading file
                      no_batch                = 3                " Cannot execute front-end function in background
@@ -534,8 +532,6 @@ CLASS lcl_process IMPLEMENTATION.
                   INTO lr_file->message.
           CONTINUE.
         ENDIF.
-
-        CONCATENATE LINES OF lt_file_data INTO ls_content-data IN BYTE MODE.
 
         TRY.
             lt_result = zcl_adu_utl_transport_request=>get( )->import( VALUE #( ( ls_content ) ) ).

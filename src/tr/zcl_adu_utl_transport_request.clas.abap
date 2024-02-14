@@ -1,19 +1,24 @@
 CLASS zcl_adu_utl_transport_request DEFINITION
-  PUBLIC
-  FINAL
+  PUBLIC FINAL
   CREATE PRIVATE.
 
   PUBLIC SECTION.
     INTERFACES zif_adu_utl_transport_request.
 
     CLASS-METHODS get
-      RETURNING
-        VALUE(result) TYPE REF TO zif_adu_utl_transport_request.
-
-  PROTECTED SECTION.
+      RETURNING VALUE(result) TYPE REF TO zif_adu_utl_transport_request.
 
   PRIVATE SECTION.
     CLASS-DATA gi_standalone TYPE REF TO zif_adu_utl_transport_request.
+
+    METHODS xstring_to_filecontent
+      IMPORTING iv_xstring       TYPE xstring
+      RETURNING VALUE(rt_result) TYPE zif_adu_utl_transport_request=>ty_file_content.
+
+    METHODS import_file
+      IMPORTING it_content  TYPE zif_adu_utl_transport_request=>ty_file_content
+                iv_filesize TYPE i
+                iv_path     TYPE string.
 
 ENDCLASS.
 
@@ -111,9 +116,8 @@ CLASS zcl_adu_utl_transport_request IMPLEMENTATION.
 
   METHOD zif_adu_utl_transport_request~add_to_queue.
 
-    DATA:
-      ls_system    TYPE tmscsys,
-      lv_ctc_value TYPE trtppvalue.
+    DATA ls_system    TYPE tmscsys.
+    DATA lv_ctc_value TYPE trtppvalue.
 
     CALL FUNCTION 'TMS_UIQ_IQD_READ_QUEUE'
       EXPORTING
@@ -195,19 +199,15 @@ CLASS zcl_adu_utl_transport_request IMPLEMENTATION.
 
       DATA(lv_path_cofiles) = zif_adu_utl_transport_request~build_path_cofiles( <ls_content>-transport_request ).
 
-      OPEN DATASET lv_path_cofiles FOR OUTPUT IN BINARY MODE.
-
-      TRANSFER <ls_content>-cofile TO lv_path_cofiles.
-
-      CLOSE DATASET lv_path_cofiles.
+      import_file( it_content  = <ls_content>-cofile
+                   iv_filesize = <ls_content>-cofile_filesize
+                   iv_path     = lv_path_cofiles ).
 
       DATA(lv_path_data) = zif_adu_utl_transport_request~build_path_data( <ls_content>-transport_request ).
 
-      OPEN DATASET lv_path_data FOR OUTPUT IN BINARY MODE.
-
-      TRANSFER <ls_content>-data TO lv_path_data.
-
-      CLOSE DATASET lv_path_data.
+      import_file( it_content  = <ls_content>-data
+                   iv_filesize = <ls_content>-data_filesize
+                   iv_path     = lv_path_data ).
 
     ENDLOOP.
 
@@ -216,10 +216,9 @@ CLASS zcl_adu_utl_transport_request IMPLEMENTATION.
     ENDIF.
 
     rt_result =
-        VALUE #(
-            FOR <content> IN it_content
-            ( transport_request = <content>-transport_request
-              tms_alert         = zif_adu_utl_transport_request~add_to_queue( <content>-transport_request ) ) ).
+        VALUE #( FOR <content> IN it_content
+                 ( transport_request = <content>-transport_request
+                   tms_alert         = zif_adu_utl_transport_request~add_to_queue( <content>-transport_request ) ) ).
 
   ENDMETHOD.
 
@@ -235,8 +234,7 @@ CLASS zcl_adu_utl_transport_request IMPLEMENTATION.
 
   METHOD zif_adu_utl_transport_request~zip_to_content.
 
-    DATA:
-      lt_content LIKE rt_result.
+    DATA lt_content LIKE rt_result.
 
     DATA(lo_zip) = NEW cl_abap_zip( ).
 
@@ -253,18 +251,14 @@ CLASS zcl_adu_utl_transport_request IMPLEMENTATION.
       ASSIGN lt_content[ transport_request = lv_transport_request ] TO FIELD-SYMBOL(<ls_content>).
       IF sy-subrc <> 0 OR <ls_content> IS NOT ASSIGNED.
         INSERT VALUE #( transport_request = lv_transport_request )
-            INTO TABLE lt_content ASSIGNING <ls_content>.
+               INTO TABLE lt_content ASSIGNING <ls_content>.
       ENDIF.
 
-      lo_zip->get(
-        EXPORTING
-          name                    = <ls_file>-name
-        IMPORTING
-          content                 = DATA(lv_content)
-        EXCEPTIONS
-          zip_index_error         = 1
-          zip_decompression_error = 2
-          OTHERS                  = 99 ).
+      lo_zip->get( EXPORTING  name                    = <ls_file>-name
+                   IMPORTING  content                 = DATA(lv_content)
+                   EXCEPTIONS zip_index_error         = 1
+                              zip_decompression_error = 2
+                              OTHERS                  = 99 ).
       IF sy-subrc <> 0.
         RAISE EXCEPTION TYPE zcx_adu_transport_request
           EXPORTING
@@ -282,10 +276,12 @@ CLASS zcl_adu_utl_transport_request IMPLEMENTATION.
 
       CASE <ls_file>-name(1).
         WHEN 'K'.
-          <ls_content>-cofile = lv_content.
+          <ls_content>-cofile          = xstring_to_filecontent( lv_content ).
+          <ls_content>-cofile_filesize = xstrlen( lv_content ).
 
         WHEN 'R'.
-          <ls_content>-data = lv_content.
+          <ls_content>-data          = xstring_to_filecontent( lv_content ).
+          <ls_content>-data_filesize = xstrlen( lv_content ).
 
         WHEN OTHERS.
           RAISE EXCEPTION TYPE zcx_adu_transport_request
@@ -333,10 +329,61 @@ CLASS zcl_adu_utl_transport_request IMPLEMENTATION.
 
   METHOD zif_adu_utl_transport_request~is_filename_valid.
 
-    DATA:
-      lc_regex TYPE string VALUE `^(K|R)(.{6,7})(.)(.{3})$`.
+    DATA lc_regex TYPE string VALUE `^(K|R)(.{6,7})(.)(.{3})$`.
 
-    rv_result = xsdbool( contains( val = iv_filename regex = lc_regex ) ).
+    rv_result = xsdbool( contains( val   = iv_filename
+                                   regex = lc_regex ) ).
+
+  ENDMETHOD.
+
+
+  METHOD xstring_to_filecontent.
+
+    DATA lv_content LIKE LINE OF rt_result.
+
+    DATA(lv_binary_size) = xstrlen( iv_xstring ).
+
+    DATA(lv_binary_len) = 255.
+    DATA(lv_pos) = 0.
+    DATA(lv_times) = ( lv_binary_size + lv_binary_len - 1 ) DIV lv_binary_len.
+
+    DO lv_times TIMES.
+
+      lv_content = iv_xstring+lv_pos.
+
+      lv_pos = lv_pos + lv_binary_len.
+
+      APPEND lv_content TO rt_result.
+
+    ENDDO.
+
+  ENDMETHOD.
+
+
+  METHOD import_file.
+
+    IF it_content IS INITIAL.
+      RETURN.
+    ENDIF.
+
+    DATA(lv_bytes)  = 0.
+    DATA(lv_length) = 255.
+
+    OPEN DATASET iv_path FOR OUTPUT IN BINARY MODE.
+
+    LOOP AT it_content ASSIGNING FIELD-SYMBOL(<lv_content>).
+
+      lv_bytes = lv_bytes + lv_length.
+
+      IF lv_bytes > iv_filesize.
+        lv_length = iv_filesize - lv_bytes + lv_length.
+      ENDIF.
+
+      TRANSFER <lv_content> TO iv_path LENGTH lv_length.
+
+    ENDLOOP.
+
+    CLOSE DATASET iv_path.
 
   ENDMETHOD.
 
