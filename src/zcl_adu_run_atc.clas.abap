@@ -73,6 +73,7 @@ ENDCLASS.
 
 CLASS zcl_adu_run_atc IMPLEMENTATION.
 
+
   METHOD create.
 
     result = NEW zcl_adu_run_atc( profile_name ).
@@ -85,8 +86,8 @@ CLASS zcl_adu_run_atc IMPLEMENTATION.
     profile_name_of_checks =
         COND #(
             WHEN profile_name IS NOT INITIAL
-                THEN profile_name
-                ELSE get_default_variant( ) ).
+            THEN profile_name
+            ELSE get_default_variant( ) ).
 
   ENDMETHOD.
 
@@ -108,7 +109,7 @@ CLASS zcl_adu_run_atc IMPLEMENTATION.
         DATA(atc_config) = CAST if_satc_ac_config_ci( cl_satc_ac_config_factory=>get_read_access( ) ).
         atc_config->get_ci_check_variant( IMPORTING e_name = result ).
       CATCH cx_satc_root cx_sy_move_cast_error.
-        CLEAR: result.
+        CLEAR result.
     ENDTRY.
 
     IF result IS INITIAL.
@@ -141,8 +142,7 @@ CLASS zcl_adu_run_atc IMPLEMENTATION.
 
   METHOD execute_atc_project.
 
-    DATA:
-      success TYPE abap_bool.
+    DATA success TYPE abap_bool.
 
     TRY.
         CALL FUNCTION 'SATC_EXECUTE_PROJECT'
@@ -164,8 +164,7 @@ CLASS zcl_adu_run_atc IMPLEMENTATION.
 
   METHOD retrieve_findings.
 
-    DATA:
-      lv_display_id TYPE satc_d_id.
+    DATA lv_display_id TYPE satc_d_id.
 
     DATA(li_access) = cl_satc_adt_result_read_access=>create( cl_satc_adt_result_reader=>create( ) ).
 
@@ -183,14 +182,12 @@ CLASS zcl_adu_run_atc IMPLEMENTATION.
           IMPORTING
             e_findings   = result-findings.
 
-        CALL METHOD li_access->read_metrics_4_id
-          EXPORTING
-            i_display_id          = lv_display_id
-          IMPORTING
-            e_has_caused_abortion = result-has_caused_abortion.
+        li_access->read_metrics_4_id( EXPORTING i_display_id          = lv_display_id
+                                      IMPORTING e_has_caused_abortion = result-has_caused_abortion ).
 
       CATCH cx_root.
-        result = retrieve_findings_ge_754( iv_execution_id = execution_id ii_access = li_access ).
+        result = retrieve_findings_ge_754( iv_execution_id = execution_id
+                                           ii_access       = li_access ).
     ENDTRY.
 
   ENDMETHOD.
@@ -198,11 +195,9 @@ CLASS zcl_adu_run_atc IMPLEMENTATION.
 
   METHOD retrieve_findings_ge_754.
 
-    DATA:
-      lr_atc_result TYPE REF TO data.
+    DATA lr_atc_result TYPE REF TO data.
 
-    FIELD-SYMBOLS:
-      <lt_veredicts>  LIKE rs_result-findings.
+    FIELD-SYMBOLS <lt_veredicts> LIKE rs_result-findings.
 
     CREATE DATA lr_atc_result TYPE ('CL_SATC_ADT_CH_FACTORY=>TY_ADT_ATC_RESULT').
     IF sy-subrc <> 0 OR lr_atc_result IS NOT BOUND.
@@ -216,14 +211,10 @@ CLASS zcl_adu_run_atc IMPLEMENTATION.
 
     DO 3 TIMES.
 
-      DATA(lv_uri_type) = SWITCH char1( sy-index WHEN 1 THEN cl_satc_adt_deferred_uri_mappr=>co_uri_type-adt
-                                                 WHEN 2 THEN cl_satc_adt_deferred_uri_mappr=>co_uri_type-http
-                                                 WHEN 3 THEN cl_satc_adt_deferred_uri_mappr=>co_uri_type-none ).
-
       CALL METHOD ii_access->('READ_FINDINGS')
         EXPORTING
           i_display_id = iv_execution_id
-          i_uri_type   = cl_satc_adt_deferred_uri_mappr=>co_uri_type-none
+          i_uri_type   = '0'
         IMPORTING
           e_atc_result = <ls_atc_result>.
 
@@ -235,18 +226,16 @@ CLASS zcl_adu_run_atc IMPLEMENTATION.
 
     ENDDO.
 
-    CALL METHOD ii_access->read_metrics_4_id
-      EXPORTING
-        i_display_id          = iv_execution_id
-      IMPORTING
-        e_has_caused_abortion = rs_result-has_caused_abortion.
+    ii_access->read_metrics_4_id( EXPORTING i_display_id          = iv_execution_id
+                                  IMPORTING e_has_caused_abortion = rs_result-has_caused_abortion ).
 
   ENDMETHOD.
 
 
   METHOD get_standard_check_ids.
 
-    CLEAR: check_ids, check_profile.
+    CLEAR check_ids.
+    CLEAR check_profile.
 
     TRY.
         DATA(atc_config) = cl_satc_ac_config_cm_factory=>get_access_to_atc_config( ).
@@ -262,9 +251,8 @@ CLASS zcl_adu_run_atc IMPLEMENTATION.
     DELETE checks WHERE dvlpr_scope = if_satc_ac_check_attributes=>scope-never. "#EC CI_SORTSEQ
 
     check_ids =
-        VALUE #(
-            FOR check IN checks
-            ( check-atc_id ) ).
+        VALUE #( FOR check IN checks
+                 ( check-atc_id ) ).
 
   ENDMETHOD.
 
@@ -287,14 +275,14 @@ CLASS zcl_adu_run_atc IMPLEMENTATION.
             NEXT title =
                 COND #(
                     WHEN title IS INITIAL
-                        THEN r3tr_key-obj_name
-                        ELSE |{ title }, { r3tr_key-obj_name }| ) ).
+                    THEN r3tr_key-obj_name
+                    ELSE |{ title }, { r3tr_key-obj_name }| ) ).
 
     result =
         COND #(
             WHEN strlen( title_result ) <= 128
-                THEN title_result
-                ELSE |{ title_result(125) }...| ).
+            THEN title_result
+            ELSE |{ title_result(125) }...| ).
 
   ENDMETHOD.
 
