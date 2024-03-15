@@ -69,9 +69,6 @@ CLASS zcl_adu_gos IMPLEMENTATION.
 
     LOOP AT it_files INTO DATA(ls_file).
 
-      " TODO: variable is assigned but never used (ABAP cleaner)
-      DATA(lv_extension) = VALUE sdba_funct( ).
-
       DATA(ls_attachment) =
         VALUE gos_s_attcont( atta_cat  = cl_gos_api=>c_msg
                              filename  = ls_file-filename
