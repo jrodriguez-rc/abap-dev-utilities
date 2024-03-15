@@ -10,8 +10,14 @@ INTERFACE zif_adu_gos
     END OF ty_file_content,
     ty_files_content TYPE STANDARD TABLE OF ty_file_content WITH KEY filename.
 
+  TYPES ty_files_key TYPE STANDARD TABLE OF gos_s_attkey WITH KEY atta_id atta_cat.
+
   METHODS attach
     IMPORTING it_files TYPE ty_files_content
+    RAISING   cx_gos_api.
+
+  METHODS delete
+    IMPORTING it_files TYPE ty_files_key
     RAISING   cx_gos_api.
 
   METHODS get_attachment_list
@@ -25,6 +31,10 @@ INTERFACE zif_adu_gos
 
   METHODS get_attachments
     RETURNING VALUE(result) TYPE zadu_t_gos_attachment
+    RAISING   cx_gos_api.
+
+  METHODS update
+    IMPORTING it_files TYPE gos_t_attcont
     RAISING   cx_gos_api.
 
 ENDINTERFACE.

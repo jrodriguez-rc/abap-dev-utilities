@@ -95,6 +95,37 @@ CLASS zcl_adu_gos IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD zif_adu_gos~delete.
+
+    IF it_files IS INITIAL.
+      RETURN.
+    ENDIF.
+
+    DATA(lo_api) = get_api( ).
+
+    DATA(lv_commit) = VALUE abap_bool( ).
+
+    lo_api->get_atta_list( ).
+
+    LOOP AT it_files INTO DATA(ls_file).
+
+      TRY.
+          DATA(lv_ok) = lo_api->delete_al_item( ls_file ).
+        CLEANUP.
+          ROLLBACK WORK.
+      ENDTRY.
+
+      lv_commit = xsdbool( lv_commit = abap_true OR lv_ok = abap_true ).
+
+    ENDLOOP.
+
+    IF lv_commit = abap_true.
+      COMMIT WORK AND WAIT.
+    ENDIF.
+
+  ENDMETHOD.
+
+
   METHOD zif_adu_gos~get_attachment_list.
 
     result = get_api( )->get_atta_list( ).
@@ -119,6 +150,35 @@ CLASS zcl_adu_gos IMPLEMENTATION.
     result =
         VALUE #( FOR ls_attachment IN zif_adu_gos~get_attachment_list( )
                  ( zif_adu_gos~get_attachment( CORRESPONDING #( ls_attachment ) ) ) ).
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_gos~update.
+
+    IF it_files IS INITIAL.
+      RETURN.
+    ENDIF.
+
+    DATA(lo_api) = get_api( ).
+
+    DATA(lv_commit) = VALUE abap_bool( ).
+
+    LOOP AT it_files INTO DATA(ls_file).
+
+      TRY.
+          DATA(lv_ok) = lo_api->update_al_item( ls_file ).
+        CLEANUP.
+          ROLLBACK WORK.
+      ENDTRY.
+
+      lv_commit = xsdbool( lv_commit = abap_true OR lv_ok = abap_true ).
+
+    ENDLOOP.
+
+    IF lv_commit = abap_true.
+      COMMIT WORK AND WAIT.
+    ENDIF.
 
   ENDMETHOD.
 
