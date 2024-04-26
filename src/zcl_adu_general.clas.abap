@@ -27,7 +27,7 @@ CLASS zcl_adu_general IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD get_instance.
+  METHOD zif_adu_general~get.
 
     result = COND #( WHEN instance IS BOUND THEN instance ELSE NEW zcl_adu_general( ) ).
 
