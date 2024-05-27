@@ -1,5 +1,6 @@
 [![abap package version](https://img.shields.io/endpoint?url=https://shield.abap.space/version-shield-json/github/jrodriguez-rc/abap-dev-utilities/src/zcl_adu_apack.clas.abap/gc_version&label=version)](.apack-manifest.xml)
 [![license](https://img.shields.io/github/license/jrodriguez-rc/abap-dev-utilities)](LICENSE)
+![GitHub branch check runs](https://img.shields.io/github/check-runs/jrodriguez-rc/abap-dev-utilities/main)
 
 # ABAP Development Utilities
 This repository has a group of utilities that you can use in your development
