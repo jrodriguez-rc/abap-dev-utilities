@@ -217,8 +217,17 @@ CLASS lcl_process IMPLEMENTATION.
                                                                OTHERS                      = 6 ).
     IF sy-subrc <> 0.
       RAISE EXCEPTION TYPE zcx_adu_transport_request
-            MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
-            WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
+        EXPORTING
+          textid = VALUE #( msgid = sy-msgid
+                            msgno = sy-msgno
+                            attr1 = 'TEXT1'
+                            attr2 = 'TEXT2'
+                            attr3 = 'TEXT3'
+                            attr4 = 'TEXT4' )
+          text1  = CONV #( sy-msgv1 )
+          text2  = CONV #( sy-msgv2 )
+          text3  = CONV #( sy-msgv3 )
+          text4  = CONV #( sy-msgv4 ).
     ENDIF.
 
     DATA(li_utility) = zcl_adu_utl_transport_request=>get( ).
@@ -334,8 +343,17 @@ CLASS lcl_process IMPLEMENTATION.
                                                      OTHERS                  = 19 ).
     IF sy-subrc <> 0.
       RAISE EXCEPTION TYPE zcx_adu_transport_request
-            MESSAGE ID sy-msgid TYPE sy-msgty NUMBER sy-msgno
-            WITH sy-msgv1 sy-msgv2 sy-msgv3 sy-msgv4.
+        EXPORTING
+          textid = VALUE #( msgid = sy-msgid
+                            msgno = sy-msgno
+                            attr1 = 'TEXT1'
+                            attr2 = 'TEXT2'
+                            attr3 = 'TEXT3'
+                            attr4 = 'TEXT4' )
+          text1  = CONV #( sy-msgv1 )
+          text2  = CONV #( sy-msgv2 )
+          text3  = CONV #( sy-msgv3 )
+          text4  = CONV #( sy-msgv4 ).
     ENDIF.
 
     CONCATENATE LINES OF lt_file_data INTO lv_content IN BYTE MODE.
