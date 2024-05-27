@@ -82,9 +82,9 @@ CLASS lcl_process IMPLEMENTATION.
 
     cl_gui_frontend_services=>directory_browse( EXPORTING  initial_folder       = lv_initial_path
                                                 CHANGING   selected_folder      = lv_initial_path
-                                                EXCEPTIONS cntl_error           = 1                " Control error
-                                                           error_no_gui         = 2                " No GUI available
-                                                           not_supported_by_gui = 3                " GUI does not support this
+                                                EXCEPTIONS cntl_error           = 1
+                                                           error_no_gui         = 2
+                                                           not_supported_by_gui = 3
                                                            OTHERS               = 4 ).
 
     p_path = COND #( WHEN sy-subrc = 0 AND lt_files IS NOT INITIAL
@@ -209,11 +209,11 @@ CLASS lcl_process IMPLEMENTATION.
                                                                files_only                  = abap_true
                                                     CHANGING   file_table                  = lt_files
                                                                count                       = lv_count
-                                                    EXCEPTIONS cntl_error                  = 1                " Control error
-                                                               directory_list_files_failed = 2                " Could not list files in the directory
-                                                               wrong_parameter             = 3                " Incorrect parameter combination
-                                                               error_no_gui                = 4                " No GUI available
-                                                               not_supported_by_gui        = 5                " GUI does not support this
+                                                    EXCEPTIONS cntl_error                  = 1
+                                                               directory_list_files_failed = 2
+                                                               wrong_parameter             = 3
+                                                               error_no_gui                = 4
+                                                               not_supported_by_gui        = 5
                                                                OTHERS                      = 6 ).
     IF sy-subrc <> 0.
       RAISE EXCEPTION TYPE zcx_adu_transport_request
@@ -225,8 +225,11 @@ CLASS lcl_process IMPLEMENTATION.
 
     LOOP AT lt_files ASSIGNING FIELD-SYMBOL(<ls_file>).
 
+      DATA(lv_extension) =
+        to_upper( zcl_adu_general=>get( )->split_filename_extension( |{ <ls_file>-filename }| )-extension ).
+
       IF     iv_include_zip = abap_true
-         AND to_upper( zcl_adu_general=>get( )->split_filename_extension( |{ <ls_file>-filename }| )-extension ) = 'ZIP'.
+         AND lv_extension   = 'ZIP'.
 
         INSERT LINES OF read_from_zip( iv_path     = iv_path
                                        iv_filename = |{ <ls_file>-filename }| )
@@ -255,10 +258,8 @@ CLASS lcl_process IMPLEMENTATION.
           <ls_transport_request>-data_filename = <ls_file>-filename.
 
         WHEN OTHERS.
-          RAISE EXCEPTION TYPE zcx_adu_transport_request
-            EXPORTING
-              textid = zcx_adu_transport_request=>filename_not_supported
-              text1  = |{ <ls_file>-filename }|.
+          RAISE EXCEPTION NEW zcx_adu_transport_request( textid = zcx_adu_transport_request=>filename_not_supported
+                                                         text1  = |{ <ls_file>-filename }| ).
 
       ENDCASE.
 
@@ -266,11 +267,10 @@ CLASS lcl_process IMPLEMENTATION.
 
     ENDLOOP.
 
-    LOOP AT lt_transport_requests ASSIGNING <ls_transport_request> WHERE cofile_filename IS INITIAL OR data_filename IS INITIAL.
-      RAISE EXCEPTION TYPE zcx_adu_transport_request
-        EXPORTING
-          textid = zcx_adu_transport_request=>incomplete
-          text1  = |{ <ls_transport_request>-transport_request }|.
+    LOOP AT lt_transport_requests ASSIGNING <ls_transport_request> WHERE cofile_filename IS INITIAL
+                                                                      OR data_filename   IS INITIAL.
+      RAISE EXCEPTION NEW zcx_adu_transport_request( textid = zcx_adu_transport_request=>incomplete
+                                                     text1  = |{ <ls_transport_request>-transport_request }| ).
     ENDLOOP.
 
     rt_result = lt_transport_requests.
@@ -283,17 +283,18 @@ CLASS lcl_process IMPLEMENTATION.
                                                                directories_only            = abap_true
                                                     CHANGING   file_table                  = lt_folders
                                                                count                       = lv_count
-                                                    EXCEPTIONS cntl_error                  = 1                " Control error
-                                                               directory_list_files_failed = 2                " Could not list files in the directory
-                                                               wrong_parameter             = 3                " Incorrect parameter combination
-                                                               error_no_gui                = 4                " No GUI available
-                                                               not_supported_by_gui        = 5                " GUI does not support this
+                                                    EXCEPTIONS cntl_error                  = 1
+                                                               directory_list_files_failed = 2
+                                                               wrong_parameter             = 3
+                                                               error_no_gui                = 4
+                                                               not_supported_by_gui        = 5
                                                                OTHERS                      = 6 ).
 
     rt_result = VALUE #( BASE rt_result FOR <folder> IN lt_folders
-                         ( LINES OF read_from_folder( iv_path        = |{ iv_path }\\{ <folder>-filename }|
-                                                      iv_recursively = iv_recursively
-                                                      iv_include_zip = iv_include_zip ) ) ).
+                         ( LINES OF
+                           read_from_folder( iv_path        = |{ iv_path }\\{ <folder>-filename }|
+                                             iv_recursively = iv_recursively
+                                             iv_include_zip = iv_include_zip ) ) ).
 
   ENDMETHOD.
 
@@ -307,24 +308,24 @@ CLASS lcl_process IMPLEMENTATION.
     cl_gui_frontend_services=>gui_upload( EXPORTING  filename                = |{ iv_path }\\{ iv_filename }|
                                                      filetype                = 'BIN'
                                           CHANGING   data_tab                = lt_file_data
-                                          EXCEPTIONS file_open_error         = 1                " File does not exist and cannot be opened
-                                                     file_read_error         = 2                " Error when reading file
-                                                     no_batch                = 3                " Cannot execute front-end function in background
-                                                     gui_refuse_filetransfer = 4                " Incorrect front end or error on front end
-                                                     invalid_type            = 5                " Incorrect parameter FILETYPE
-                                                     no_authority            = 6                " No upload authorization
-                                                     unknown_error           = 7                " Unknown error
-                                                     bad_data_format         = 8                " Cannot Interpret Data in File
-                                                     header_not_allowed      = 9                " Invalid header
-                                                     separator_not_allowed   = 10               " Invalid separator
-                                                     header_too_long         = 11               " Header information currently restricted to 1023 bytes
-                                                     unknown_dp_error        = 12               " Error when calling data provider
-                                                     access_denied           = 13               " Access to File Denied
-                                                     dp_out_of_memory        = 14               " Not enough memory in data provider
-                                                     disk_full               = 15               " Storage medium is full.
-                                                     dp_timeout              = 16               " Data provider timeout
-                                                     not_supported_by_gui    = 17               " GUI does not support this
-                                                     error_no_gui            = 18               " GUI not available
+                                          EXCEPTIONS file_open_error         = 1
+                                                     file_read_error         = 2
+                                                     no_batch                = 3
+                                                     gui_refuse_filetransfer = 4
+                                                     invalid_type            = 5
+                                                     no_authority            = 6
+                                                     unknown_error           = 7
+                                                     bad_data_format         = 8
+                                                     header_not_allowed      = 9
+                                                     separator_not_allowed   = 10
+                                                     header_too_long         = 11
+                                                     unknown_dp_error        = 12
+                                                     access_denied           = 13
+                                                     dp_out_of_memory        = 14
+                                                     disk_full               = 15
+                                                     dp_timeout              = 16
+                                                     not_supported_by_gui    = 17
+                                                     error_no_gui            = 18
                                                      OTHERS                  = 19 ).
     IF sy-subrc <> 0.
       RAISE EXCEPTION TYPE zcx_adu_transport_request
@@ -366,10 +367,8 @@ CLASS lcl_process IMPLEMENTATION.
           <ls_transport_request>-data_filename = <ls_file>-name.
 
         WHEN OTHERS.
-          RAISE EXCEPTION TYPE zcx_adu_transport_request
-            EXPORTING
-              textid = zcx_adu_transport_request=>filename_not_supported
-              text1  = |{ <ls_file>-name } ({ iv_filename })|.
+          RAISE EXCEPTION NEW zcx_adu_transport_request( textid = zcx_adu_transport_request=>filename_not_supported
+                                                         text1  = |{ <ls_file>-name } ({ iv_filename })| ).
 
       ENDCASE.
 
@@ -423,24 +422,24 @@ CLASS lcl_process IMPLEMENTATION.
           EXPORTING  filename                = |{ lr_file->path }\\{ lr_file->zip_filename }|
                      filetype                = 'BIN'
           CHANGING   data_tab                = lt_file_data
-          EXCEPTIONS file_open_error         = 1                " File does not exist and cannot be opened
-                     file_read_error         = 2                " Error when reading file
-                     no_batch                = 3                " Cannot execute front-end function in background
-                     gui_refuse_filetransfer = 4                " Incorrect front end or error on front end
-                     invalid_type            = 5                " Incorrect parameter FILETYPE
-                     no_authority            = 6                " No upload authorization
-                     unknown_error           = 7                " Unknown error
-                     bad_data_format         = 8                " Cannot Interpret Data in File
-                     header_not_allowed      = 9                " Invalid header
-                     separator_not_allowed   = 10               " Invalid separator
-                     header_too_long         = 11               " Header information currently restricted to 1023 bytes
-                     unknown_dp_error        = 12               " Error when calling data provider
-                     access_denied           = 13               " Access to File Denied
-                     dp_out_of_memory        = 14               " Not enough memory in data provider
-                     disk_full               = 15               " Storage medium is full.
-                     dp_timeout              = 16               " Data provider timeout
-                     not_supported_by_gui    = 17               " GUI does not support this
-                     error_no_gui            = 18               " GUI not available
+          EXCEPTIONS file_open_error         = 1
+                     file_read_error         = 2
+                     no_batch                = 3
+                     gui_refuse_filetransfer = 4
+                     invalid_type            = 5
+                     no_authority            = 6
+                     unknown_error           = 7
+                     bad_data_format         = 8
+                     header_not_allowed      = 9
+                     separator_not_allowed   = 10
+                     header_too_long         = 11
+                     unknown_dp_error        = 12
+                     access_denied           = 13
+                     dp_out_of_memory        = 14
+                     disk_full               = 15
+                     dp_timeout              = 16
+                     not_supported_by_gui    = 17
+                     error_no_gui            = 18
                      OTHERS                  = 19 ).
         IF sy-subrc <> 0.
           lr_file->status = 'ERROR'.
@@ -472,24 +471,24 @@ CLASS lcl_process IMPLEMENTATION.
                      filetype                = 'BIN'
           IMPORTING  filelength              = ls_content-cofile_filesize
           CHANGING   data_tab                = ls_content-cofile
-          EXCEPTIONS file_open_error         = 1                " File does not exist and cannot be opened
-                     file_read_error         = 2                " Error when reading file
-                     no_batch                = 3                " Cannot execute front-end function in background
-                     gui_refuse_filetransfer = 4                " Incorrect front end or error on front end
-                     invalid_type            = 5                " Incorrect parameter FILETYPE
-                     no_authority            = 6                " No upload authorization
-                     unknown_error           = 7                " Unknown error
-                     bad_data_format         = 8                " Cannot Interpret Data in File
-                     header_not_allowed      = 9                " Invalid header
-                     separator_not_allowed   = 10               " Invalid separator
-                     header_too_long         = 11               " Header information currently restricted to 1023 bytes
-                     unknown_dp_error        = 12               " Error when calling data provider
-                     access_denied           = 13               " Access to File Denied
-                     dp_out_of_memory        = 14               " Not enough memory in data provider
-                     disk_full               = 15               " Storage medium is full.
-                     dp_timeout              = 16               " Data provider timeout
-                     not_supported_by_gui    = 17               " GUI does not support this
-                     error_no_gui            = 18               " GUI not available
+          EXCEPTIONS file_open_error         = 1
+                     file_read_error         = 2
+                     no_batch                = 3
+                     gui_refuse_filetransfer = 4
+                     invalid_type            = 5
+                     no_authority            = 6
+                     unknown_error           = 7
+                     bad_data_format         = 8
+                     header_not_allowed      = 9
+                     separator_not_allowed   = 10
+                     header_too_long         = 11
+                     unknown_dp_error        = 12
+                     access_denied           = 13
+                     dp_out_of_memory        = 14
+                     disk_full               = 15
+                     dp_timeout              = 16
+                     not_supported_by_gui    = 17
+                     error_no_gui            = 18
                      OTHERS                  = 19 ).
         IF sy-subrc <> 0.
           lr_file->status = 'ERROR'.
@@ -506,24 +505,24 @@ CLASS lcl_process IMPLEMENTATION.
                      filetype                = 'BIN'
           IMPORTING  filelength              = ls_content-data_filesize
           CHANGING   data_tab                = ls_content-data
-          EXCEPTIONS file_open_error         = 1                " File does not exist and cannot be opened
-                     file_read_error         = 2                " Error when reading file
-                     no_batch                = 3                " Cannot execute front-end function in background
-                     gui_refuse_filetransfer = 4                " Incorrect front end or error on front end
-                     invalid_type            = 5                " Incorrect parameter FILETYPE
-                     no_authority            = 6                " No upload authorization
-                     unknown_error           = 7                " Unknown error
-                     bad_data_format         = 8                " Cannot Interpret Data in File
-                     header_not_allowed      = 9                " Invalid header
-                     separator_not_allowed   = 10               " Invalid separator
-                     header_too_long         = 11               " Header information currently restricted to 1023 bytes
-                     unknown_dp_error        = 12               " Error when calling data provider
-                     access_denied           = 13               " Access to File Denied
-                     dp_out_of_memory        = 14               " Not enough memory in data provider
-                     disk_full               = 15               " Storage medium is full.
-                     dp_timeout              = 16               " Data provider timeout
-                     not_supported_by_gui    = 17               " GUI does not support this
-                     error_no_gui            = 18               " GUI not available
+          EXCEPTIONS file_open_error         = 1
+                     file_read_error         = 2
+                     no_batch                = 3
+                     gui_refuse_filetransfer = 4
+                     invalid_type            = 5
+                     no_authority            = 6
+                     unknown_error           = 7
+                     bad_data_format         = 8
+                     header_not_allowed      = 9
+                     separator_not_allowed   = 10
+                     header_too_long         = 11
+                     unknown_dp_error        = 12
+                     access_denied           = 13
+                     dp_out_of_memory        = 14
+                     disk_full               = 15
+                     dp_timeout              = 16
+                     not_supported_by_gui    = 17
+                     error_no_gui            = 18
                      OTHERS                  = 19 ).
         IF sy-subrc <> 0.
           lr_file->status = 'ERROR'.

@@ -28,30 +28,25 @@ INTERFACE zif_adu_messages
               message_var_4  TYPE any                OPTIONAL
               !parameter     TYPE bapiret2-parameter OPTIONAL
               !row           TYPE bapiret2-row       OPTIONAL
-              !field         TYPE bapiret2-field     OPTIONAL
-    RETURNING VALUE(result)  TYPE REF TO zif_adu_messages.
+              !field         TYPE bapiret2-field     OPTIONAL.
 
   METHODS add_messages
-    IMPORTING !messages     TYPE bapiret2_t
-    RETURNING VALUE(result) TYPE REF TO zif_adu_messages.
+    IMPORTING !messages TYPE bapiret2_t.
 
   METHODS add_text
     IMPORTING iv_message_type TYPE sy-msgty DEFAULT gc_severity-error
-              iv_text         TYPE ty_message_text
-    RETURNING VALUE(result)   TYPE REF TO zif_adu_messages.
+              iv_text         TYPE ty_message_text.
 
   METHODS add_exception
-    IMPORTING message_type  TYPE sy-msgty           DEFAULT gc_severity-error
-              !exception    TYPE REF TO cx_root
-              !parameter    TYPE bapiret2-parameter OPTIONAL
-              !row          TYPE bapiret2-row       OPTIONAL
-              !field        TYPE bapiret2-field     OPTIONAL
-    RETURNING VALUE(result) TYPE REF TO zif_adu_messages.
+    IMPORTING message_type TYPE sy-msgty           DEFAULT gc_severity-error
+              !exception   TYPE REF TO cx_root
+              !parameter   TYPE bapiret2-parameter OPTIONAL
+              !row         TYPE bapiret2-row       OPTIONAL
+              !field       TYPE bapiret2-field     OPTIONAL.
 
   METHODS add_t100_message
-    IMPORTING message_type  TYPE sy-msgty DEFAULT gc_severity-error
-              !message      TYPE REF TO if_t100_message
-    RETURNING VALUE(result) TYPE REF TO zif_adu_messages.
+    IMPORTING message_type TYPE sy-msgty DEFAULT gc_severity-error
+              !message     TYPE REF TO if_t100_message.
 
   METHODS add_text_message
     IMPORTING message_type   TYPE sy-msgty           DEFAULT gc_severity-error
@@ -60,19 +55,16 @@ INTERFACE zif_adu_messages
               !text          TYPE string
               !parameter     TYPE bapiret2-parameter OPTIONAL
               !row           TYPE bapiret2-row       OPTIONAL
-              !field         TYPE bapiret2-field     OPTIONAL
-    RETURNING VALUE(result)  TYPE REF TO zif_adu_messages.
+              !field         TYPE bapiret2-field     OPTIONAL.
 
   METHODS display_messages
     IMPORTING initialize_after_display TYPE abap_bool DEFAULT abap_true
-              send_if_one              TYPE abap_bool DEFAULT abap_false
-    RETURNING VALUE(result)            TYPE REF TO zif_adu_messages.
+              send_if_one              TYPE abap_bool DEFAULT abap_false.
 
   METHODS get_messages
     RETURNING VALUE(result) TYPE ty_messages.
 
-  METHODS initialize
-    RETURNING VALUE(result) TYPE REF TO zif_adu_messages.
+  METHODS initialize.
 
   METHODS is_error
     RETURNING VALUE(result) TYPE abap_bool.
