@@ -258,8 +258,10 @@ CLASS lcl_process IMPLEMENTATION.
           <ls_transport_request>-data_filename = <ls_file>-filename.
 
         WHEN OTHERS.
-          RAISE EXCEPTION NEW zcx_adu_transport_request( textid = zcx_adu_transport_request=>filename_not_supported
-                                                         text1  = |{ <ls_file>-filename }| ).
+          RAISE EXCEPTION TYPE zcx_adu_transport_request
+            EXPORTING
+              textid = zcx_adu_transport_request=>filename_not_supported
+              text1  = |{ <ls_file>-filename }|.
 
       ENDCASE.
 
@@ -269,8 +271,11 @@ CLASS lcl_process IMPLEMENTATION.
 
     LOOP AT lt_transport_requests ASSIGNING <ls_transport_request> WHERE cofile_filename IS INITIAL
                                                                       OR data_filename   IS INITIAL.
-      RAISE EXCEPTION NEW zcx_adu_transport_request( textid = zcx_adu_transport_request=>incomplete
-                                                     text1  = |{ <ls_transport_request>-transport_request }| ).
+      RAISE EXCEPTION TYPE zcx_adu_transport_request
+        EXPORTING
+          textid = zcx_adu_transport_request=>incomplete
+          text1  = |{ <ls_transport_request>-transport_request }|.
+
     ENDLOOP.
 
     rt_result = lt_transport_requests.
@@ -367,8 +372,10 @@ CLASS lcl_process IMPLEMENTATION.
           <ls_transport_request>-data_filename = <ls_file>-name.
 
         WHEN OTHERS.
-          RAISE EXCEPTION NEW zcx_adu_transport_request( textid = zcx_adu_transport_request=>filename_not_supported
-                                                         text1  = |{ <ls_file>-name } ({ iv_filename })| ).
+          RAISE EXCEPTION TYPE zcx_adu_transport_request
+            EXPORTING
+              textid = zcx_adu_transport_request=>filename_not_supported
+              text1  = |{ <ls_file>-name } ({ iv_filename })|.
 
       ENDCASE.
 
