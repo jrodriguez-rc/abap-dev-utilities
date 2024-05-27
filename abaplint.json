@@ -214,6 +214,7 @@
             "globalClassSkipFirst": false,
             "ignoreGlobalClassDefinition": false,
             "ignoreGlobalInterface": false,
+            "selectionScreenBlockIndentation": false,
             "exclude":[
                 ".*WRITE*.DOC*"
             ]
