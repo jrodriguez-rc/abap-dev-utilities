@@ -37,7 +37,7 @@ CLASS zcl_adu_log DEFINITION
       IMPORTING iv_content        TYPE string
                 iv_content_type   TYPE balpval
                 is_custom_message TYPE zif_adu_log=>ty_message OPTIONAL
-                is_callback       TYPE bal_s_clbk OPTIONAL.
+                is_callback       TYPE bal_s_clbk              OPTIONAL.
 
     METHODS content_to_params
       IMPORTING iv_content       TYPE string
@@ -59,6 +59,8 @@ CLASS zcl_adu_log IMPLEMENTATION.
 
 
   METHOD constructor.
+
+    mv_log_handle = iv_log_handle.
 
     ms_header-aluser    = sy-uname.
     ms_header-alprog    = iv_source.
@@ -112,14 +114,14 @@ CLASS zcl_adu_log IMPLEMENTATION.
     IF ls_message-probclass IS INITIAL.
       ls_message-probclass =
         SWITCH #( ls_message-msgty
-                  WHEN zcl_adu_messages=>severity-abort OR zcl_adu_messages=>severity-exception THEN
-                    zif_adu_log=>gc_message_class-very_important
-                  WHEN zcl_adu_messages=>severity-error THEN
-                    zif_adu_log=>gc_message_class-important
-                  WHEN zcl_adu_messages=>severity-warning THEN
-                    zif_adu_log=>gc_message_class-medium
-                  WHEN zcl_adu_messages=>severity-success OR zcl_adu_messages=>severity-information THEN
-                    zif_adu_log=>gc_message_class-additinal_information
+                  WHEN zcl_adu_messages=>severity-abort OR zcl_adu_messages=>severity-exception
+                    THEN zif_adu_log=>gc_message_class-very_important
+                  WHEN zcl_adu_messages=>severity-error
+                    THEN zif_adu_log=>gc_message_class-important
+                  WHEN zcl_adu_messages=>severity-warning
+                    THEN zif_adu_log=>gc_message_class-medium
+                  WHEN zcl_adu_messages=>severity-success OR zcl_adu_messages=>severity-information
+                    THEN zif_adu_log=>gc_message_class-additinal_information
                   ELSE
                     zif_adu_log=>gc_message_class-other ).
     ENDIF.
@@ -181,7 +183,8 @@ CLASS zcl_adu_log IMPLEMENTATION.
 
     DATA(li_message) = zcl_adu_messages=>create( ).
 
-    li_message->add_text( iv_message_type = iv_type iv_text = iv_text ).
+    li_message->add_text( iv_message_type = iv_type
+                          iv_text         = iv_text ).
 
     LOOP AT li_message->get_messages( ) ASSIGNING FIELD-SYMBOL(<ls_message>).
       zif_adu_log~add_bapiret_message( <ls_message> ).
