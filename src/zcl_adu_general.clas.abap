@@ -27,7 +27,7 @@ CLASS zcl_adu_general IMPLEMENTATION.
   ENDMETHOD.
 
 
-  METHOD get_instance.
+  METHOD zif_adu_general~get.
 
     result = COND #( WHEN instance IS BOUND THEN instance ELSE NEW zcl_adu_general( ) ).
 
@@ -99,6 +99,44 @@ CLASS zcl_adu_general IMPLEMENTATION.
       result-filename = iv_filename(lv_filename_length).
 
     ENDIF.
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_general~get_timestamp.
+
+    GET TIME STAMP FIELD result.
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_general~get_date.
+
+    DATA(lv_timestamp) = zif_adu_general~get_timestamp( ).
+
+    CONVERT TIME STAMP lv_timestamp
+            TIME ZONE zif_adu_general~get_system_time_zone( )
+            INTO DATE result.
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_general~get_time.
+
+    DATA(lv_timestamp) = zif_adu_general~get_timestamp( ).
+
+    CONVERT TIME STAMP lv_timestamp
+            TIME ZONE zif_adu_general~get_system_time_zone( )
+            INTO TIME result.
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_general~get_system_time_zone.
+
+    CALL FUNCTION 'GET_SYSTEM_TIMEZONE'
+      IMPORTING
+        timezone = result.
 
   ENDMETHOD.
 

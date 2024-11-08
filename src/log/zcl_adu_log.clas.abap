@@ -11,8 +11,8 @@ CLASS zcl_adu_log DEFINITION
                 iv_extnumber  TYPE balnrext
                 iv_log_handle TYPE balloghndl OPTIONAL
                 iv_source     TYPE balprog    OPTIONAL
-                iv_date       TYPE baldate    DEFAULT sy-datum
-                iv_time       TYPE baltime    DEFAULT sy-uzeit.
+                iv_date       TYPE baldate    OPTIONAL
+                iv_time       TYPE baltime    OPTIONAL.
 
   PROTECTED SECTION.
     METHODS initialize FINAL.
@@ -67,8 +67,18 @@ CLASS zcl_adu_log IMPLEMENTATION.
     ms_header-extnumber = iv_extnumber.
     ms_header-object    = iv_object.
     ms_header-subobject = iv_subobject.
-    ms_header-aldate    = iv_date.
-    ms_header-altime    = iv_time.
+
+    IF iv_date IS INITIAL.
+      ms_header-aldate = zcl_adu_general=>get( )->get_date( ).
+    ELSE.
+      ms_header-aldate = iv_date.
+    ENDIF.
+
+    IF iv_time IS INITIAL.
+      ms_header-altime = zcl_adu_general=>get( )->get_time( ).
+    ELSE.
+      ms_header-altime = iv_time.
+    ENDIF.
 
     determine_severity_filter( ).
 

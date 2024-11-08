@@ -20,4 +20,16 @@ INTERFACE zif_adu_general
     IMPORTING iv_filename   TYPE string
     RETURNING VALUE(result) TYPE ty_file_name_extension.
 
+  METHODS get_timestamp
+    RETURNING VALUE(result) TYPE timestamp.
+
+  METHODS get_date
+    RETURNING VALUE(result) TYPE d.
+
+  METHODS get_time
+    RETURNING VALUE(result) TYPE t.
+
+  METHODS get_system_time_zone
+    RETURNING VALUE(result) TYPE timezone.
+
 ENDINTERFACE.
