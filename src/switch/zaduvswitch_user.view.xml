@@ -79,6 +79,12 @@
      <FRKDIR>E</FRKDIR>
     </DD28J>
    </DD28J_TABLE>
+   <TABL_EXTRAS>
+    <TDDAT>
+     <TABNAME>ZADUVSWITCH_USER</TABNAME>
+     <CCLASS>&amp;NC&amp;</CCLASS>
+    </TDDAT>
+   </TABL_EXTRAS>
    <I18N_LANGS>
     <LANGU>S</LANGU>
    </I18N_LANGS>

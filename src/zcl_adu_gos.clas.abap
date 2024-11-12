@@ -6,31 +6,22 @@ CLASS zcl_adu_gos DEFINITION
     INTERFACES zif_adu_gos ALL METHODS FINAL.
 
     CLASS-METHODS create_for_object
-      IMPORTING
-        is_object     TYPE gos_s_obj
-      RETURNING
-        VALUE(result) TYPE REF TO zif_adu_gos
-      RAISING
-        cx_gos_api.
+      IMPORTING is_object     TYPE gos_s_obj
+      RETURNING VALUE(result) TYPE REF TO zif_adu_gos
+      RAISING   cx_gos_api.
 
     METHODS constructor
-      IMPORTING
-        is_object TYPE gos_s_obj
-      RAISING
-        cx_gos_api.
+      IMPORTING is_object TYPE gos_s_obj
+      RAISING   cx_gos_api.
 
   PROTECTED SECTION.
     METHODS get_api FINAL
-      RETURNING
-        VALUE(result) TYPE REF TO cl_gos_api
-      RAISING
-        cx_gos_api.
+      RETURNING VALUE(result) TYPE REF TO cl_gos_api
+      RAISING   cx_gos_api.
 
     METHODS get_mimetype_from_extension
-      IMPORTING
-        iv_extension  TYPE c
-      RETURNING
-        VALUE(result) TYPE w3conttype.
+      IMPORTING iv_extension  TYPE c
+      RETURNING VALUE(result) TYPE w3conttype.
 
   PRIVATE SECTION.
     TYPES:
@@ -39,14 +30,11 @@ CLASS zcl_adu_gos DEFINITION
         extension TYPE string,
       END OF ty_file_name_extension.
 
-    DATA:
-      ms_object TYPE gos_s_obj.
+    DATA ms_object TYPE gos_s_obj.
 
     METHODS split_file_name_extension
-      IMPORTING
-        iv_filename   TYPE string
-      RETURNING
-        VALUE(result) TYPE ty_file_name_extension.
+      IMPORTING iv_filename   TYPE string
+      RETURNING VALUE(result) TYPE ty_file_name_extension.
 
 ENDCLASS.
 
@@ -81,19 +69,48 @@ CLASS zcl_adu_gos IMPLEMENTATION.
 
     LOOP AT it_files INTO DATA(ls_file).
 
-      DATA(lv_extension) = VALUE sdba_funct( ).
-
       DATA(ls_attachment) =
-        VALUE gos_s_attcont(
-            atta_cat  = cl_gos_api=>c_msg
-            filename  = ls_file-filename
-            descr     = ls_file-description
-            tech_type = split_file_name_extension( ls_file-filename )-extension
-            content   = ls_file-content
-            content_x = ls_file-content_x ).
+        VALUE gos_s_attcont( atta_cat  = cl_gos_api=>c_msg
+                             filename  = ls_file-filename
+                             descr     = ls_file-description
+                             tech_type = split_file_name_extension( ls_file-filename )-extension
+                             content   = ls_file-content
+                             content_x = ls_file-content_x ).
 
       TRY.
-          DATA(lv_ok) = lo_api->insert_al_item( is_attcont = ls_attachment iv_roltype = cl_gos_api=>c_attachment ).
+          DATA(lv_ok) = lo_api->insert_al_item( is_attcont = ls_attachment
+                                                iv_roltype = cl_gos_api=>c_attachment ).
+        CLEANUP.
+          ROLLBACK WORK.
+      ENDTRY.
+
+      lv_commit = xsdbool( lv_commit = abap_true OR lv_ok = abap_true ).
+
+    ENDLOOP.
+
+    IF lv_commit = abap_true.
+      COMMIT WORK AND WAIT.
+    ENDIF.
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_gos~delete.
+
+    IF it_files IS INITIAL.
+      RETURN.
+    ENDIF.
+
+    DATA(lo_api) = get_api( ).
+
+    DATA(lv_commit) = VALUE abap_bool( ).
+
+    lo_api->get_atta_list( ).
+
+    LOOP AT it_files INTO DATA(ls_file).
+
+      TRY.
+          DATA(lv_ok) = lo_api->delete_al_item( ls_file ).
         CLEANUP.
           ROLLBACK WORK.
       ENDTRY.
@@ -121,10 +138,9 @@ CLASS zcl_adu_gos IMPLEMENTATION.
     DATA(ls_attachment) = get_api( )->get_al_item( is_key ).
 
     result =
-        VALUE #(
-            attachment = ls_attachment
-            tech_type  = to_lower( ls_attachment-tech_type )
-            mimetype   = get_mimetype_from_extension( ls_attachment-tech_type ) ).
+        VALUE #( attachment = ls_attachment
+                 tech_type  = to_lower( ls_attachment-tech_type )
+                 mimetype   = get_mimetype_from_extension( ls_attachment-tech_type ) ).
 
   ENDMETHOD.
 
@@ -132,9 +148,37 @@ CLASS zcl_adu_gos IMPLEMENTATION.
   METHOD zif_adu_gos~get_attachments.
 
     result =
-        VALUE #(
-            FOR ls_attachment IN zif_adu_gos~get_attachment_list( )
-            ( zif_adu_gos~get_attachment( CORRESPONDING #( ls_attachment ) ) ) ).
+        VALUE #( FOR ls_attachment IN zif_adu_gos~get_attachment_list( )
+                 ( zif_adu_gos~get_attachment( CORRESPONDING #( ls_attachment ) ) ) ).
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_gos~update.
+
+    IF it_files IS INITIAL.
+      RETURN.
+    ENDIF.
+
+    DATA(lo_api) = get_api( ).
+
+    DATA(lv_commit) = VALUE abap_bool( ).
+
+    LOOP AT it_files INTO DATA(ls_file).
+
+      TRY.
+          DATA(lv_ok) = lo_api->update_al_item( ls_file ).
+        CLEANUP.
+          ROLLBACK WORK.
+      ENDTRY.
+
+      lv_commit = xsdbool( lv_commit = abap_true OR lv_ok = abap_true ).
+
+    ENDLOOP.
+
+    IF lv_commit = abap_true.
+      COMMIT WORK AND WAIT.
+    ENDIF.
 
   ENDMETHOD.
 
@@ -160,9 +204,8 @@ CLASS zcl_adu_gos IMPLEMENTATION.
 
   METHOD split_file_name_extension.
 
-    DATA:
-      lv_file_name_c    TYPE c LENGTH 255,
-      lv_file_extension TYPE c LENGTH 10.
+    DATA lv_file_name_c    TYPE c LENGTH 255.
+    DATA lv_file_extension TYPE c LENGTH 10.
 
     IF iv_filename IS INITIAL.
       RETURN.

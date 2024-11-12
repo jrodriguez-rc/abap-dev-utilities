@@ -82,6 +82,8 @@ CLASS zcl_adu_messages IMPLEMENTATION.
 
     DATA text_message TYPE c LENGTH 250.
 
+    result = me.
+
     IF exception IS NOT BOUND.
       RETURN.
     ENDIF.
@@ -156,6 +158,8 @@ CLASS zcl_adu_messages IMPLEMENTATION.
 
   METHOD zif_adu_messages~add_message.
 
+    result = me.
+
     message_vars_prepare( EXPORTING message_var_1           = message_var_1
                                     message_var_2           = message_var_2
                                     message_var_3           = message_var_3
@@ -181,6 +185,8 @@ CLASS zcl_adu_messages IMPLEMENTATION.
 
   METHOD zif_adu_messages~add_messages.
 
+    result = me.
+
     LOOP AT messages INTO DATA(ls_message).
       zif_adu_messages~add_message( message_type   = ls_message-type
                                     message_id     = ls_message-id
@@ -199,6 +205,8 @@ CLASS zcl_adu_messages IMPLEMENTATION.
 
   METHOD zif_adu_messages~add_text.
 
+    result = me.
+
     zif_adu_messages~add_text_message( message_type   = iv_message_type
                                        message_id     = zcx_adu_messages=>free_text-msgid
                                        message_number = zcx_adu_messages=>free_text-msgno
@@ -208,6 +216,8 @@ CLASS zcl_adu_messages IMPLEMENTATION.
 
 
   METHOD zif_adu_messages~add_t100_message.
+
+    result = me.
 
     TRY.
         DATA(dyn_info) = CAST zif_adu_exception_dyn_info( message ).
@@ -236,6 +246,8 @@ CLASS zcl_adu_messages IMPLEMENTATION.
 
 
   METHOD zif_adu_messages~add_text_message.
+
+    result = me.
 
     DATA:
       BEGIN OF message_variables,
@@ -293,6 +305,8 @@ CLASS zcl_adu_messages IMPLEMENTATION.
 
 
   METHOD zif_adu_messages~display_messages.
+
+    result = me.
 
     CALL FUNCTION 'MESSAGES_INITIALIZE'
       EXCEPTIONS
@@ -418,7 +432,11 @@ CLASS zcl_adu_messages IMPLEMENTATION.
 
 
   METHOD zif_adu_messages~initialize.
+
+    result = me.
+
     CLEAR collected_messages.
+
   ENDMETHOD.
 
 

@@ -10,6 +10,12 @@
     <STATE>1</STATE>
     <UNICODE>X</UNICODE>
    </VSEOINTERF>
+   <DESCRIPTIONS_INTERFACE>
+    <SEOCLASSTX>
+     <LANGU>S</LANGU>
+     <DESCRIPT>Adjuntos GOS</DESCRIPT>
+    </SEOCLASSTX>
+   </DESCRIPTIONS_INTERFACE>
   </asx:values>
  </asx:abap>
 </abapGit>
