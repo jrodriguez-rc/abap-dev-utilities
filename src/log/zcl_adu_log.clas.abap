@@ -5,10 +5,20 @@ CLASS zcl_adu_log DEFINITION
   PUBLIC SECTION.
     INTERFACES zif_adu_log.
 
+    CLASS-METHODS create
+      IMPORTING iv_object     TYPE balobj_d
+                iv_subobject  TYPE balsubobj
+                iv_extnumber  TYPE balnrext   OPTIONAL
+                iv_log_handle TYPE balloghndl OPTIONAL
+                iv_source     TYPE balprog    OPTIONAL
+                iv_date       TYPE baldate    OPTIONAL
+                iv_time       TYPE baltime    OPTIONAL
+      RETURNING VALUE(result) TYPE REF TO zif_adu_log.
+
     METHODS constructor
       IMPORTING iv_object     TYPE balobj_d
                 iv_subobject  TYPE balsubobj
-                iv_extnumber  TYPE balnrext
+                iv_extnumber  TYPE balnrext   OPTIONAL
                 iv_log_handle TYPE balloghndl OPTIONAL
                 iv_source     TYPE balprog    OPTIONAL
                 iv_date       TYPE baldate    OPTIONAL
@@ -56,6 +66,19 @@ ENDCLASS.
 
 
 CLASS zcl_adu_log IMPLEMENTATION.
+
+
+  METHOD create.
+
+    result = NEW zcl_adu_log( iv_object     = iv_object
+                              iv_subobject  = iv_subobject
+                              iv_extnumber  = iv_extnumber
+                              iv_log_handle = iv_log_handle
+                              iv_source     = iv_source
+                              iv_date       = iv_date
+                              iv_time       = iv_time ).
+
+  ENDMETHOD.
 
 
   METHOD constructor.
