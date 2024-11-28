@@ -202,7 +202,7 @@ CLASS zcl_adu_log IMPLEMENTATION.
 
     ri_result = me.
 
-    add_content( iv_content        = iv_json
+    add_content( iv_content        = iv_content
                  iv_content_type   = iv_content_type
                  is_custom_message = is_custom_message ).
 
