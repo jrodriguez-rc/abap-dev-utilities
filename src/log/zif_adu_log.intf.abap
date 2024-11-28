@@ -45,6 +45,12 @@ INTERFACE zif_adu_log
               is_custom_message TYPE ty_message OPTIONAL
     RETURNING VALUE(ri_result)  TYPE REF TO zif_adu_log.
 
+  METHODS add_content_by_type
+    IMPORTING iv_json           TYPE string
+              iv_content_type   TYPE balpval
+              is_custom_message TYPE ty_message OPTIONAL
+    RETURNING VALUE(ri_result)  TYPE REF TO zif_adu_log.
+
   METHODS add_content_json
     IMPORTING iv_json           TYPE string
               is_custom_message TYPE ty_message OPTIONAL

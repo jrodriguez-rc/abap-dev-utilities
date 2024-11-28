@@ -198,6 +198,17 @@ CLASS zcl_adu_log IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD zif_adu_log~add_content_by_type.
+
+    ri_result = me.
+
+    add_content( iv_content        = iv_json
+                 iv_content_type   = iv_content_type
+                 is_custom_message = is_custom_message ).
+
+  ENDMETHOD.
+
+
   METHOD zif_adu_log~add_content_json.
 
     ri_result = me.
