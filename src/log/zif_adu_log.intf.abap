@@ -1,4 +1,5 @@
 INTERFACE zif_adu_log
+
   PUBLIC.
 
   CONSTANTS:
@@ -38,6 +39,11 @@ INTERFACE zif_adu_log
   METHODS add_bapiret_message
     IMPORTING is_message       TYPE bapiret2
     RETURNING VALUE(ri_result) TYPE REF TO zif_adu_log.
+
+  METHODS add_content
+    IMPORTING iv_json           TYPE string
+              is_custom_message TYPE ty_message OPTIONAL
+    RETURNING VALUE(ri_result)  TYPE REF TO zif_adu_log.
 
   METHODS add_content_json
     IMPORTING iv_json           TYPE string

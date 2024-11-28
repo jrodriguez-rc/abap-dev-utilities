@@ -35,7 +35,7 @@ CLASS zcl_adu_log DEFINITION
 
     METHODS add_content
       IMPORTING iv_content        TYPE string
-                iv_content_type   TYPE balpval
+                iv_content_type   TYPE balpval                 OPTIONAL
                 is_custom_message TYPE zif_adu_log=>ty_message OPTIONAL
                 is_callback       TYPE bal_s_clbk              OPTIONAL.
 
@@ -161,6 +161,16 @@ CLASS zcl_adu_log IMPLEMENTATION.
                                       msgv2 = is_message-message_v2
                                       msgv3 = is_message-message_v3
                                       msgv4 = is_message-message_v4 ) ).
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_log~add_content.
+
+    ri_result = me.
+
+    add_content( iv_content        = iv_json
+                 is_custom_message = is_custom_message ).
 
   ENDMETHOD.
 
@@ -306,19 +316,25 @@ CLASS zcl_adu_log IMPLEMENTATION.
 
   METHOD add_content.
 
-    DATA(ls_callback) =
-        COND #( WHEN is_callback IS NOT INITIAL
-                THEN is_callback
-                ELSE VALUE #( userexitf = 'Z_ADU_LOG_DISPLAY_CONTENT'
-                              userexitt = 'F' ) ).
+    DATA(ls_callback) = COND #( WHEN is_callback IS NOT INITIAL
+                                THEN is_callback
+                                ELSE VALUE #( userexitf = 'Z_ADU_LOG_DISPLAY_CONTENT'
+                                              userexitt = 'F' ) ).
 
     DATA(lv_base64) = cl_http_utility=>encode_base64( iv_content ).
 
-    DATA(ls_parameters) =
-        VALUE bal_s_parm( callback = ls_callback
-                          t_par    = VALUE #( ( parname  = zif_adu_log=>gc_parameter-content_type
-                                                parvalue = iv_content_type )
-                                              ( LINES OF content_to_params( lv_base64 ) ) ) ).
+    DATA(lt_parameters) = content_to_params( lv_base64 ).
+
+    IF iv_content_type IS NOT INITIAL.
+
+      INSERT VALUE #( parname  = zif_adu_log=>gc_parameter-content_type
+                      parvalue = iv_content_type )
+             INTO TABLE lt_parameters.
+
+    ENDIF.
+
+    DATA(ls_parameters) = VALUE bal_s_parm( callback = ls_callback
+                                            t_par    = lt_parameters ).
 
     IF is_custom_message IS INITIAL.
       zif_adu_log~add_message( VALUE #( msgty  = zcl_adu_messages=>severity-information
