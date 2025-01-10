@@ -35,6 +35,7 @@
         "empty_structure": {
             "try": true,
             "loop": true,
+            "loopAllowIfSubrc": true,
             "if": true,
             "while": true,
             "case": true,
@@ -208,13 +209,13 @@
             ]
         },
         "indentation": {
+            "severity": "Error",
             "ignoreExceptions": true,
             "alignTryCatch": false,
-            "selectionScreenBlockIndentation": false,
+            "selectionScreenBlockIndentation": true,
             "globalClassSkipFirst": false,
             "ignoreGlobalClassDefinition": false,
             "ignoreGlobalInterface": false,
-            "selectionScreenBlockIndentation": false,
             "exclude":[
                 ".*WRITE*.DOC*"
             ]
