@@ -1,8 +1,7 @@
-"! <p class="shorttext synchronized" lang="en">ABAP Development Utilities APACK</p>
+"! <p class="shorttext synchronized">ABAP Development Utilities APACK</p>
 CLASS zcl_adu_apack DEFINITION
-  PUBLIC
-  FINAL
-  CREATE PUBLIC .
+  PUBLIC FINAL
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
     INTERFACES if_apack_manifest.
@@ -12,7 +11,7 @@ CLASS zcl_adu_apack DEFINITION
     CONSTANTS gc_artifact_id TYPE string VALUE 'abap-dev-utilities' ##NO_TEXT.
     CONSTANTS gc_repository  TYPE string VALUE 'https://github.com/jrodriguez-rc/abap-dev-utilities.git' ##NO_TEXT.
 
-    "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
+    "! <p class="shorttext synchronized">CONSTRUCTOR</p>
     "!
     METHODS constructor.
 

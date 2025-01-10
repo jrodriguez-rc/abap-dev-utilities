@@ -4,6 +4,7 @@ CLASS ltcl_files DEFINITION FINAL
   FOR TESTING RISK LEVEL HARMLESS DURATION SHORT.
 
   PRIVATE SECTION.
+
     DATA mi_utility TYPE REF TO zcl_adu_utl_transport_request.
 
     METHODS setup.
@@ -86,7 +87,8 @@ CLASS ltcl_files IMPLEMENTATION.
     CONSTANTS lc_file_not_supported TYPE string VALUE `SAP.EXE`.
 
     TRY.
-        DATA(lv_transport_request) = mi_utility->zif_adu_utl_transport_request~convert_filename_to_tr( lc_file_not_supported ).
+        DATA(lv_transport_request) =
+            mi_utility->zif_adu_utl_transport_request~convert_filename_to_tr( lc_file_not_supported ).
       CATCH zcx_adu_transport_request INTO DATA(lx_transport_request).
     ENDTRY.
 

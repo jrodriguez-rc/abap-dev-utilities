@@ -1,12 +1,11 @@
 CLASS zcl_adu_texts DEFINITION
-  PUBLIC
-  FINAL
+  PUBLIC FINAL
   CREATE PUBLIC.
 
   PUBLIC SECTION.
     INTERFACES zif_adu_texts.
 
-    ALIASES get FOR zif_adu_texts~get.
+    ALIASES get          FOR zif_adu_texts~get.
     ALIASES get_instance FOR zif_adu_texts~get.
 
     METHODS constructor.
@@ -14,8 +13,7 @@ CLASS zcl_adu_texts DEFINITION
   PROTECTED SECTION.
 
   PRIVATE SECTION.
-    CLASS-DATA:
-      mi_instance TYPE REF TO zif_adu_texts.
+    CLASS-DATA mi_instance TYPE REF TO zif_adu_texts.
 
 ENDCLASS.
 
@@ -79,19 +77,17 @@ CLASS zcl_adu_texts IMPLEMENTATION.
   METHOD zif_adu_texts~read_standard_text.
 
     result =
-        zif_adu_texts~itf_to_text_stream(
-            itf      = zif_adu_texts~read_standard_text_itf( text        = text
-                                                             language    = language
-                                                             tag_replace = tag_replace )
-            language = language ).
+        zif_adu_texts~itf_to_text_stream( itf      = zif_adu_texts~read_standard_text_itf( text        = text
+                                                                                           language    = language
+                                                                                           tag_replace = tag_replace )
+                                          language = language ).
 
   ENDMETHOD.
 
 
   METHOD zif_adu_texts~read_standard_text_itf.
 
-    DATA:
-      lt_tlines TYPE tline_tab.
+    DATA lt_tlines TYPE tline_tab.
 
     CALL FUNCTION 'READ_TEXT'
       EXPORTING
@@ -133,14 +129,14 @@ CLASS zcl_adu_texts IMPLEMENTATION.
   METHOD zif_adu_texts~read_textpool_single.
 
     DATA(textpool) =
-        zif_adu_texts~read_textpool(
-            program  = program
-            language = language ).
+        zif_adu_texts~read_textpool( program  = program
+                                     language = language ).
 
     TRY.
-        result = textpool[ id = id key = key ]-entry.
+        result = textpool[ id  = id
+                           key = key ]-entry.
       CATCH cx_sy_itab_line_not_found.
-        CLEAR: result.
+        CLEAR result.
     ENDTRY.
 
   ENDMETHOD.

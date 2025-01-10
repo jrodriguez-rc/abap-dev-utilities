@@ -1,4 +1,4 @@
-"! <p class="shorttext synchronized" lang="en">Messages Exceptions</p>
+"! <p class="shorttext synchronized">Messages Exceptions</p>
 CLASS zcx_adu_messages DEFINITION
   PUBLIC
   INHERITING FROM zcx_adu_static_check
@@ -49,10 +49,10 @@ CLASS zcx_adu_messages DEFINITION
     "! <p class="shorttext synchronized">CONSTRUCTOR</p>
     METHODS constructor
       IMPORTING textid     LIKE if_t100_message=>t100key OPTIONAL
-                text1      TYPE string                   OPTIONAL
-                text2      TYPE string                   OPTIONAL
-                text3      TYPE string                   OPTIONAL
-                text4      TYPE string                   OPTIONAL
+                text1      TYPE csequence                OPTIONAL
+                text2      TYPE csequence                OPTIONAL
+                text3      TYPE csequence                OPTIONAL
+                text4      TYPE csequence                OPTIONAL
                 !parameter TYPE bapiret2-parameter       OPTIONAL
                 !row       TYPE bapiret2-row             OPTIONAL
                 !field     TYPE bapiret2-field           OPTIONAL
@@ -71,13 +71,12 @@ CLASS zcx_adu_messages IMPLEMENTATION.
 
   METHOD constructor ##ADT_SUPPRESS_GENERATION.
 
-    super->constructor(
-        textid   = textid
-        text1    = text1
-        text2    = text2
-        text3    = text3
-        text4    = text4
-        previous = previous ).
+    super->constructor( textid   = textid
+                        text1    = text1
+                        text2    = text2
+                        text3    = text3
+                        text4    = text4
+                        previous = previous ).
 
     zif_adu_exception_dyn_info~parameter = parameter.
     zif_adu_exception_dyn_info~row       = row.

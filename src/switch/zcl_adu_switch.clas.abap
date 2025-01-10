@@ -6,14 +6,11 @@ CLASS zcl_adu_switch DEFINITION
     INTERFACES zif_adu_switch.
 
     CLASS-METHODS get
-      IMPORTING
-        iv_code       TYPE zadu_switch_code
-      RETURNING
-        VALUE(result) TYPE REF TO zif_adu_switch.
+      IMPORTING iv_code       TYPE zadu_switch_code
+      RETURNING VALUE(result) TYPE REF TO zif_adu_switch.
 
     METHODS constructor
-      IMPORTING
-        iv_code TYPE zadu_switch_code.
+      IMPORTING iv_code TYPE zadu_switch_code.
 
   PROTECTED SECTION.
 
@@ -23,35 +20,27 @@ CLASS zcl_adu_switch DEFINITION
         code     TYPE zadu_switch_code,
         instance TYPE REF TO zif_adu_switch,
       END OF ty_buffer_switch,
-      ty_buffer_switchs TYPE HASHED TABLE OF ty_buffer_switch
-        WITH UNIQUE KEY code.
+      ty_buffer_switchs TYPE HASHED TABLE OF ty_buffer_switch WITH UNIQUE KEY code.
 
-    TYPES:
-      ty_users TYPE STANDARD TABLE OF uname WITH KEY table_line.
+    TYPES ty_users TYPE STANDARD TABLE OF uname WITH KEY table_line.
 
-    CLASS-DATA:
-      gt_buffer TYPE ty_buffer_switchs.
+    CLASS-DATA gt_buffer TYPE ty_buffer_switchs.
 
-    DATA:
-      ms_switch    TYPE zadu_switch,
-      mt_users     TYPE ty_users,
-      mi_condition TYPE REF TO zif_adu_switch_condition.
+    DATA ms_switch    TYPE zadu_switch.
+    DATA mt_users     TYPE ty_users.
+    DATA mi_condition TYPE REF TO zif_adu_switch_condition.
 
     CLASS-METHODS create
-      IMPORTING
-        iv_code       TYPE zadu_switch_code
-      RETURNING
-        VALUE(result) TYPE REF TO zif_adu_switch.
+      IMPORTING iv_code       TYPE zadu_switch_code
+      RETURNING VALUE(result) TYPE REF TO zif_adu_switch.
 
     METHODS load_users.
 
     METHODS build_custom_condition.
 
     METHODS check_custom_condition
-      IMPORTING
-        is_custom_data_check TYPE any
-      RETURNING
-        VALUE(result)        TYPE abap_bool.
+      IMPORTING is_custom_data_check TYPE any
+      RETURNING VALUE(result)        TYPE abap_bool.
 
 ENDCLASS.
 
@@ -91,7 +80,8 @@ CLASS zcl_adu_switch IMPLEMENTATION.
     lo_instance->load_users( ).
     lo_instance->build_custom_condition( ).
 
-    INSERT VALUE #( code = iv_code instance = lo_instance ) INTO TABLE gt_buffer.
+    INSERT VALUE #( code     = iv_code
+                    instance = lo_instance ) INTO TABLE gt_buffer.
 
     result = lo_instance.
 
@@ -110,11 +100,11 @@ CLASS zcl_adu_switch IMPLEMENTATION.
     DATA(lv_status) = zif_adu_switch~get_status( ).
 
     result =
-        xsdbool( lv_status = zif_adu_switch=>gc_status-enabled
-            OR ( lv_status = zif_adu_switch=>gc_status-user
-             AND line_exists( mt_users[ table_line = sy-uname ] ) )
-            OR ( lv_status = zif_adu_switch=>gc_status-custom_condition
-             AND check_custom_condition( is_custom_data_check ) ) ).
+        xsdbool(    lv_status = zif_adu_switch=>gc_status-enabled
+                 OR (     lv_status = zif_adu_switch=>gc_status-user
+                      AND line_exists( mt_users[ table_line = sy-uname ] ) )
+                 OR (     lv_status = zif_adu_switch=>gc_status-custom_condition
+                      AND check_custom_condition( is_custom_data_check ) ) ).
 
   ENDMETHOD.
 

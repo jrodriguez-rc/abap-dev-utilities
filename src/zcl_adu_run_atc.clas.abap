@@ -1,71 +1,52 @@
-"! <p class="shorttext synchronized" lang="en">Run ABAP Test Cockpit checks</p>
+"! <p class="shorttext synchronized">Run ABAP Test Cockpit checks</p>
 CLASS zcl_adu_run_atc DEFINITION
-  PUBLIC
-  FINAL
-  CREATE PUBLIC .
+  PUBLIC FINAL
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
     INTERFACES zif_adu_run_atc.
 
     CLASS-METHODS create
-      IMPORTING
-        profile_name  TYPE csequence OPTIONAL
-      RETURNING
-        VALUE(result) TYPE REF TO zif_adu_run_atc.
+      IMPORTING profile_name  TYPE csequence OPTIONAL
+      RETURNING VALUE(result) TYPE REF TO zif_adu_run_atc.
 
     METHODS constructor
-      IMPORTING
-        profile_name TYPE csequence OPTIONAL.
+      IMPORTING profile_name TYPE csequence OPTIONAL.
 
   PROTECTED SECTION.
 
   PRIVATE SECTION.
-    DATA:
-      profile_name_of_checks TYPE satc_ci_chk_variant.
+    DATA profile_name_of_checks TYPE satc_ci_chk_variant.
 
     METHODS get_default_variant
-      RETURNING
-        VALUE(result) TYPE satc_ci_chk_variant.
+      RETURNING VALUE(result) TYPE satc_ci_chk_variant.
 
     METHODS build_project
-      IMPORTING
-        object_keys   TYPE satc_t_r3tr_keys
-      RETURNING
-        VALUE(result) TYPE REF TO if_satc_md_project.
+      IMPORTING object_keys   TYPE satc_t_r3tr_keys
+      RETURNING VALUE(result) TYPE REF TO if_satc_md_project.
 
     METHODS execute_atc_project
-      IMPORTING
-        atc_project   TYPE REF TO if_satc_md_project
-      RETURNING
-        VALUE(result) TYPE satc_d_id.
+      IMPORTING atc_project   TYPE REF TO if_satc_md_project
+      RETURNING VALUE(result) TYPE satc_d_id.
 
     METHODS retrieve_findings
-      IMPORTING
-        execution_id  TYPE satc_d_id
-      RETURNING
-        VALUE(result) TYPE zif_adu_run_atc=>ts_result
-      RAISING
-        cx_adt_rest.
+      IMPORTING execution_id  TYPE satc_d_id
+      RETURNING VALUE(result) TYPE zif_adu_run_atc=>ts_result
+      RAISING   cx_adt_rest.
 
     METHODS retrieve_findings_ge_754
-      IMPORTING
-        iv_execution_id  TYPE satc_d_id
-        ii_access        TYPE REF TO if_satc_adt_result_read_access
-      RETURNING
-        VALUE(rs_result) TYPE zif_adu_run_atc=>ts_result
-      RAISING
-        cx_adt_rest.
+      IMPORTING iv_execution_id  TYPE satc_d_id
+                ii_access        TYPE REF TO if_satc_adt_result_read_access
+      RETURNING VALUE(rs_result) TYPE zif_adu_run_atc=>ts_result
+      RAISING   cx_adt_rest.
 
     METHODS get_standard_check_ids
-      EXPORTING
-        check_profile TYPE satc_d_ac_chk_profile_name
-        check_ids     TYPE satc_t_ids.
+      EXPORTING check_profile TYPE satc_d_ac_chk_profile_name
+                check_ids     TYPE satc_t_ids.
 
     METHODS generate_project_title
-      IMPORTING
-        object_keys   TYPE satc_t_r3tr_keys
-      RETURNING
-        VALUE(result) TYPE satc_d_description.
+      IMPORTING object_keys   TYPE satc_t_r3tr_keys
+      RETURNING VALUE(result) TYPE satc_d_description.
 
 ENDCLASS.
 
@@ -83,11 +64,9 @@ CLASS zcl_adu_run_atc IMPLEMENTATION.
 
   METHOD constructor.
 
-    profile_name_of_checks =
-        COND #(
-            WHEN profile_name IS NOT INITIAL
-            THEN profile_name
-            ELSE get_default_variant( ) ).
+    profile_name_of_checks = COND #( WHEN profile_name IS NOT INITIAL
+                                     THEN profile_name
+                                     ELSE get_default_variant( ) ).
 
   ENDMETHOD.
 
@@ -108,7 +87,8 @@ CLASS zcl_adu_run_atc IMPLEMENTATION.
     TRY.
         DATA(atc_config) = CAST if_satc_ac_config_ci( cl_satc_ac_config_factory=>get_read_access( ) ).
         atc_config->get_ci_check_variant( IMPORTING e_name = result ).
-      CATCH cx_satc_root cx_sy_move_cast_error.
+      CATCH cx_satc_root
+            cx_sy_move_cast_error.
         CLEAR result.
     ENDTRY.
 

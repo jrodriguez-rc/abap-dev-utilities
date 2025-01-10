@@ -1,9 +1,8 @@
-"! <p class="shorttext synchronized" lang="en">Serialization objects</p>
+"! <p class="shorttext synchronized">Serialization objects</p>
 CLASS zcx_adu_oo_serialize DEFINITION
   PUBLIC
-  INHERITING FROM cx_static_check
-  FINAL
-  CREATE PUBLIC .
+  INHERITING FROM zcx_adu_static_check
+  CREATE PUBLIC.
 
   PUBLIC SECTION.
     INTERFACES if_t100_message.
@@ -11,8 +10,8 @@ CLASS zcx_adu_oo_serialize DEFINITION
     CONSTANTS:
       "! Type is empty
       BEGIN OF type_is_empty,
-        msgid TYPE symsgid VALUE 'ZADU_OO_SERIALIZE' ##NO_TEXT,
-        msgno TYPE symsgno VALUE '001' ##NO_TEXT,
+        msgid TYPE symsgid      VALUE 'ZADU_OO_SERIALIZE' ##NO_TEXT,
+        msgno TYPE symsgno      VALUE '001' ##NO_TEXT,
         attr1 TYPE scx_attrname VALUE 'TEXT1' ##NO_TEXT,
         attr2 TYPE scx_attrname VALUE 'TEXT2' ##NO_TEXT,
         attr3 TYPE scx_attrname VALUE 'TEXT3' ##NO_TEXT,
@@ -22,8 +21,8 @@ CLASS zcx_adu_oo_serialize DEFINITION
     CONSTANTS:
       "! Code is empty
       BEGIN OF code_is_empty,
-        msgid TYPE symsgid VALUE 'ZADU_OO_SERIALIZE' ##NO_TEXT,
-        msgno TYPE symsgno VALUE '002' ##NO_TEXT,
+        msgid TYPE symsgid      VALUE 'ZADU_OO_SERIALIZE' ##NO_TEXT,
+        msgno TYPE symsgno      VALUE '002' ##NO_TEXT,
         attr1 TYPE scx_attrname VALUE 'TEXT1' ##NO_TEXT,
         attr2 TYPE scx_attrname VALUE 'TEXT2' ##NO_TEXT,
         attr3 TYPE scx_attrname VALUE 'TEXT3' ##NO_TEXT,
@@ -33,36 +32,28 @@ CLASS zcx_adu_oo_serialize DEFINITION
     CONSTANTS:
       "! Error saving data
       BEGIN OF error_saving_data,
-        msgid TYPE symsgid VALUE 'ZADU_OO_SERIALIZE' ##NO_TEXT,
-        msgno TYPE symsgno VALUE '003' ##NO_TEXT,
+        msgid TYPE symsgid      VALUE 'ZADU_OO_SERIALIZE' ##NO_TEXT,
+        msgno TYPE symsgno      VALUE '003' ##NO_TEXT,
         attr1 TYPE scx_attrname VALUE 'TEXT1' ##NO_TEXT,
         attr2 TYPE scx_attrname VALUE 'TEXT2' ##NO_TEXT,
         attr3 TYPE scx_attrname VALUE 'TEXT3' ##NO_TEXT,
         attr4 TYPE scx_attrname VALUE 'TEXT4' ##NO_TEXT,
       END OF error_saving_data.
 
-    DATA:
-      text1 TYPE string READ-ONLY,
-      text2 TYPE string READ-ONLY,
-      text3 TYPE string READ-ONLY,
-      text4 TYPE string READ-ONLY.
-
-    "! <p class="shorttext synchronized" lang="en">Raise exception with system attribute message</p>
+    "! <p class="shorttext synchronized">Raise exception with system attribute message</p>
     "!
-    "! @raising zcx_adu_oo_serialize | <p class="shorttext synchronized" lang="en">Exception</p>
+    "! @raising zcx_adu_oo_serialize | <p class="shorttext synchronized">Exception</p>
     CLASS-METHODS raise_system
-      RAISING
-        zcx_adu_oo_serialize.
+      RAISING zcx_adu_oo_serialize.
 
-    "! <p class="shorttext synchronized" lang="en">CONSTRUCTOR</p>
+    "! <p class="shorttext synchronized">CONSTRUCTOR</p>
     METHODS constructor
-      IMPORTING
-        !textid   LIKE if_t100_message=>t100key OPTIONAL
-        !text1    TYPE string OPTIONAL
-        !text2    TYPE string OPTIONAL
-        !text3    TYPE string OPTIONAL
-        !text4    TYPE string OPTIONAL
-        !previous LIKE previous OPTIONAL.
+      IMPORTING textid    LIKE if_t100_message=>t100key OPTIONAL
+                text1     TYPE csequence                OPTIONAL
+                text2     TYPE csequence                OPTIONAL
+                text3     TYPE csequence                OPTIONAL
+                text4     TYPE csequence                OPTIONAL
+                !previous LIKE previous                 OPTIONAL.
 
   PROTECTED SECTION.
 
@@ -76,21 +67,14 @@ CLASS zcx_adu_oo_serialize IMPLEMENTATION.
 
 
   METHOD constructor ##ADT_SUPPRESS_GENERATION.
-    CALL METHOD super->constructor
-      EXPORTING
-        previous = previous.
 
-    me->text1 = text1.
-    me->text2 = text2.
-    me->text3 = text3.
-    me->text4 = text4.
+    super->constructor( textid   = textid
+                        text1    = text1
+                        text2    = text2
+                        text3    = text3
+                        text4    = text4
+                        previous = previous ).
 
-    CLEAR me->textid.
-    IF textid IS INITIAL.
-      if_t100_message~t100key = if_t100_message=>default_textid.
-    ELSE.
-      if_t100_message~t100key = textid.
-    ENDIF.
   ENDMETHOD.
 
 

@@ -1,7 +1,6 @@
-"! <p class="shorttext synchronized" lang="en">Email utilities</p>
+"! <p class="shorttext synchronized">Email utilities</p>
 CLASS zcl_adu_email DEFINITION
-  PUBLIC
-  FINAL
+  PUBLIC FINAL
   CREATE PUBLIC.
 
   PUBLIC SECTION.
@@ -13,13 +12,13 @@ CLASS zcl_adu_email DEFINITION
   PRIVATE SECTION.
     METHODS send_email
       IMPORTING sender        TYPE REF TO if_sender_bcs
-                !text         TYPE soli_tab                           OPTIONAL
+                !text         TYPE soli_tab OPTIONAL
                 multirelated  TYPE REF TO cl_gbt_multirelated_service OPTIONAL
                 subject       TYPE so_obj_des
                 recipients    TYPE bcsy_smtpa
                 attachments   TYPE zif_adu_email=>tt_attachment
-                document_type TYPE so_obj_tp                          DEFAULT zif_adu_email=>document_type-raw
-                commit_work   TYPE abap_bool                          OPTIONAL
+                document_type TYPE so_obj_tp DEFAULT zif_adu_email=>document_type-raw
+                commit_work   TYPE abap_bool OPTIONAL
       RETURNING VALUE(result) TYPE abap_bool
       RAISING   cx_send_req_bcs
                 cx_address_bcs
@@ -28,14 +27,14 @@ CLASS zcl_adu_email DEFINITION
                 cx_gbt_mime.
 
     METHODS send_from_user
-      IMPORTING username      TYPE uname                              DEFAULT sy-uname
+      IMPORTING username      TYPE uname DEFAULT sy-uname
                 !text         TYPE soli_tab
                 multirelated  TYPE REF TO cl_gbt_multirelated_service OPTIONAL
                 subject       TYPE so_obj_des
                 recipients    TYPE bcsy_smtpa
                 attachments   TYPE zif_adu_email=>tt_attachment
-                document_type TYPE so_obj_tp                          DEFAULT zif_adu_email=>document_type-raw
-                commit_work   TYPE abap_bool                          OPTIONAL
+                document_type TYPE so_obj_tp DEFAULT zif_adu_email=>document_type-raw
+                commit_work   TYPE abap_bool OPTIONAL
       RETURNING VALUE(result) TYPE abap_bool
       RAISING   cx_send_req_bcs
                 cx_address_bcs
@@ -113,6 +112,7 @@ CLASS zcl_adu_email IMPLEMENTATION.
 
 
   METHOD send_from_user.
+    " TODO: parameter USERNAME is never used (ABAP cleaner)
 
     result = send_email( sender        = cl_sapuser_bcs=>create( sy-uname )
                          text          = text

@@ -445,9 +445,12 @@ CLASS zcl_adu_messages IMPLEMENTATION.
     DATA(messages) = zif_adu_messages~get_messages( ).
 
     result =
-        xsdbool(    line_exists( messages[ KEY type type = severity-error ] )
-                 OR line_exists( messages[ KEY type type = severity-abort ] )
-                 OR line_exists( messages[ KEY type type = severity-exception ] ) ).
+        xsdbool(    line_exists( messages[ KEY type
+                                           type = severity-error ] )
+                 OR line_exists( messages[ KEY type
+                                           type = severity-abort ] )
+                 OR line_exists( messages[ KEY type
+                                           type = severity-exception ] ) ).
 
   ENDMETHOD.
 

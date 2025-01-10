@@ -1,32 +1,24 @@
-"! <p class="shorttext synchronized" lang="en">Transport Request</p>
+"! <p class="shorttext synchronized">Transport Request</p>
 CLASS zcl_adu_transport_request DEFINITION
-  PUBLIC
-  FINAL
+  PUBLIC FINAL
   CREATE PRIVATE.
 
   PUBLIC SECTION.
-    INTERFACES:
-      zif_adu_transport_request.
+    INTERFACES zif_adu_transport_request.
 
     CLASS-METHODS create
-      IMPORTING
-        transport_request TYPE trkorr
-      RETURNING
-        VALUE(result)     TYPE REF TO zif_adu_transport_request
-      RAISING
-        zcx_adu_transport_request.
+      IMPORTING transport_request TYPE trkorr
+      RETURNING VALUE(result)     TYPE REF TO zif_adu_transport_request
+      RAISING   zcx_adu_transport_request.
 
     METHODS constructor
-      IMPORTING
-        transport_request TYPE trkorr
-      RAISING
-        zcx_adu_transport_request.
+      IMPORTING transport_request TYPE trkorr
+      RAISING   zcx_adu_transport_request.
 
   PROTECTED SECTION.
 
   PRIVATE SECTION.
-    DATA:
-      transport_request_header TYPE trwbo_request_header.
+    DATA transport_request_header TYPE trwbo_request_header.
 
 ENDCLASS.
 
@@ -96,8 +88,7 @@ CLASS zcl_adu_transport_request IMPLEMENTATION.
 
   METHOD zif_adu_transport_request~copy_to_current_client.
 
-    DATA:
-      return_code TYPE syst_subrc.
+    DATA return_code TYPE syst_subrc.
 
     IF sy-mandt = '000' OR sy-mandt IS INITIAL.
       RAISE EXCEPTION TYPE zcx_adu_transport_request
@@ -108,8 +99,8 @@ CLASS zcl_adu_transport_request IMPLEMENTATION.
     DATA(transport_request) = zif_adu_transport_request~get_header( ).
 
     DATA(from_client) = COND #( WHEN source_client IS NOT INITIAL
-                                    THEN source_client
-                                    ELSE transport_request-client ).
+                                THEN source_client
+                                ELSE transport_request-client ).
 
     IF from_client = sy-mandt.
       RAISE EXCEPTION TYPE zcx_adu_transport_request
@@ -125,14 +116,14 @@ CLASS zcl_adu_transport_request IMPLEMENTATION.
       RAISE EXCEPTION TYPE zcx_adu_transport_request
         EXPORTING
           textid = zcx_adu_transport_request=>source_client_not_exists
-          text1  = CONV #( from_client ).
+          text1  = from_client.
     ENDIF.
 
     IF client_data-cccopylock = 'L'.
       RAISE EXCEPTION TYPE zcx_adu_transport_request
         EXPORTING
           textid = zcx_adu_transport_request=>client_copy_protected
-          text1  = CONV #( client_data-mandt ).
+          text1  = client_data-mandt.
     ENDIF.
 
     CALL FUNCTION 'SCCR_PERFORM_SCC1'
@@ -147,7 +138,7 @@ CLASS zcl_adu_transport_request IMPLEMENTATION.
       RAISE EXCEPTION TYPE zcx_adu_transport_request
         EXPORTING
           textid = zcx_adu_transport_request=>program_ended_with_error
-          text1  = CONV #( return_code ).
+          text1  = |{ return_code }|.
     ENDIF.
 
   ENDMETHOD.
@@ -155,25 +146,24 @@ CLASS zcl_adu_transport_request IMPLEMENTATION.
 
   METHOD zif_adu_transport_request~get_copy_client_log.
 
-    DATA:
-      source_range    TYPE RANGE OF mandt,
-      target_range    TYPE RANGE OF cczmand,
-      test_mode_range TYPE RANGE OF cctestmode.
+    DATA source_range    TYPE RANGE OF mandt.
+    DATA target_range    TYPE RANGE OF cczmand.
+    DATA test_mode_range TYPE RANGE OF cctestmode.
 
     source_range =
         COND #(
             WHEN source IS SUPPLIED
-                THEN VALUE #( ( sign = 'I' option = 'EQ' low = source ) ) ).
+            THEN VALUE #( ( sign = 'I' option = 'EQ' low = source ) ) ).
 
     target_range =
         COND #(
             WHEN target IS SUPPLIED
-                THEN VALUE #( ( sign = 'I' option = 'EQ' low = target ) ) ).
+            THEN VALUE #( ( sign = 'I' option = 'EQ' low = target ) ) ).
 
     test_mode_range =
       COND #(
           WHEN include_test IS SUPPLIED
-              THEN VALUE #( ( sign = 'I' option = 'EQ' low = include_test ) ) ).
+          THEN VALUE #( ( sign = 'I' option = 'EQ' low = include_test ) ) ).
 
     DATA(transport_request) = zif_adu_transport_request~get_header( ).
 
@@ -185,7 +175,7 @@ CLASS zcl_adu_transport_request IMPLEMENTATION.
         AND sourcemand IN @target_range
         AND test_mode  IN @test_mode_range.
     IF sy-subrc <> 0.
-      CLEAR: result.
+      CLEAR result.
     ENDIF.
 
   ENDMETHOD.
@@ -240,9 +230,8 @@ CLASS zcl_adu_transport_request IMPLEMENTATION.
 
     CLOSE DATASET cofile.
 
-    zip->add(
-        name    = zcl_adu_utl_transport_request=>get( )->build_filename_cofiles( transport_request-trkorr )
-        content = big_string ).
+    zip->add( name    = zcl_adu_utl_transport_request=>get( )->build_filename_cofiles( transport_request-trkorr )
+              content = big_string ).
 
     DATA(data) = zcl_adu_utl_transport_request=>get( )->build_path_data( transport_request-trkorr ).
 
@@ -264,9 +253,8 @@ CLASS zcl_adu_transport_request IMPLEMENTATION.
 
     CLOSE DATASET data.
 
-    zip->add(
-        name    = zcl_adu_utl_transport_request=>get( )->build_filename_data( transport_request-trkorr )
-        content = big_string ).
+    zip->add( name    = zcl_adu_utl_transport_request=>get( )->build_filename_data( transport_request-trkorr )
+              content = big_string ).
 
     result = zip->save( ).
 

@@ -40,6 +40,14 @@
      <DESCRIPT>Lanzar excepción con mensaje de atributo del sistema</DESCRIPT>
     </SEOCOMPOTX>
    </DESCRIPTIONS>
+   <DESCRIPTIONS_SUB>
+    <SEOSUBCOTX>
+     <CMPNAME>RAISE_SYSTEM</CMPNAME>
+     <SCONAME>ZCX_ADU_OO_SERIALIZE</SCONAME>
+     <LANGU>E</LANGU>
+     <DESCRIPT>Exception</DESCRIPT>
+    </SEOSUBCOTX>
+   </DESCRIPTIONS_SUB>
   </asx:values>
  </asx:abap>
 </abapGit>

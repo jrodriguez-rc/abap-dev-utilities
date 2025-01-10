@@ -24,8 +24,8 @@ FUNCTION z_adu_log_display_content.
   CASE lv_content_type.
     WHEN if_rest_media_type=>gc_appl_json.
       CALL TRANSFORMATION sjson2html
-        SOURCE XML lv_content
-        RESULT XML DATA(lv_json_html).
+           SOURCE XML lv_content
+           RESULT XML DATA(lv_json_html).
 
       cl_abap_browser=>show_html( html_string = cl_abap_codepage=>convert_from( lv_json_html ) ).
 
