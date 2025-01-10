@@ -230,7 +230,7 @@ CLASS lcl_process IMPLEMENTATION.
     LOOP AT lt_files ASSIGNING FIELD-SYMBOL(<ls_file>).
 
       IF     iv_include_zip = abap_true
-         AND to_upper( zcl_adu_general=>get( )->split_filename_extension( |{ <ls_file>-filename }| )-extension ) = 'ZIP'.
+         AND to_upper( zcl_adu_general=>get( )->split_filename_extension( <ls_file>-filename )-extension ) = 'ZIP'.
 
         INSERT LINES OF read_from_zip( iv_path     = iv_path
                                        iv_filename = |{ <ls_file>-filename }| )
@@ -270,7 +270,8 @@ CLASS lcl_process IMPLEMENTATION.
 
     ENDLOOP.
 
-    LOOP AT lt_transport_requests ASSIGNING <ls_transport_request> WHERE cofile_filename IS INITIAL OR data_filename IS INITIAL.
+    LOOP AT lt_transport_requests ASSIGNING <ls_transport_request> WHERE cofile_filename IS INITIAL
+                                                                      OR data_filename IS INITIAL.
       RAISE EXCEPTION TYPE zcx_adu_transport_request
         EXPORTING
           textid = zcx_adu_transport_request=>incomplete

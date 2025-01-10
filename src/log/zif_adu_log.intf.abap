@@ -1,5 +1,4 @@
 INTERFACE zif_adu_log
-
   PUBLIC.
 
   CONSTANTS:

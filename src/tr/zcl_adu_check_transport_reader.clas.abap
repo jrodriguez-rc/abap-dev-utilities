@@ -721,9 +721,10 @@ CLASS zcl_adu_check_transport_reader IMPLEMENTATION.
       CLEAR result-details_icon.
     ENDIF.
 
-    CASE severity_for_online_import( CORRESPONDING #( logs[
-                                                          run_code          = data-run_code
-                                                          transport_request = data-transport_request ]-online_import ) ).
+    DATA(online_import) = logs[ run_code          = data-run_code
+                                transport_request = data-transport_request ]-online_import.
+
+    CASE severity_for_online_import( CORRESPONDING #( online_import ) ).
       WHEN zif_adu_constants=>severity-error.
         result-exception = '1'.
         result-color     = VALUE #( ( color-col = col_negative ) ).
