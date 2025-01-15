@@ -4,7 +4,6 @@ CLASS zcx_adu_static_check DEFINITION
   CREATE PUBLIC.
 
   PUBLIC SECTION.
-    INTERFACES if_t100_dyn_msg.
     INTERFACES if_t100_message.
 
     DATA text1 TYPE string READ-ONLY.

@@ -15,9 +15,11 @@ FUNCTION z_adu_log_display_content.
     RETURN.
   ENDIF.
 
-  DATA(lv_base64) = REDUCE #( INIT base64 TYPE string
-                              FOR <parameter> IN lt_parameters
-                              NEXT base64 = |{ base64 }{ <parameter>-value }| ).
+  DATA(lv_base64) = ``.
+
+  LOOP AT lt_parameters ASSIGNING FIELD-SYMBOL(<parameter>).
+    lv_base64 = |{ lv_base64 }{ <parameter>-value }|.
+  ENDLOOP.
 
   DATA(lv_content) = cl_http_utility=>decode_base64( lv_base64 ).
 
