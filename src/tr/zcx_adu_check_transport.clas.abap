@@ -5,7 +5,6 @@ CLASS zcx_adu_check_transport DEFINITION
   CREATE PUBLIC.
 
   PUBLIC SECTION.
-    INTERFACES if_t100_message.
 
     CONSTANTS:
       "! RFC Error &1

@@ -5,7 +5,6 @@ CLASS zcx_adu_oo_serialize DEFINITION
   CREATE PUBLIC.
 
   PUBLIC SECTION.
-    INTERFACES if_t100_message.
 
     CONSTANTS:
       "! Type is empty
@@ -82,16 +81,11 @@ CLASS zcx_adu_oo_serialize IMPLEMENTATION.
 
     RAISE EXCEPTION TYPE zcx_adu_oo_serialize
       EXPORTING
-        textid = VALUE scx_t100key( msgid = sy-msgid
-                                    msgno = sy-msgno
-                                    attr1 = 'TEXT1'
-                                    attr2 = 'TEXT2'
-                                    attr3 = 'TEXT3'
-                                    attr4 = 'TEXT4' )
-        text1  = CONV #( sy-msgv1 )
-        text2  = CONV #( sy-msgv2 )
-        text3  = CONV #( sy-msgv3 )
-        text4  = CONV #( sy-msgv4 ).
+        textid = get_system_textid( )
+        text1  = sy-msgv1
+        text2  = sy-msgv2
+        text3  = sy-msgv3
+        text4  = sy-msgv4.
 
   ENDMETHOD.
 

@@ -248,21 +248,19 @@ CLASS zcl_adu_run_atc IMPLEMENTATION.
 
     SORT r3tr_keys BY obj_name.
 
-    DATA(title_result) =
-        REDUCE #(
-            INIT title TYPE string
-            FOR r3tr_key IN r3tr_keys
-            NEXT title =
-                COND #(
-                    WHEN title IS INITIAL
-                    THEN r3tr_key-obj_name
-                    ELSE |{ title }, { r3tr_key-obj_name }| ) ).
+    DATA(title_result) = ``.
 
-    result =
-        COND #(
-            WHEN strlen( title_result ) <= 128
-            THEN title_result
-            ELSE |{ title_result(125) }...| ).
+    LOOP AT r3tr_keys ASSIGNING FIELD-SYMBOL(<r3tr_key>).
+
+      title_result = COND #( WHEN title_result IS INITIAL
+                             THEN <r3tr_key>-obj_name
+                             ELSE |{ title_result }, { <r3tr_key>-obj_name }| ).
+
+    ENDLOOP.
+
+    result = COND #( WHEN strlen( title_result ) <= 128
+                     THEN title_result
+                     ELSE |{ title_result(125) }...| ).
 
   ENDMETHOD.
 

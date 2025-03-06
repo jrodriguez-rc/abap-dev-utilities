@@ -5,7 +5,6 @@ CLASS zcx_adu_transport_request DEFINITION
   CREATE PUBLIC.
 
   PUBLIC SECTION.
-    INTERFACES if_t100_message.
 
     CONSTANTS:
       "! Transport request &amp;1 doesn't exist
