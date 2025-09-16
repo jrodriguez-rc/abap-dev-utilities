@@ -1,4 +1,4 @@
-"! <p class="shorttext synchronized" lang="en">Email utilities</p>
+"! <p class="shorttext synchronized">Email utilities</p>
 INTERFACE zif_adu_email
   PUBLIC.
 
@@ -9,25 +9,32 @@ INTERFACE zif_adu_email
       raw    TYPE so_obj_tp VALUE `RAW`,
     END OF document_type.
 
+  TYPES: BEGIN OF ts_attachment,
+           type        TYPE so_obj_tp,
+           subject     TYPE so_obj_des,
+           size        TYPE so_obj_len,
+           content_hex TYPE solix_tab,
+           header      TYPE REF TO cl_bcs_objhead,
+         END OF ts_attachment.
+  TYPES tt_attachment TYPE STANDARD TABLE OF zif_adu_email=>ts_attachment WITH DEFAULT KEY.
+
   TYPES:
-    BEGIN OF ts_attachment,
-      type        TYPE so_obj_tp,
-      subject     TYPE so_obj_des,
-      size        TYPE so_obj_len,
-      content_hex TYPE solix_tab,
-      header      TYPE REF TO cl_bcs_objhead,
-    END OF ts_attachment,
-    tt_attachment TYPE STANDARD TABLE OF zif_adu_email=>ts_attachment WITH DEFAULT KEY.
+    BEGIN OF ty_distribution_list,
+      name    TYPE so_obj_nam,
+      private TYPE abap_bool,
+    END OF ty_distribution_list,
+    ty_distribution_lists TYPE STANDARD TABLE OF ty_distribution_list WITH EMPTY KEY.
 
   METHODS send_email
-    IMPORTING !text         TYPE soli_tab                           OPTIONAL
-              multirelated  TYPE REF TO cl_gbt_multirelated_service OPTIONAL
-              subject       TYPE so_obj_des
-              recipients    TYPE bcsy_smtpa
-              attachments   TYPE zif_adu_email=>tt_attachment       OPTIONAL
-              document_type TYPE so_obj_tp                          DEFAULT zif_adu_email=>document_type-raw
-              commit_work   TYPE abap_bool                          OPTIONAL
-    RETURNING VALUE(result) TYPE abap_bool
+    IMPORTING !text              TYPE soli_tab                           OPTIONAL
+              multirelated       TYPE REF TO cl_gbt_multirelated_service OPTIONAL
+              subject            TYPE so_obj_des
+              recipients         TYPE bcsy_smtpa                         OPTIONAL
+              distribution_lists TYPE ty_distribution_lists              OPTIONAL
+              attachments        TYPE zif_adu_email=>tt_attachment       OPTIONAL
+              document_type      TYPE so_obj_tp                          DEFAULT zif_adu_email=>document_type-raw
+              commit_work        TYPE abap_bool                          OPTIONAL
+    RETURNING VALUE(result)      TYPE abap_bool
     RAISING   cx_send_req_bcs
               cx_address_bcs
               cx_document_bcs
@@ -35,15 +42,16 @@ INTERFACE zif_adu_email
               cx_gbt_mime.
 
   METHODS send_from_user
-    IMPORTING username      TYPE uname
-              !text         TYPE soli_tab                           OPTIONAL
-              multirelated  TYPE REF TO cl_gbt_multirelated_service OPTIONAL
-              subject       TYPE so_obj_des
-              recipients    TYPE bcsy_smtpa
-              attachments   TYPE zif_adu_email=>tt_attachment       OPTIONAL
-              document_type TYPE so_obj_tp                          DEFAULT zif_adu_email=>document_type-raw
-              commit_work   TYPE abap_bool                          OPTIONAL
-    RETURNING VALUE(result) TYPE abap_bool
+    IMPORTING username           TYPE uname
+              !text              TYPE soli_tab                           OPTIONAL
+              multirelated       TYPE REF TO cl_gbt_multirelated_service OPTIONAL
+              subject            TYPE so_obj_des
+              recipients         TYPE bcsy_smtpa                         OPTIONAL
+              distribution_lists TYPE ty_distribution_lists              OPTIONAL
+              attachments        TYPE zif_adu_email=>tt_attachment       OPTIONAL
+              document_type      TYPE so_obj_tp                          DEFAULT zif_adu_email=>document_type-raw
+              commit_work        TYPE abap_bool                          OPTIONAL
+    RETURNING VALUE(result)      TYPE abap_bool
     RAISING   cx_send_req_bcs
               cx_address_bcs
               cx_document_bcs
@@ -51,16 +59,17 @@ INTERFACE zif_adu_email
               cx_gbt_mime.
 
   METHODS send_from_smtp_address
-    IMPORTING sender        TYPE ad_smtpadr
-              sender_name   TYPE ad_smtpadr                         OPTIONAL
-              !text         TYPE soli_tab                           OPTIONAL
-              multirelated  TYPE REF TO cl_gbt_multirelated_service OPTIONAL
-              subject       TYPE so_obj_des
-              recipients    TYPE bcsy_smtpa
-              attachments   TYPE zif_adu_email=>tt_attachment       OPTIONAL
-              document_type TYPE so_obj_tp                          DEFAULT zif_adu_email=>document_type-raw
-              commit_work   TYPE abap_bool                          OPTIONAL
-    RETURNING VALUE(result) TYPE abap_bool
+    IMPORTING sender             TYPE ad_smtpadr
+              sender_name        TYPE ad_smtpadr                         OPTIONAL
+              !text              TYPE soli_tab                           OPTIONAL
+              multirelated       TYPE REF TO cl_gbt_multirelated_service OPTIONAL
+              subject            TYPE so_obj_des
+              recipients         TYPE bcsy_smtpa                         OPTIONAL
+              distribution_lists TYPE ty_distribution_lists              OPTIONAL
+              attachments        TYPE zif_adu_email=>tt_attachment       OPTIONAL
+              document_type      TYPE so_obj_tp                          DEFAULT zif_adu_email=>document_type-raw
+              commit_work        TYPE abap_bool                          OPTIONAL
+    RETURNING VALUE(result)      TYPE abap_bool
     RAISING   cx_send_req_bcs
               cx_address_bcs
               cx_document_bcs

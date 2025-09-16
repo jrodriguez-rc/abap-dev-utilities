@@ -4,22 +4,28 @@ CLASS zcl_adu_email DEFINITION
   CREATE PUBLIC.
 
   PUBLIC SECTION.
+
     INTERFACES zif_adu_email.
+
+    CLASS-METHODS get
+      RETURNING VALUE(result) TYPE REF TO zif_adu_email.
 
     CLASS-METHODS get_instance
       RETURNING VALUE(result) TYPE REF TO zif_adu_email.
 
   PRIVATE SECTION.
+
     METHODS send_email
-      IMPORTING sender        TYPE REF TO if_sender_bcs
-                !text         TYPE soli_tab OPTIONAL
-                multirelated  TYPE REF TO cl_gbt_multirelated_service OPTIONAL
-                subject       TYPE so_obj_des
-                recipients    TYPE bcsy_smtpa
-                attachments   TYPE zif_adu_email=>tt_attachment
-                document_type TYPE so_obj_tp DEFAULT zif_adu_email=>document_type-raw
-                commit_work   TYPE abap_bool OPTIONAL
-      RETURNING VALUE(result) TYPE abap_bool
+      IMPORTING sender             TYPE REF TO if_sender_bcs
+                !text              TYPE soli_tab                             OPTIONAL
+                multirelated       TYPE REF TO cl_gbt_multirelated_service   OPTIONAL
+                subject            TYPE so_obj_des
+                recipients         TYPE bcsy_smtpa                           OPTIONAL
+                distribution_lists TYPE zif_adu_email=>ty_distribution_lists OPTIONAL
+                attachments        TYPE zif_adu_email=>tt_attachment
+                document_type      TYPE so_obj_tp                            DEFAULT zif_adu_email=>document_type-raw
+                commit_work        TYPE abap_bool                            OPTIONAL
+      RETURNING VALUE(result)      TYPE abap_bool
       RAISING   cx_send_req_bcs
                 cx_address_bcs
                 cx_document_bcs
@@ -27,15 +33,16 @@ CLASS zcl_adu_email DEFINITION
                 cx_gbt_mime.
 
     METHODS send_from_user
-      IMPORTING username      TYPE uname DEFAULT sy-uname
-                !text         TYPE soli_tab
-                multirelated  TYPE REF TO cl_gbt_multirelated_service OPTIONAL
-                subject       TYPE so_obj_des
-                recipients    TYPE bcsy_smtpa
-                attachments   TYPE zif_adu_email=>tt_attachment
-                document_type TYPE so_obj_tp DEFAULT zif_adu_email=>document_type-raw
-                commit_work   TYPE abap_bool OPTIONAL
-      RETURNING VALUE(result) TYPE abap_bool
+      IMPORTING username           TYPE uname                                DEFAULT sy-uname
+                !text              TYPE soli_tab
+                multirelated       TYPE REF TO cl_gbt_multirelated_service   OPTIONAL
+                subject            TYPE so_obj_des
+                recipients         TYPE bcsy_smtpa                           OPTIONAL
+                distribution_lists TYPE zif_adu_email=>ty_distribution_lists OPTIONAL
+                attachments        TYPE zif_adu_email=>tt_attachment
+                document_type      TYPE so_obj_tp                            DEFAULT zif_adu_email=>document_type-raw
+                commit_work        TYPE abap_bool                            OPTIONAL
+      RETURNING VALUE(result)      TYPE abap_bool
       RAISING   cx_send_req_bcs
                 cx_address_bcs
                 cx_document_bcs
@@ -49,54 +56,64 @@ ENDCLASS.
 CLASS zcl_adu_email IMPLEMENTATION.
 
 
-  METHOD get_instance.
+  METHOD get.
 
     result = NEW zcl_adu_email( ).
 
   ENDMETHOD.
 
 
+  METHOD get_instance.
+
+    result = get( ).
+
+  ENDMETHOD.
+
+
   METHOD zif_adu_email~send_email.
 
-    result = send_from_user( text          = text
-                             multirelated  = multirelated
-                             subject       = subject
-                             recipients    = recipients
-                             attachments   = attachments
-                             document_type = document_type
-                             commit_work   = commit_work ).
+    result = send_from_user( text               = text
+                             multirelated       = multirelated
+                             subject            = subject
+                             recipients         = recipients
+                             distribution_lists = distribution_lists
+                             attachments        = attachments
+                             document_type      = document_type
+                             commit_work        = commit_work ).
 
   ENDMETHOD.
 
 
   METHOD zif_adu_email~send_from_user.
 
-    result = send_from_user( username      = username
-                             text          = text
-                             multirelated  = multirelated
-                             subject       = subject
-                             recipients    = recipients
-                             attachments   = attachments
-                             document_type = document_type
-                             commit_work   = commit_work ).
+    result = send_from_user( username           = username
+                             text               = text
+                             multirelated       = multirelated
+                             subject            = subject
+                             recipients         = recipients
+                             distribution_lists = distribution_lists
+                             attachments        = attachments
+                             document_type      = document_type
+                             commit_work        = commit_work ).
 
   ENDMETHOD.
 
 
   METHOD zif_adu_email~send_from_smtp_address.
 
-    result = send_email( sender        = cl_cam_address_bcs=>create_internet_address(
-                                             i_address_string = sender
-                                             i_address_name   = COND #( WHEN sender_name IS INITIAL
-                                                                        THEN sender
-                                                                        ELSE sender_name ) )
-                         text          = text
-                         multirelated  = multirelated
-                         subject       = subject
-                         recipients    = recipients
-                         attachments   = attachments
-                         document_type = document_type
-                         commit_work   = commit_work ).
+    result = send_email( sender             = cl_cam_address_bcs=>create_internet_address(
+                                                  i_address_string = sender
+                                                  i_address_name   = COND #( WHEN sender_name IS INITIAL
+                                                                             THEN sender
+                                                                             ELSE sender_name ) )
+                         text               = text
+                         multirelated       = multirelated
+                         subject            = subject
+                         recipients         = recipients
+                         distribution_lists = distribution_lists
+                         attachments        = attachments
+                         document_type      = document_type
+                         commit_work        = commit_work ).
 
   ENDMETHOD.
 
@@ -113,14 +130,15 @@ CLASS zcl_adu_email IMPLEMENTATION.
 
   METHOD send_from_user.
 
-    result = send_email( sender        = cl_sapuser_bcs=>create( username )
-                         text          = text
-                         multirelated  = multirelated
-                         subject       = subject
-                         recipients    = recipients
-                         attachments   = attachments
-                         document_type = document_type
-                         commit_work   = commit_work ).
+    result = send_email( sender             = cl_sapuser_bcs=>create( username )
+                         text               = text
+                         multirelated       = multirelated
+                         subject            = subject
+                         recipients         = recipients
+                         distribution_lists = distribution_lists
+                         attachments        = attachments
+                         document_type      = document_type
+                         commit_work        = commit_work ).
 
   ENDMETHOD.
 
@@ -136,6 +154,16 @@ CLASS zcl_adu_email IMPLEMENTATION.
       DATA(lo_recipient) = cl_cam_address_bcs=>create_internet_address( lr_recipement->* ).
 
       lo_send_request->add_recipient( i_recipient = lo_recipient
+                                      i_express   = abap_true ).
+
+    ENDLOOP.
+
+    LOOP AT distribution_lists ASSIGNING FIELD-SYMBOL(<distribution_list>).
+
+      DATA(lo_distribution_list) = cl_distributionlist_bcs=>getu_persistent( i_dliname = <distribution_list>-name
+                                                                             i_private = <distribution_list>-private ).
+
+      lo_send_request->add_recipient( i_recipient = lo_distribution_list
                                       i_express   = abap_true ).
 
     ENDLOOP.
