@@ -112,9 +112,8 @@ CLASS zcl_adu_email IMPLEMENTATION.
 
 
   METHOD send_from_user.
-    " TODO: parameter USERNAME is never used (ABAP cleaner)
 
-    result = send_email( sender        = cl_sapuser_bcs=>create( sy-uname )
+    result = send_email( sender        = cl_sapuser_bcs=>create( username )
                          text          = text
                          multirelated  = multirelated
                          subject       = subject
