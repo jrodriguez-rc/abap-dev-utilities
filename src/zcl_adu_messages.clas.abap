@@ -273,6 +273,13 @@ CLASS zcl_adu_messages IMPLEMENTATION.
   ENDMETHOD.
 
 
+  METHOD zif_adu_messages~append.
+
+    result = zif_adu_messages~add_messages( CORRESPONDING #( messages->get_messages( ) ) ).
+
+  ENDMETHOD.
+
+
   METHOD class_constructor.
 
     message_error_types = VALUE #( ( severity-abort )
@@ -436,6 +443,13 @@ CLASS zcl_adu_messages IMPLEMENTATION.
     result = me.
 
     CLEAR collected_messages.
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_messages~copy.
+
+    result = zcl_adu_messages=>create( )->append( me ).
 
   ENDMETHOD.
 

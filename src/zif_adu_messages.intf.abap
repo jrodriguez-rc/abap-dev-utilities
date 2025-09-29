@@ -63,6 +63,10 @@ INTERFACE zif_adu_messages
               !field         TYPE bapiret2-field     OPTIONAL
     RETURNING VALUE(result)  TYPE REF TO zif_adu_messages.
 
+  METHODS append
+    IMPORTING !messages     TYPE REF TO zif_adu_messages
+    RETURNING VALUE(result) TYPE REF TO zif_adu_messages.
+
   METHODS display_messages
     IMPORTING initialize_after_display TYPE abap_bool DEFAULT abap_true
               send_if_one              TYPE abap_bool DEFAULT abap_false
@@ -72,6 +76,9 @@ INTERFACE zif_adu_messages
     RETURNING VALUE(result) TYPE ty_messages.
 
   METHODS initialize
+    RETURNING VALUE(result) TYPE REF TO zif_adu_messages.
+
+  METHODS copy
     RETURNING VALUE(result) TYPE REF TO zif_adu_messages.
 
   METHODS is_error
