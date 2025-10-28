@@ -1,6 +1,8 @@
 INTERFACE zif_adu_messages
   PUBLIC.
 
+  INTERFACES if_serializable_object.
+
   TYPES ty_message_types TYPE STANDARD TABLE OF syst_msgty WITH DEFAULT KEY.
   TYPES ty_messages      TYPE STANDARD TABLE OF bapiret2 WITH DEFAULT KEY
             WITH NON-UNIQUE SORTED KEY type COMPONENTS type.
