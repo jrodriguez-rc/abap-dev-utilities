@@ -52,7 +52,7 @@ CLASS zcl_adu_convertion DEFINITION
 
     METHODS process_element
       IMPORTING io_element   TYPE REF TO cl_abap_elemdescr
-                is_component TYPE abap_componentdescr OPTIONAL ##NEEDED
+                is_component TYPE abap_compdescr OPTIONAL ##NEEDED
                 iv_data      TYPE any
       EXPORTING ev_result    TYPE any.
 
@@ -264,7 +264,7 @@ CLASS zcl_adu_convertion IMPLEMENTATION.
 
     CLEAR es_result.
 
-    DATA(lt_components) = io_structure->get_components( ).
+    DATA(lt_components) = io_structure->components.
 
     LOOP AT lt_components ASSIGNING FIELD-SYMBOL(<ls_component>).
 
@@ -278,22 +278,24 @@ CLASS zcl_adu_convertion IMPLEMENTATION.
         CONTINUE.
       ENDIF.
 
-      CASE <ls_component>-type->kind.
+      DATA(lo_type) = io_structure->get_component_type( <ls_component>-name ).
+
+      CASE lo_type->kind.
         WHEN cl_abap_typedescr=>kind_table.
 
-          process_table( EXPORTING io_table  = CAST #( <ls_component>-type )
+          process_table( EXPORTING io_table  = CAST #( lo_type )
                                    it_table  = <lg_from>
                          IMPORTING et_result = <lg_to> ).
 
         WHEN cl_abap_typedescr=>kind_struct.
 
-          process_structure( EXPORTING io_structure = CAST #( <ls_component>-type )
+          process_structure( EXPORTING io_structure = CAST #( lo_type )
                                        is_data      = <lg_from>
                              IMPORTING es_result    = <lg_to> ).
 
         WHEN cl_abap_typedescr=>kind_elem.
 
-          process_element( EXPORTING io_element   = CAST #( <ls_component>-type )
+          process_element( EXPORTING io_element   = CAST #( lo_type )
                                      is_component = <ls_component>
                                      iv_data      = <lg_from>
                            IMPORTING ev_result    = <lg_to> ).
