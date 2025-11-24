@@ -8,6 +8,12 @@ INTERFACE zif_adu_messages
             WITH NON-UNIQUE SORTED KEY type COMPONENTS type.
   TYPES ty_message_text  TYPE c LENGTH 200.
 
+  TYPES: BEGIN OF ty_display_result,
+           corrections_wanted TYPE c LENGTH 1,
+           message_selected   TYPE smesg,
+           exit_command       TYPE bal_s_excm,
+         END OF ty_display_result.
+
   CONSTANTS:
     BEGIN OF gc_severity,
       error       TYPE symsgty VALUE 'E',
@@ -73,6 +79,11 @@ INTERFACE zif_adu_messages
     IMPORTING initialize_after_display TYPE abap_bool DEFAULT abap_true
               send_if_one              TYPE abap_bool DEFAULT abap_false
     RETURNING VALUE(result)            TYPE REF TO zif_adu_messages.
+
+  METHODS display_and_get_result
+    IMPORTING initialize_after_display TYPE abap_bool DEFAULT abap_true
+              send_if_one              TYPE abap_bool DEFAULT abap_false
+    RETURNING VALUE(result)            TYPE ty_display_result.
 
   METHODS get_messages
     RETURNING VALUE(result) TYPE ty_messages.

@@ -4,6 +4,7 @@ CLASS zcl_adu_messages DEFINITION
   CREATE PUBLIC.
 
   PUBLIC SECTION.
+
     INTERFACES zif_adu_messages.
 
     ALIASES tt_message_types             FOR zif_adu_messages~ty_message_types.
@@ -315,6 +316,14 @@ CLASS zcl_adu_messages IMPLEMENTATION.
 
     result = me.
 
+    zif_adu_messages~display_and_get_result( initialize_after_display = initialize_after_display
+                                             send_if_one              = send_if_one ).
+
+  ENDMETHOD.
+
+
+  METHOD zif_adu_messages~display_and_get_result.
+
     CALL FUNCTION 'MESSAGES_INITIALIZE'
       EXCEPTIONS
         OTHERS = 0.
@@ -337,9 +346,13 @@ CLASS zcl_adu_messages IMPLEMENTATION.
 
     CALL FUNCTION 'MESSAGES_SHOW'
       EXPORTING
-        send_if_one = send_if_one
+        send_if_one        = send_if_one
+      IMPORTING
+        corrections_wanted = result-corrections_wanted
+        msg_selected       = result-message_selected
+        e_exit_command     = result-exit_command
       EXCEPTIONS
-        OTHERS      = 0.
+        OTHERS             = 0.
 
     IF initialize_after_display = abap_true.
       zif_adu_messages~initialize( ).
